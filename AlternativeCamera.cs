@@ -12,13 +12,13 @@ namespace AlternativeCameraMod
 	/// </summary>
 	public class AlternativeCamera : MelonMod
 	{
-		private MelonPreferences_Category? mouseSettingsCat;
-		private MelonPreferences_Category? cameraSettingsCat;
-		public static AlternativeCamera? instance;
+		private MelonPreferences_Category mouseSettingsCat;
+		private MelonPreferences_Category cameraSettingsCat;
+		public static AlternativeCamera instance;
 		private static KeyCode startKey;
 		private static KeyCode primaryToggleKey;
 		private static bool hasStartedOnce = false;
-		private static bool modEnabled = true;
+		private static bool cameraModEnabled = true;
 		private static bool forceDisable = false;
 
 		private MelonPreferences_Entry<float> cfgSensitivityHorizontal;
@@ -68,8 +68,8 @@ namespace AlternativeCameraMod
 		private static LayerMask cameraCollisionLayers = LayerMask.GetMask("Ground") | LayerMask.GetMask("Obstacle") | LayerMask.GetMask("EnvironmentOther") | LayerMask.GetMask("Terrain") | LayerMask.GetMask("Lava");
 
 		// Camera angle limits
-		private static int xMinLimit = -80;
-		private static int xMaxLimit = 80;
+		private static int xMinLimit = -88;
+		private static int xMaxLimit = 88;
 
 		// Active variables
 		private static bool hasMenuOpen = true;
@@ -122,24 +122,13 @@ namespace AlternativeCameraMod
 			primaryToggleKey = KeyCode.Alpha0;
 		}
 
-		public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-		{
-			if (forceDisable)
-			{
-				return;
-			}
-			LoggerInstance.Msg($"Scene {sceneName} with build index {buildIndex} has been loaded!");
-		}
-
 		public override void OnLateUpdate()
 		{
-			if (forceDisable)
-			{
+			if (forceDisable) {
+				// Used for OnDeinitializeMelon()
 				return;
 			}
 
-			//FIXME: Register the debug label
-			//MelonEvents.OnGUI.Subscribe(DrawDebugText, 100);
 			if (Input.GetKeyDown(startKey))
 			{
 				LoggerInstance.Msg("Starting alternative camera system!");
@@ -161,20 +150,24 @@ namespace AlternativeCameraMod
 			}
 
 			// FIRST CHECKPOINT: Mod not ready
-			if (!hasStartedOnce)
-			{
+			if (!hasStartedOnce) {
 				return;
+			}
+
+			// Allow disabling HUD while using the normal camera.
+			if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad7))
+			{
+				ToggleGameHUD();
 			}
 
 			if (Input.GetKeyDown(primaryToggleKey))
 			{
-				modEnabled = !modEnabled;
-				if (!hasStartedOnce)
-				{
+				cameraModEnabled = !cameraModEnabled;
+				if (!hasStartedOnce) {
 					return;
 				}
 
-				if (modEnabled == false && defaultCameraScript.enabled == false)
+				if (cameraModEnabled == false && defaultCameraScript.enabled == false)
 				{
 					defaultCameraScript.enabled = true;
 					ApplyDefaultCameraSettings();
@@ -187,8 +180,7 @@ namespace AlternativeCameraMod
 			}
 
 			// SECOND CHECKPOINT: Mod not enabled
-			if (modEnabled == false)
-			{
+			if (cameraModEnabled == false) {
 				return;
 			}
 
@@ -276,11 +268,6 @@ namespace AlternativeCameraMod
 						// Lerp the horizontal rotation relative to the player
 						rotHorizontal = Mathf.LerpAngle(rotHorizontal, playerBikeParent.localRotation.eulerAngles.y, cfgAutoAlignSpeed.Value * Time.deltaTime);
 						rotHorizontal = ClampAngle(rotHorizontal, -360, 360);
-
-						/*// Set the debug display values
-						bikeRotationDebug = playerBikeParent.localRotation.eulerAngles.y;
-						cameraRotHorizontalDebug = rotHorizontal;
-						*/
 					}
 					rotation = Quaternion.Euler(rotVertical, rotHorizontal, 0f);
 				}
@@ -308,7 +295,6 @@ namespace AlternativeCameraMod
 					// Zoom the camera back out to wanted distance over time
 					targetZoomAmount = Mathf.Lerp(targetZoomAmount, wantedZoom, Time.deltaTime * cfgZoomLerpOutSpeed.Value);
 				}
-
 
 				Vector3 finalPosition = rotation * new Vector3(0f, 0f, -targetZoomAmount) + playerBikeObject.TransformPoint(targetOffset);
 
@@ -346,6 +332,9 @@ namespace AlternativeCameraMod
 			return Mathf.Clamp(angle, min, max);
 		}
 
+		/// <summary>
+		/// Finds and assigns important GameObjects and Transforms.
+		/// </summary>
 		private static void GetTargetGameObjects()
 		{
 			playerBikeParent = GameObject.Find("Bike(Clone)").GetComponent<Transform>();
@@ -355,6 +344,9 @@ namespace AlternativeCameraMod
 			defaultCameraScript = camTransform.gameObject.GetComponent<PlayCamera>();
 		}
 
+		/// <summary>
+		/// Finds and assigns all relevant UI GameObjects.
+		/// </summary>
 		private static void GetUiObjects()
 		{
 			uiCameraComponent = GameObject.Find("UICam").GetComponent<Camera>();
@@ -381,21 +373,25 @@ namespace AlternativeCameraMod
 			Debug.Log("[AltCameraMod]Debug: Assigned UI GameObjects");
 		}
 
-		/// <summary>Resets the camera settings to default values.</summary>
+		/// <summary>
+		/// Resets the camera settings to default values (34 FoV).
+		/// </summary>
 		private void ApplyDefaultCameraSettings()
 		{
 			mainCameraComponent.fieldOfView = 34f;
 			mainCameraComponent.nearClipPlane = 0.4f;   // FIXME: what is default nearClipPlane?
 		}
 
-		/// <summary>Allows applying multiple camera settings quickly.</summary>
+		/// <summary>
+		/// Allows applying multiple camera settings quickly.
+		/// </summary>
 		private void ApplyCameraSettings(float followDistance, Vector3 followTargetOffset, float cameraFov, float nearClipPlane, string followTargetName)
 		{
 			wantedZoom = followDistance;
 			targetOffset = followTargetOffset;
 
 			mainCameraComponent.fieldOfView = cameraFov;	// Default: 34
-			mainCameraComponent.nearClipPlane = nearClipPlane;	// Default: ? FIXME:
+			mainCameraComponent.nearClipPlane = nearClipPlane;	// Default: ?
 
 			targetName = followTargetName;
 
@@ -429,8 +425,7 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private static bool CutsceneSecretUiActive()
 		{
-			if (ui_cutsceneLocationUI != null && ui_cutsceneLocationUI.active == true)
-			{
+			if (ui_cutsceneLocationUI != null && ui_cutsceneLocationUI.active == true) {
 				return true;
 			}
 			return false;
@@ -442,6 +437,9 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private void AlignViewWithBike()
 		{
+			if (!playerBikeParent) {
+				return;
+			}
 			Vector3 bikeRotation = playerBikeParent.localRotation.eulerAngles;
 			if (cfgInvertHorizontal.Value == true)
 			{
@@ -460,9 +458,7 @@ namespace AlternativeCameraMod
 		{
 			if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad7))
 			{
-				// Toggle UI camera rendering
-				uiCameraComponent.enabled = !uiCameraComponent.enabled;
-				LoggerInstance.Msg("Toggled hud rendering ==> ["+ uiCameraComponent.enabled +"]");
+				ToggleGameHUD();
 			}
 
 			if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad9))
@@ -498,6 +494,7 @@ namespace AlternativeCameraMod
 			{
 				cfgInvertHorizontal.Value = !cfgInvertHorizontal.Value;
 				LoggerInstance.Msg("Toggled invert camera horizontal ==> ["+ cfgInvertHorizontal.Value +"]");
+				AlignViewWithBike();
 			}
 
 			// Camera auto align
@@ -508,14 +505,30 @@ namespace AlternativeCameraMod
 			}
 		}
 
-		/*public static void DrawDebugText()
+		/// <summary>
+		/// Toggles the rendering of the game HUD.
+		/// </summary>
+		private void ToggleGameHUD()
 		{
-			String bikeRotText = "<b><color=white><size=20>Bike: "+ bikeRotationDebug +"</size></color></b>";
-			String camRotText = "<b><color=white><size=20>Camera: "+ cameraRotHorizontalDebug +"</size></color></b>";
-			GUI.Label(new Rect(20, 20, 200, 80), bikeRotText);
-			GUI.Label(new Rect(20, 120, 200, 80), camRotText);
+			if (!uiCameraComponent) {
+				return;
+			}
+			ToggleGameHUD(!uiCameraComponent.enabled);
 		}
-		*/
+
+		/// <summary>
+		/// Enables or disables rendering of the game HUD.
+		/// </summary>
+		/// <param name="visible">Should the HUD be rendered.</param>
+		private void ToggleGameHUD(bool visible)
+		{
+			if (!uiCameraComponent) {
+				return;
+			}
+			// Toggle UI camera rendering
+			uiCameraComponent.enabled = visible;
+			LoggerInstance.Msg("Toggled hud rendering ==> [" + uiCameraComponent.enabled + "]");
+		}
 
 		public override void OnDeinitializeMelon()
 		{
