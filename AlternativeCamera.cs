@@ -8,15 +8,13 @@ using Il2CppMegagon.Downhill.Cameras;
 namespace AlternativeCameraMod
 {
 	/// <summary>
-	/// Manages the alternative camera.<br />
+	/// Manages the alternative camera.
 	/// </summary>
 	public class AlternativeCamera : MelonMod
 	{
 		private MelonPreferences_Category mouseSettingsCat;
 		private MelonPreferences_Category cameraSettingsCat;
 		public static AlternativeCamera instance;
-		private static KeyCode startKey;
-		private static KeyCode primaryToggleKey;
 		private static bool hasStartedOnce = false;
 		private static bool cameraModEnabled = true;
 		private static bool forceDisable = false;
@@ -39,7 +37,6 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Entry<float> cfgFirstPersonFoV;
 
 		// Transforms and GameObjects
-		//static readonly string defaultTargetName = "Bike(Clone)";
 		/// <summary>The name of the gameobject that will act as the cameras target.</summary>
 		private static string targetName = "Bike(Clone)";
 		private static Transform playerBikeParent;
@@ -49,7 +46,7 @@ namespace AlternativeCameraMod
 		/// <summary>The main camera itself. Used to set the field of view.</summary>
 		private static Camera mainCameraComponent;
 		/// <summary>The ui camera. Used to toggle hud rendering.</summary>
-		private static Camera uiCameraComponent;
+		private static Camera uiRendererCamera;
 		private static PlayCamera defaultCameraScript;
 
 		// UI GameObjects
@@ -94,21 +91,20 @@ namespace AlternativeCameraMod
 			cameraSettingsCat = MelonPreferences.CreateCategory("Camera Settings");
 			cameraSettingsCat.SetFilePath("UserData/AlternativeCameraSettings.cfg");
 
+			// Mouse Settings
 			cfgSensitivityHorizontal = mouseSettingsCat.CreateEntry<float>("HorizontalSensitivity", 4f);
 			cfgSensitivityVertical = mouseSettingsCat.CreateEntry<float>("VerticalSensitivity", 4f);
 			cfgSensitivityMultiplier = mouseSettingsCat.CreateEntry<float>("SensitivityMultiplier", 0.040f);
-
 			cfgInvertHorizontal = mouseSettingsCat.CreateEntry<bool>("InvertHorizontal", false);
 			cfgZoomStepIncrement = mouseSettingsCat.CreateEntry<float>("ZoomStepIncrement", 0.20f, description:"How much one scroll zooms the camera.");
 
+			// Camera Settings
 			cfgZoomLerpOutSpeed = cameraSettingsCat.CreateEntry<float>("ZoomOutLerpSpeed", 1.0f);
 			cfgZoomLerpInSpeed = cameraSettingsCat.CreateEntry<float>("ZoomInLerpSpeed", 0.0880f);
 			cfgCameraCollisionPadding = cameraSettingsCat.CreateEntry<float>("CameraCollisionPadding", 0.20f, description:"Distance the camera is pushed away from terrain.");
-
 			cfgDefaultCameraOnPause = cameraSettingsCat.CreateEntry<bool>("DefaultCameraOnPause", true);
 			cfgCameraAutoAlign = cameraSettingsCat.CreateEntry<bool>("CameraAutoAlign", false);
 			cfgAutoAlignSpeed = cameraSettingsCat.CreateEntry<float>("AutoAlignSpeed", 1.80f, description:"How quickly the camera moves behind the player.");
-
 			cfgStandardFoV = cameraSettingsCat.CreateEntry<float>("StandardFoV", 70f);
 			cfgFirstPersonFoV = cameraSettingsCat.CreateEntry<float>("FirstPersonFoV", 98f);
 
@@ -118,8 +114,6 @@ namespace AlternativeCameraMod
 		public override void OnEarlyInitializeMelon()
 		{
 			instance = this;
-			startKey = KeyCode.Alpha9;
-			primaryToggleKey = KeyCode.Alpha0;
 		}
 
 		public override void OnLateUpdate()
@@ -129,7 +123,7 @@ namespace AlternativeCameraMod
 				return;
 			}
 
-			if (Input.GetKeyDown(startKey))
+			if (Input.GetKeyDown(KeyCode.Alpha9))
 			{
 				LoggerInstance.Msg("Starting alternative camera system!");
 
@@ -139,12 +133,18 @@ namespace AlternativeCameraMod
 				// Very hacky way of testing if paused
 				GetUiObjects();
 
+				// if (!hasStartedOnce) {
+				// 	startingFoV = mainCameraComponent.fieldOfView;
+				// }
+
 				// Apply some starting camera settings
-				ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), 70f, 0.28f, "Bike(Clone)");
+				ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
 
 				Vector3 eulerAngles = camTransform.eulerAngles;
 				rotHorizontal = eulerAngles.y;
 				rotVertical = eulerAngles.x;
+
+				AlignViewWithBike();
 
 				hasStartedOnce = true;
 			}
@@ -154,13 +154,13 @@ namespace AlternativeCameraMod
 				return;
 			}
 
-			// Allow disabling HUD while using the normal camera.
-			if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad7))
+			// Here to allow disabling HUD while using the normal camera.
+			if (Input.GetKeyDown(KeyCode.Keypad7))
 			{
 				ToggleGameHUD();
 			}
 
-			if (Input.GetKeyDown(primaryToggleKey))
+			if (Input.GetKeyDown(KeyCode.Alpha0))
 			{
 				cameraModEnabled = !cameraModEnabled;
 				if (!hasStartedOnce) {
@@ -169,13 +169,16 @@ namespace AlternativeCameraMod
 
 				if (cameraModEnabled == false && defaultCameraScript.enabled == false)
 				{
+					// Turn the mod OFF
 					defaultCameraScript.enabled = true;
 					ApplyDefaultCameraSettings();
 				}
 				else
 				{
+					// Turn the mod ON
 					defaultCameraScript.enabled = false;
 					ApplyCameraSettings(6f, new Vector3(0f, 2.4f, 0f), 70f, 0.28f, "Bike(Clone)");
+					AlignViewWithBike();
 				}
 			}
 
@@ -234,12 +237,12 @@ namespace AlternativeCameraMod
 				Cursor.lockState = CursorLockMode.Locked;
 				Cursor.visible = false;
 
-				if (UnityEngine.Input.GetAxis("Mouse ScrollWheel") > 0f)
+				if (Input.GetAxis("Mouse ScrollWheel") > 0f)
 				{
 					// Scrolling forward; zoom in
 					wantedZoom -= cfgZoomStepIncrement.Value;
 				}
-				else if (UnityEngine.Input.GetAxis("Mouse ScrollWheel") < 0f)
+				else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
 				{
 					// Scrolling backwards; zoom out
 					wantedZoom += cfgZoomStepIncrement.Value;
@@ -247,8 +250,8 @@ namespace AlternativeCameraMod
 
 				// Horizontal mouse movement will make camera rotate around vertical y-axis
 				// Vertical mouse movement will make camera rotate along x-axis (your ear-to-ear axis)
-				rotHorizontal += UnityEngine.Input.GetAxisRaw("Mouse X") * cfgSensitivityHorizontal.Value * cfgSensitivityMultiplier.Value;
-				rotVertical -= UnityEngine.Input.GetAxisRaw("Mouse Y") * cfgSensitivityVertical.Value * cfgSensitivityMultiplier.Value;
+				rotHorizontal += Input.GetAxisRaw("Mouse X") * cfgSensitivityHorizontal.Value * cfgSensitivityMultiplier.Value;
+				rotVertical -= Input.GetAxisRaw("Mouse Y") * cfgSensitivityVertical.Value * cfgSensitivityMultiplier.Value;
 				rotVertical = ClampAngle(rotVertical, (float)xMinLimit, (float)xMaxLimit);  // Clamp the up-down rotation
 
 				if (cfgInvertHorizontal.Value == true)
@@ -349,7 +352,7 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private static void GetUiObjects()
 		{
-			uiCameraComponent = GameObject.Find("UICam").GetComponent<Camera>();
+			uiRendererCamera = GameObject.Find("UICam").GetComponent<Camera>();
 			ui_mainUIParent = GameObject.Find("Wrapper");
 
 			ui_pauseMenuUI = ui_mainUIParent.transform.Find("PauseScreen(Clone)").gameObject;
@@ -374,12 +377,12 @@ namespace AlternativeCameraMod
 		}
 
 		/// <summary>
-		/// Resets the camera settings to default values (34 FoV).
+		/// Resets the camera settings to default values (34 FoV?).
 		/// </summary>
 		private void ApplyDefaultCameraSettings()
 		{
-			mainCameraComponent.fieldOfView = 34f;
-			mainCameraComponent.nearClipPlane = 0.4f;   // FIXME: what is default nearClipPlane?
+			mainCameraComponent.fieldOfView = 38f;	// or 34?
+			mainCameraComponent.nearClipPlane = 0.3f;
 		}
 
 		/// <summary>
@@ -391,7 +394,7 @@ namespace AlternativeCameraMod
 			targetOffset = followTargetOffset;
 
 			mainCameraComponent.fieldOfView = cameraFov;	// Default: 34
-			mainCameraComponent.nearClipPlane = nearClipPlane;	// Default: ?
+			mainCameraComponent.nearClipPlane = nearClipPlane;	// Default: 0.3
 
 			targetName = followTargetName;
 
@@ -437,13 +440,13 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private void AlignViewWithBike()
 		{
-			if (!playerBikeParent) {
+			if (playerBikeParent.gameObject == null) {
 				return;
 			}
 			Vector3 bikeRotation = playerBikeParent.localRotation.eulerAngles;
 			if (cfgInvertHorizontal.Value == true)
 			{
-				rotHorizontal = -(bikeRotation.y);
+				rotHorizontal = -bikeRotation.y;
 			}
 			else
 			{
@@ -456,30 +459,25 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private void HandleSettingsInputs()
 		{
-			if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad7))
-			{
-				ToggleGameHUD();
-			}
-
-			if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad9))
+			if (Input.GetKeyDown(KeyCode.Keypad9))
 			{
 				// Find gameobjects again/update references on level load
 				GetTargetGameObjects();
 				GetUiObjects();
 				AlignViewWithBike();
 			}
-			if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.Space))
+			if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
 			{
 				// On checkpoint restarts || On track restarts
 				AlignViewWithBike();
 			}
 
-			if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad1))
+			if (Input.GetKeyDown(KeyCode.Keypad1))
 			{
 				// Standard
-				ApplyCameraSettings(7.2f, (new Vector3(0f, 2.4f, 0f)), cfgStandardFoV.Value, 0.2f, "Bike(Clone)");
+				ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
 			}
-			if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad2))
+			if (Input.GetKeyDown(KeyCode.Keypad2))
 			{
 				// First Person
 				ApplyCameraSettings(0f, (new Vector3(0.0f, 0.3f, 0f)), cfgFirstPersonFoV.Value, 0.6f, "neck_BindJNT");
@@ -490,7 +488,7 @@ namespace AlternativeCameraMod
 			}
 
 			// Mouse inverting
-			if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad3))
+			if (Input.GetKeyDown(KeyCode.Keypad3))
 			{
 				cfgInvertHorizontal.Value = !cfgInvertHorizontal.Value;
 				LoggerInstance.Msg("Toggled invert camera horizontal ==> ["+ cfgInvertHorizontal.Value +"]");
@@ -498,7 +496,7 @@ namespace AlternativeCameraMod
 			}
 
 			// Camera auto align
-			if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad4))
+			if (Input.GetKeyDown(KeyCode.Keypad4))
 			{
 				cfgCameraAutoAlign.Value = !cfgCameraAutoAlign.Value;
 				LoggerInstance.Msg("Toggled auto-align ==> ["+ cfgCameraAutoAlign.Value +"]");
@@ -510,10 +508,10 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private void ToggleGameHUD()
 		{
-			if (!uiCameraComponent) {
+			if (uiRendererCamera == null) {
 				return;
 			}
-			ToggleGameHUD(!uiCameraComponent.enabled);
+			ToggleGameHUD(!uiRendererCamera.enabled);
 		}
 
 		/// <summary>
@@ -522,12 +520,12 @@ namespace AlternativeCameraMod
 		/// <param name="visible">Should the HUD be rendered.</param>
 		private void ToggleGameHUD(bool visible)
 		{
-			if (!uiCameraComponent) {
+			if (uiRendererCamera == null) {
 				return;
 			}
 			// Toggle UI camera rendering
-			uiCameraComponent.enabled = visible;
-			LoggerInstance.Msg("Toggled hud rendering ==> [" + uiCameraComponent.enabled + "]");
+			uiRendererCamera.enabled = visible;
+			LoggerInstance.Msg("Toggled hud rendering ==> [" + uiRendererCamera.enabled + "]");
 		}
 
 		public override void OnDeinitializeMelon()
