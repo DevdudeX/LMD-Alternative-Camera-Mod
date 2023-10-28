@@ -29,12 +29,13 @@ This file can be edited with any text editor and contains all the mods settings.
 #### Keybinds
 - [9] Start the camera  
 - [0] Toggle the camera mod (might be buggy)  
-- [Enter/Space] Reset camera rotation to behind the player  
+- [Enter, Space] Reset camera rotation to behind the player  
 - [Mouse Scroll] Zoom camera in and out  
+- [Right Click, Right Bumper] Hold to invert camera auto-align  
 - [Keypad 1] Recommended settings; 70 FoV and nice follow distance, works well for steering  
 - [Keypad 3] First person (Experimental); 80 FoV and the camera is attached to the neck, character model might clip weirdly  
 - [Keypad 3] Toggle invert mouse horizontal  
-- [Keypad 4] Toggle camera auto align (for use with a controller)  
+- [Keypad 4] Toggle camera auto-align (for use with a controller)  
 - [Keypad 7] Toggle HUD rendering  
 - [Keypad 9] Find and update gameobjects references  
 
