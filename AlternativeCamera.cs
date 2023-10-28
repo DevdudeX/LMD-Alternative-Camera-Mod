@@ -13,7 +13,7 @@ namespace AlternativeCameraMod
 	public class AlternativeCamera : MelonMod
 	{
 		// Keep this updated!
-		private const string MOD_VERSION = "1.0.2";
+		private const string MOD_VERSION = "1.0.3";
 
 		private MelonPreferences_Category mouseSettingsCat;
 		private MelonPreferences_Category gamepadSettingsCat;
@@ -28,6 +28,7 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Entry<float> cfg_mSensitivityMultiplier;
 		private MelonPreferences_Entry<bool> cfg_mInvertHorizontal;
 
+		private MelonPreferences_Entry<float> cfg_gamepadDeadzone;
 		private MelonPreferences_Entry<float> cfg_gamepadSensHorizontal;
 		private MelonPreferences_Entry<float> cfg_gamepadSensVertical;
 		private MelonPreferences_Entry<float> cfg_gamepadSensMultiplier;
@@ -113,6 +114,7 @@ namespace AlternativeCameraMod
 			cfgZoomStepIncrement = mouseSettingsCat.CreateEntry<float>("ZoomStepIncrement", 0.20f, description:"How much one scroll zooms the camera.");
 
 			// Gamepad Settings
+			cfg_gamepadDeadzone = gamepadSettingsCat.CreateEntry<float>("GamepadDeadzone", 0.1f);
 			cfg_gamepadSensHorizontal = gamepadSettingsCat.CreateEntry<float>("GamepadHorizontalSensitivity", 1f);
 			cfg_gamepadSensVertical = gamepadSettingsCat.CreateEntry<float>("GamepadVerticalSensitivity", 1f);
 			cfg_gamepadSensMultiplier = gamepadSettingsCat.CreateEntry<float>("GamepadSensitivityMultiplier", 1f);
@@ -278,22 +280,28 @@ namespace AlternativeCameraMod
 					wantedZoom += cfgZoomStepIncrement.Value;
 				}
 
+				//cfg_gamepadDeadzone
+				float gamepadHorizontalInput = Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") + Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
+				float gamepadVerticalInput = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
+
+				//float totalHorizontalInputValue = Input.GetAxisRaw("Mouse X") + gamepadHorizontalInput;
+				//float totalVerticalInputValue = Input.GetAxisRaw("Mouse Y") + gamepadVerticalInput;
+
+				bool anyJoystickButton5 = Input.GetKey(KeyCode.Joystick1Button5) || Input.GetKey(KeyCode.Joystick2Button5) || Input.GetKey(KeyCode.Joystick3Button5) || Input.GetKey(KeyCode.Joystick4Button5);
+				bool holdingInvertAutoAlign = anyJoystickButton5 || Input.GetKey(KeyCode.Mouse1);
+
 				// Horizontal mouse movement will make camera rotate around vertical y-axis
 				// Vertical mouse movement will make camera rotate along x-axis (your ear-to-ear axis)
 				rotHorizontal += Input.GetAxisRaw("Mouse X") * cfg_mSensitivityHorizontal.Value * cfg_mSensitivityMultiplier.Value;
 				rotVertical += Input.GetAxisRaw("Mouse Y") * cfg_mSensitivityVertical.Value * cfg_mSensitivityMultiplier.Value;
 
 				// Also take controller input
-				rotHorizontal += (Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") + Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4")) * cfg_gamepadSensHorizontal.Value * cfg_gamepadSensMultiplier.Value;
-				rotVertical -= (Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5")) * cfg_gamepadSensVertical.Value * cfg_gamepadSensMultiplier.Value;
+				rotHorizontal += ApplyInnerDeadzone(gamepadHorizontalInput, cfg_gamepadDeadzone.Value) * cfg_gamepadSensHorizontal.Value * cfg_gamepadSensMultiplier.Value;
+				rotVertical -= ApplyInnerDeadzone(gamepadVerticalInput, cfg_gamepadDeadzone.Value) * cfg_gamepadSensVertical.Value * cfg_gamepadSensMultiplier.Value;
 
 				rotVertical = ClampAngle(rotVertical, (float)xMinLimit, (float)xMaxLimit);  // Clamp the up-down rotation
 
-				// For detecting input
-				float totalHorizontalInputValue = Input.GetAxisRaw("Mouse X") + Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") + Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
-				float totalVerticalInputValue = Input.GetAxisRaw("Mouse Y") + Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
-				bool anyJoystickButton5 = Input.GetKey(KeyCode.Joystick1Button5) || Input.GetKey(KeyCode.Joystick2Button5) || Input.GetKey(KeyCode.Joystick3Button5) || Input.GetKey(KeyCode.Joystick4Button5);
-				bool holdingInvertAutoAlign = anyJoystickButton5 || Input.GetKey(KeyCode.Mouse1);
+
 				/*
 					JoystickButton0 - X
 					JoystickButton1 - A
@@ -389,6 +397,21 @@ namespace AlternativeCameraMod
 				angle -= 360f;
 			}
 			return Mathf.Clamp(angle, min, max);
+		}
+
+		/// <summary>
+		/// Makes sure the given value exceeds the deadzone radius in either direction.
+		/// </summary>
+		/// <returns>The axis if outside the deadzone, otherwise returns 0.</returns>
+		private static float ApplyInnerDeadzone(float axis, float deadzone)
+		{
+			if (axis > deadzone) {
+				return axis;
+			}
+			if (axis < -deadzone) {
+				return axis;
+			}
+			return 0;
 		}
 
 		/// <summary>
