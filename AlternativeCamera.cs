@@ -2,7 +2,6 @@
 using MelonLoader;
 using static System.Runtime.CompilerServices.RuntimeHelpers;
 using System;
-
 using Il2CppMegagon.Downhill.Cameras;
 
 namespace AlternativeCameraMod
@@ -18,6 +17,7 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Category mouseSettingsCat;
 		private MelonPreferences_Category gamepadSettingsCat;
 		private MelonPreferences_Category cameraSettingsCat;
+		private MelonPreferences_Category otherSettingsCat;
 		public static AlternativeCamera instance;
 		private static bool hasStartedOnce = false;
 		private static bool cameraModEnabled = true;
@@ -47,6 +47,8 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Entry<float> cfgZoomStepIncrement;
 		private MelonPreferences_Entry<float> cfgStandardFoV;
 		private MelonPreferences_Entry<float> cfgFirstPersonFoV;
+
+		private MelonPreferences_Entry<bool> cfgAutoEnableOnLevelLoad;
 
 		// Transforms and GameObjects
 		/// <summary>The name of the gameobject that will act as the cameras target.</summary>
@@ -106,6 +108,9 @@ namespace AlternativeCameraMod
 			cameraSettingsCat = MelonPreferences.CreateCategory("Camera Settings");
 			cameraSettingsCat.SetFilePath("UserData/AlternativeCameraSettings.cfg");
 
+			otherSettingsCat = MelonPreferences.CreateCategory("Other Settings");
+			otherSettingsCat.SetFilePath("UserData/AlternativeCameraSettings.cfg");
+
 			// Mouse Settings
 			cfg_mSensitivityHorizontal = mouseSettingsCat.CreateEntry<float>("HorizontalSensitivity", 4f);
 			cfg_mSensitivityVertical = mouseSettingsCat.CreateEntry<float>("VerticalSensitivity", 4f);
@@ -131,6 +136,9 @@ namespace AlternativeCameraMod
 			cfgStandardFoV = cameraSettingsCat.CreateEntry<float>("StandardFoV", 70f);
 			cfgFirstPersonFoV = cameraSettingsCat.CreateEntry<float>("FirstPersonFoV", 98f);
 
+			// Other Settings
+			cfgAutoEnableOnLevelLoad = otherSettingsCat.CreateEntry<bool>("EnableAltCameraOnLevelLoad", true);
+
 			mouseSettingsCat.SaveToFile();
 			gamepadSettingsCat.SaveToFile();
 			cameraSettingsCat.SaveToFile();
@@ -141,6 +149,15 @@ namespace AlternativeCameraMod
 			MelonEvents.OnGUI.Subscribe(DrawDemoText, 100);
 		}
 
+		// public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+		// {
+		// 	if (GameObject.Find(targetName) == null)
+		// 	{
+		// 		return;
+		// 	}
+		// 	StartUpMod();
+		// }
+
 		public override void OnLateUpdate()
 		{
 			if (forceDisable) {
@@ -150,28 +167,7 @@ namespace AlternativeCameraMod
 
 			if (Input.GetKeyDown(KeyCode.Alpha9))
 			{
-				LoggerInstance.Msg("Starting alternative camera system!");
-
-				// Assigning GO's
-				GetTargetGameObjects();
-
-				// Very hacky way of testing if paused
-				GetUiObjects();
-
-				// if (!hasStartedOnce) {
-				// 	startingFoV = mainCameraComponent.fieldOfView;
-				// }
-
-				// Apply some starting camera settings
-				ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
-
-				Vector3 eulerAngles = camTransform.eulerAngles;
-				rotHorizontal = eulerAngles.y;
-				rotVertical = eulerAngles.x;
-
-				AlignViewWithBike();
-
-				hasStartedOnce = true;
+				StartUpMod();
 			}
 
 			// FIRST CHECKPOINT: Mod not ready
@@ -384,34 +380,28 @@ namespace AlternativeCameraMod
 		}
 
 		/// <summary>
-		/// Tries to clamp the angle to values between 360 and -360.
+		/// Grabs required objects, applies standard camera settings and enables the hasStartedOnce bool.
 		/// </summary>
-		private static float ClampAngle(float angle, float min, float max)
+		private void StartUpMod()
 		{
-			if (angle < -360f)
-			{
-				angle += 360f;
-			}
-			if (angle > 360f)
-			{
-				angle -= 360f;
-			}
-			return Mathf.Clamp(angle, min, max);
-		}
+			LoggerInstance.Msg("Starting alternative camera system!");
 
-		/// <summary>
-		/// Makes sure the given value exceeds the deadzone radius in either direction.
-		/// </summary>
-		/// <returns>The axis if outside the deadzone, otherwise returns 0.</returns>
-		private static float ApplyInnerDeadzone(float axis, float deadzone)
-		{
-			if (axis > deadzone) {
-				return axis;
-			}
-			if (axis < -deadzone) {
-				return axis;
-			}
-			return 0;
+			// Assigning GO's
+			GetTargetGameObjects();
+
+			// Very hacky way of testing if paused
+			GetUiObjects();
+
+			// Apply some starting camera settings
+			ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
+
+			Vector3 eulerAngles = camTransform.eulerAngles;
+			rotHorizontal = eulerAngles.y;
+			rotVertical = eulerAngles.x;
+
+			AlignViewWithBike();
+
+			hasStartedOnce = true;
 		}
 
 		/// <summary>
@@ -609,6 +599,37 @@ namespace AlternativeCameraMod
 		public static void DrawDemoText()
 		{
 			GUI.Label(new Rect(20, 20, 1000, 200), "<b><color=white><size=16>Camera Mod Demo v"+ MOD_VERSION +"</size></color></b>");
+		}
+
+		/// <summary>
+		/// Tries to clamp the angle to values between 360 and -360.
+		/// </summary>
+		private static float ClampAngle(float angle, float min, float max)
+		{
+			if (angle < -360f)
+			{
+				angle += 360f;
+			}
+			if (angle > 360f)
+			{
+				angle -= 360f;
+			}
+			return Mathf.Clamp(angle, min, max);
+		}
+
+		/// <summary>
+		/// Makes sure the given value exceeds the deadzone radius in either direction.
+		/// </summary>
+		/// <returns>The axis if outside the deadzone, otherwise returns 0.</returns>
+		private static float ApplyInnerDeadzone(float axis, float deadzone)
+		{
+			if (axis > deadzone) {
+				return axis;
+			}
+			if (axis < -deadzone) {
+				return axis;
+			}
+			return 0;
 		}
 
 		public override void OnDeinitializeMelon()
