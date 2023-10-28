@@ -114,6 +114,7 @@ namespace AlternativeCameraMod
 		public override void OnEarlyInitializeMelon()
 		{
 			instance = this;
+			MelonEvents.OnGUI.Subscribe(DrawDemoText, 100);
 		}
 
 		public override void OnLateUpdate()
@@ -172,6 +173,8 @@ namespace AlternativeCameraMod
 					// Turn the mod OFF
 					defaultCameraScript.enabled = true;
 					ApplyDefaultCameraSettings();
+					Cursor.lockState = CursorLockMode.None;
+					Cursor.visible = true;
 				}
 				else
 				{
@@ -390,16 +393,15 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private void ApplyCameraSettings(float followDistance, Vector3 followTargetOffset, float cameraFov, float nearClipPlane, string followTargetName)
 		{
+			targetName = followTargetName;
+			// Update references
+			GetTargetGameObjects();
+
 			wantedZoom = followDistance;
 			targetOffset = followTargetOffset;
 
 			mainCameraComponent.fieldOfView = cameraFov;	// Default: 34
 			mainCameraComponent.nearClipPlane = nearClipPlane;	// Default: 0.3
-
-			targetName = followTargetName;
-
-			// Update references
-			GetTargetGameObjects();
 
 			LoggerInstance.Msg("Applied a camera preset!");
 		}
@@ -528,10 +530,16 @@ namespace AlternativeCameraMod
 			LoggerInstance.Msg("Toggled hud rendering ==> [" + uiRendererCamera.enabled + "]");
 		}
 
+		public static void DrawDemoText()
+		{
+			GUI.Label(new Rect(20, 20, 1000, 200), "<b><color=white><size=16>Camera Mod Demo v1.0.1</size></color></b>");
+		}
+
 		public override void OnDeinitializeMelon()
 		{
 			// In case the melon gets unregistered
 			forceDisable = true;
+			MelonEvents.OnGUI.Unsubscribe(DrawDemoText);
 		}
 	}
 }
