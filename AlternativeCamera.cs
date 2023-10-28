@@ -130,6 +130,7 @@ namespace AlternativeCameraMod
 			cfgFirstPersonFoV = cameraSettingsCat.CreateEntry<float>("FirstPersonFoV", 98f);
 
 			mouseSettingsCat.SaveToFile();
+			gamepadSettingsCat.SaveToFile();
 			cameraSettingsCat.SaveToFile();
 		}
 		public override void OnEarlyInitializeMelon()
