@@ -131,7 +131,7 @@ namespace AlternativeCameraMod
 			cfgZoomLerpInSpeed = cameraSettingsCat.CreateEntry<float>("ZoomInLerpSpeed", 0.0880f);
 			cfgCameraCollisionPadding = cameraSettingsCat.CreateEntry<float>("CameraCollisionPadding", 0.20f, description:"Distance the camera is pushed away from terrain.");
 			cfgDefaultCameraOnPause = cameraSettingsCat.CreateEntry<bool>("DefaultCameraOnPause", true);
-			cfgCameraAutoAlign = cameraSettingsCat.CreateEntry<bool>("CameraAutoAlign", false);
+			cfgCameraAutoAlign = cameraSettingsCat.CreateEntry<bool>("CameraAutoAlign", true);
 			cfgAutoAlignSpeed = cameraSettingsCat.CreateEntry<float>("AutoAlignSpeed", 1.80f, description:"How quickly the camera moves behind the player.");
 			cfgStandardFoV = cameraSettingsCat.CreateEntry<float>("StandardFoV", 70f);
 			cfgFirstPersonFoV = cameraSettingsCat.CreateEntry<float>("FirstPersonFoV", 98f);
@@ -598,7 +598,7 @@ namespace AlternativeCameraMod
 
 		public static void DrawDemoText()
 		{
-			GUI.Label(new Rect(20, 20, 1000, 200), "<b><color=white><size=16>Camera Mod Demo v"+ MOD_VERSION +"</size></color></b>");
+			GUI.Label(new Rect(20, 20, 1000, 200), "<b><color=white><size=16>DevdudeX's Camera Mod Demo v"+ MOD_VERSION +"</size></color></b>");
 		}
 
 		/// <summary>
