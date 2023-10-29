@@ -21,7 +21,7 @@ For use with a controller activate camera auto align.
 A few camera presets exist and can be activated as seen in the keybind section.  
 
 
-#### Optional: Tweaking values
+#### Tweaking values
 A config file is generated in '[LMD folder]/UserData/AlternativeCameraSettings.cfg'.  
 This file can be edited with any text editor and contains all the mods settings.  
 

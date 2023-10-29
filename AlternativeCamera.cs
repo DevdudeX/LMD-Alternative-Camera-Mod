@@ -142,6 +142,7 @@ namespace AlternativeCameraMod
 			mouseSettingsCat.SaveToFile();
 			gamepadSettingsCat.SaveToFile();
 			cameraSettingsCat.SaveToFile();
+			otherSettingsCat.SaveToFile();
 		}
 		public override void OnEarlyInitializeMelon()
 		{
@@ -149,14 +150,30 @@ namespace AlternativeCameraMod
 			MelonEvents.OnGUI.Subscribe(DrawDemoText, 100);
 		}
 
-		// public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-		// {
-		// 	if (GameObject.Find(targetName) == null)
-		// 	{
-		// 		return;
-		// 	}
-		// 	StartUpMod();
-		// }
+		public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+		{
+			LoggerInstance.Msg($"Scene [{sceneName}] with build index [{buildIndex}] has been loaded!");
+
+			string[] blacklistedLoadScenes = {"Menu_Alps_01", "Menu_Autumn_01", "Menu_Canyon_01", "Menu_Rockies_01", "Menu_Island_01"};
+			if (Array.IndexOf(blacklistedLoadScenes, sceneName) != -1)
+			{
+				return;
+			}
+
+			if (hasStartedOnce && cfgAutoEnableOnLevelLoad.Value == true)
+			{
+				if (playerBikeObject != null)
+				{
+					MelonCoroutines.Start(DelayedModStartup());
+				}
+			}
+		}
+
+		System.Collections.IEnumerator DelayedModStartup()
+		{
+			yield return new WaitForSeconds(5);
+			StartUpMod();
+		}
 
 		public override void OnLateUpdate()
 		{
