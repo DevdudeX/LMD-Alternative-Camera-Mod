@@ -7,11 +7,6 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-using MelonLoader;
-using AlternativeCameraMod; // The namespace of your mod class
-// ...
-[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.3", "DevdudeX")]
-[assembly: MelonGame()]
 
 namespace AlternativeCameraMod.Properties {
     using System;

@@ -3,7 +3,10 @@ using MelonLoader;
 using static System.Runtime.CompilerServices.RuntimeHelpers;
 using System;
 using Il2CppMegagon.Downhill.Cameras;
+using AlternativeCameraMod;
 
+[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.4", "DevdudeX")]
+[assembly: MelonGame()]
 namespace AlternativeCameraMod
 {
 	/// <summary>
@@ -12,23 +15,23 @@ namespace AlternativeCameraMod
 	public class AlternativeCamera : MelonMod
 	{
 		// Keep this updated!
-		private const string MOD_VERSION = "1.0.3";
+		private const string MOD_VERSION = "1.0.4";
+		public static AlternativeCamera instance;
+		private static bool hasStartedOnce = false;
+		private static bool cameraModEnabled = true;
+		private static bool forceDisable = false;
 
 		private MelonPreferences_Category mouseSettingsCat;
 		private MelonPreferences_Category gamepadSettingsCat;
 		private MelonPreferences_Category cameraSettingsCat;
 		private MelonPreferences_Category otherSettingsCat;
-		public static AlternativeCamera instance;
-		private static bool hasStartedOnce = false;
-		private static bool cameraModEnabled = true;
-		private static bool forceDisable = false;
 
 		private MelonPreferences_Entry<float> cfg_mSensitivityHorizontal;
 		private MelonPreferences_Entry<float> cfg_mSensitivityVertical;
 		private MelonPreferences_Entry<float> cfg_mSensitivityMultiplier;
 		private MelonPreferences_Entry<bool> cfg_mInvertHorizontal;
 
-		private MelonPreferences_Entry<float> cfg_gamepadDeadzone;
+		private MelonPreferences_Entry<float> cfg_gamepadStickDeadzoneR;
 		private MelonPreferences_Entry<float> cfg_gamepadSensHorizontal;
 		private MelonPreferences_Entry<float> cfg_gamepadSensVertical;
 		private MelonPreferences_Entry<float> cfg_gamepadSensMultiplier;
@@ -38,17 +41,23 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Entry<float> cfgCameraCollisionPadding;
 		private MelonPreferences_Entry<float> cfgZoomLerpOutSpeed;
 		private MelonPreferences_Entry<float> cfgZoomLerpInSpeed;
-
-
 		private MelonPreferences_Entry<bool> cfgDefaultCameraOnPause;
 		private MelonPreferences_Entry<bool> cfgCameraAutoAlign;
 		private MelonPreferences_Entry<float> cfgAutoAlignSpeed;
-
 		private MelonPreferences_Entry<float> cfgZoomStepIncrement;
 		private MelonPreferences_Entry<float> cfgStandardFoV;
 		private MelonPreferences_Entry<float> cfgFirstPersonFoV;
 
 		private MelonPreferences_Entry<bool> cfgAutoEnableOnLevelLoad;
+
+		private static KeyCode modToggleKey = KeyCode.Alpha0;
+		private static KeyCode modStartupKey = KeyCode.Alpha9;
+		private static KeyCode uiToggleKey = KeyCode.Keypad7;
+		private static KeyCode grabGOsKey = KeyCode.Keypad9;
+		private static KeyCode camPresetStandardKey = KeyCode.Keypad1;
+		private static KeyCode camPresetFirstPersonKey = KeyCode.Keypad2;
+		private static KeyCode camToggleInvertHorizontalKey = KeyCode.Keypad3;
+		private static KeyCode camToggleAutoAlignKey = KeyCode.Keypad4;
 
 		// Transforms and GameObjects
 		/// <summary>The name of the gameobject that will act as the cameras target.</summary>
@@ -79,8 +88,8 @@ namespace AlternativeCameraMod
 		private static LayerMask cameraCollisionLayers = LayerMask.GetMask("Ground") | LayerMask.GetMask("Obstacle") | LayerMask.GetMask("EnvironmentOther") | LayerMask.GetMask("Terrain") | LayerMask.GetMask("Lava");
 
 		// Camera angle limits
-		private static int xMinLimit = -88;
-		private static int xMaxLimit = 88;
+		private static int xMinLimit = -82;
+		private static int xMaxLimit = 82;
 
 		// Active variables
 		private static bool hasMenuOpen = true;
@@ -97,6 +106,12 @@ namespace AlternativeCameraMod
 		private static float rotVertical;
 		private static Vector3 dirToCam;
 
+		public override void OnEarlyInitializeMelon()
+		{
+			instance = this;
+			MelonEvents.OnGUI.Subscribe(DrawDemoText, 100);
+		}
+
 		public override void OnInitializeMelon()
 		{
 			mouseSettingsCat = MelonPreferences.CreateCategory("Mouse Settings");
@@ -112,14 +127,14 @@ namespace AlternativeCameraMod
 			otherSettingsCat.SetFilePath("UserData/AlternativeCameraSettings.cfg");
 
 			// Mouse Settings
-			cfg_mSensitivityHorizontal = mouseSettingsCat.CreateEntry<float>("HorizontalSensitivity", 4f);
-			cfg_mSensitivityVertical = mouseSettingsCat.CreateEntry<float>("VerticalSensitivity", 4f);
-			cfg_mSensitivityMultiplier = mouseSettingsCat.CreateEntry<float>("SensitivityMultiplier", 0.040f);
+			cfg_mSensitivityHorizontal = mouseSettingsCat.CreateEntry<float>("HorizontalSensitivity", 1.4f);
+			cfg_mSensitivityVertical = mouseSettingsCat.CreateEntry<float>("VerticalSensitivity", 1.4f);
+			cfg_mSensitivityMultiplier = mouseSettingsCat.CreateEntry<float>("SensitivityMultiplier", 1f);
 			cfg_mInvertHorizontal = mouseSettingsCat.CreateEntry<bool>("InvertHorizontal", false);
 			cfgZoomStepIncrement = mouseSettingsCat.CreateEntry<float>("ZoomStepIncrement", 0.20f, description:"How much one scroll zooms the camera.");
 
 			// Gamepad Settings
-			cfg_gamepadDeadzone = gamepadSettingsCat.CreateEntry<float>("GamepadDeadzone", 0.1f);
+			cfg_gamepadStickDeadzoneR = gamepadSettingsCat.CreateEntry<float>("GamepadStickDeadzoneR", 0.1f);
 			cfg_gamepadSensHorizontal = gamepadSettingsCat.CreateEntry<float>("GamepadHorizontalSensitivity", 1f);
 			cfg_gamepadSensVertical = gamepadSettingsCat.CreateEntry<float>("GamepadVerticalSensitivity", 1f);
 			cfg_gamepadSensMultiplier = gamepadSettingsCat.CreateEntry<float>("GamepadSensitivityMultiplier", 1f);
@@ -144,36 +159,6 @@ namespace AlternativeCameraMod
 			cameraSettingsCat.SaveToFile();
 			otherSettingsCat.SaveToFile();
 		}
-		public override void OnEarlyInitializeMelon()
-		{
-			instance = this;
-			MelonEvents.OnGUI.Subscribe(DrawDemoText, 100);
-		}
-
-		public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-		{
-			LoggerInstance.Msg($"Scene [{sceneName}] with build index [{buildIndex}] has been loaded!");
-
-			string[] blacklistedLoadScenes = {"Menu_Alps_01", "Menu_Autumn_01", "Menu_Canyon_01", "Menu_Rockies_01", "Menu_Island_01"};
-			if (Array.IndexOf(blacklistedLoadScenes, sceneName) != -1)
-			{
-				return;
-			}
-
-			if (hasStartedOnce && cfgAutoEnableOnLevelLoad.Value == true)
-			{
-				if (playerBikeObject != null)
-				{
-					MelonCoroutines.Start(DelayedModStartup());
-				}
-			}
-		}
-
-		System.Collections.IEnumerator DelayedModStartup()
-		{
-			yield return new WaitForSeconds(5);
-			StartUpMod();
-		}
 
 		public override void OnLateUpdate()
 		{
@@ -182,7 +167,7 @@ namespace AlternativeCameraMod
 				return;
 			}
 
-			if (Input.GetKeyDown(KeyCode.Alpha9))
+			if (Input.GetKeyDown(modStartupKey))
 			{
 				StartUpMod();
 			}
@@ -193,12 +178,12 @@ namespace AlternativeCameraMod
 			}
 
 			// Here to allow disabling HUD while using the normal camera.
-			if (Input.GetKeyDown(KeyCode.Keypad7))
+			if (Input.GetKeyDown(uiToggleKey))
 			{
 				ToggleGameHUD();
 			}
 
-			if (Input.GetKeyDown(KeyCode.Alpha0))
+			if (Input.GetKeyDown(modToggleKey))
 			{
 				cameraModEnabled = !cameraModEnabled;
 				if (!hasStartedOnce) {
@@ -293,9 +278,8 @@ namespace AlternativeCameraMod
 					wantedZoom += cfgZoomStepIncrement.Value;
 				}
 
-				//cfg_gamepadDeadzone
-				float gamepadHorizontalInput = Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") + Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
-				float gamepadVerticalInput = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
+				float gamepadHorizontalInputRStick = Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") + Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
+				float gamepadVerticalInputRStick = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
 
 				//float totalHorizontalInputValue = Input.GetAxisRaw("Mouse X") + gamepadHorizontalInput;
 				//float totalVerticalInputValue = Input.GetAxisRaw("Mouse Y") + gamepadVerticalInput;
@@ -309,11 +293,9 @@ namespace AlternativeCameraMod
 				rotVertical += Input.GetAxisRaw("Mouse Y") * cfg_mSensitivityVertical.Value * cfg_mSensitivityMultiplier.Value;
 
 				// Also take controller input
-				rotHorizontal += ApplyInnerDeadzone(gamepadHorizontalInput, cfg_gamepadDeadzone.Value) * cfg_gamepadSensHorizontal.Value * cfg_gamepadSensMultiplier.Value;
-				rotVertical -= ApplyInnerDeadzone(gamepadVerticalInput, cfg_gamepadDeadzone.Value) * cfg_gamepadSensVertical.Value * cfg_gamepadSensMultiplier.Value;
-
+				rotHorizontal += ApplyInnerDeadzone(gamepadHorizontalInputRStick, cfg_gamepadStickDeadzoneR.Value) * cfg_gamepadSensHorizontal.Value * cfg_gamepadSensMultiplier.Value;
+				rotVertical -= ApplyInnerDeadzone(gamepadVerticalInputRStick, cfg_gamepadStickDeadzoneR.Value) * cfg_gamepadSensVertical.Value * cfg_gamepadSensMultiplier.Value;
 				rotVertical = ClampAngle(rotVertical, (float)xMinLimit, (float)xMaxLimit);  // Clamp the up-down rotation
-
 
 				/*
 					JoystickButton0 - X
@@ -544,7 +526,7 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private void HandleSettingsInputs()
 		{
-			if (Input.GetKeyDown(KeyCode.Keypad9))
+			if (Input.GetKeyDown(grabGOsKey))
 			{
 				// Find gameobjects again/update references on level load
 				GetTargetGameObjects();
@@ -557,12 +539,12 @@ namespace AlternativeCameraMod
 				AlignViewWithBike();
 			}
 
-			if (Input.GetKeyDown(KeyCode.Keypad1))
+			if (Input.GetKeyDown(camPresetStandardKey))
 			{
 				// Standard
 				ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
 			}
-			if (Input.GetKeyDown(KeyCode.Keypad2))
+			if (Input.GetKeyDown(camPresetFirstPersonKey))
 			{
 				// First Person
 				ApplyCameraSettings(0f, (new Vector3(0.0f, 0.3f, 0f)), cfgFirstPersonFoV.Value, 0.6f, "neck_BindJNT");
@@ -573,7 +555,7 @@ namespace AlternativeCameraMod
 			}
 
 			// Mouse inverting
-			if (Input.GetKeyDown(KeyCode.Keypad3))
+			if (Input.GetKeyDown(camToggleInvertHorizontalKey))
 			{
 				cfg_mInvertHorizontal.Value = !cfg_mInvertHorizontal.Value;
 				LoggerInstance.Msg("Toggled invert camera horizontal ==> ["+ cfg_mInvertHorizontal.Value +"]");
@@ -581,7 +563,7 @@ namespace AlternativeCameraMod
 			}
 
 			// Camera auto align
-			if (Input.GetKeyDown(KeyCode.Keypad4))
+			if (Input.GetKeyDown(camToggleAutoAlignKey))
 			{
 				cfgCameraAutoAlign.Value = !cfgCameraAutoAlign.Value;
 				LoggerInstance.Msg("Toggled auto-align ==> ["+ cfgCameraAutoAlign.Value +"]");
@@ -635,7 +617,7 @@ namespace AlternativeCameraMod
 		}
 
 		/// <summary>
-		/// Makes sure the given value exceeds the deadzone radius in either direction.
+		/// Snaps the given value to 0 if it falls within the deadzone radius in either direction.
 		/// </summary>
 		/// <returns>The axis if outside the deadzone, otherwise returns 0.</returns>
 		private static float ApplyInnerDeadzone(float axis, float deadzone)
