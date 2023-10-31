@@ -4,40 +4,45 @@ This is a mod made for Melon Loader that replaces LMD's default distant "isometr
 
 ## Setup Instructions
 #### Preparing
-Install MelonLoader to your LMD game folder.  
-Look under 'Automated Installation':
+Your game folder can be found by right-clicking on the game in steam and going 'Manage -> Browse local files'  
+
+Install Melon Loader to your LMD game install folder.  
+Look under 'Automated Installation':  
 https://melonwiki.xyz/#/  
 (v0.6.1 is the current version at time of writing)  
 
-Add 'AlternativeCameraMod.dll' to the Mods folder.  
-If successful the Melon Loader loading screen should appear on launch.  
+Run the game once then exit. (See **Known Issues & Fixes** if your game freezes on quit)  
+If successful the Melon Loader splash screen should appear on launch. 
 
+Download `AlternativeCameraMod.dll` from the releases and add it to the `Mods` folder in your LMD game folder.   
 
 #### Loading The Mod In-Game
-After loading into a level wait to be able to move the bike then hit [9] on your keyboard.
-
-The game works best by setting mouse to steering only in options and using the keyboard for forward and brake.  
-For use with a controller activate camera auto align.  
+After loading into a level wait to be able to move the bike then hit `Keyboard [9]`.  
 A few camera presets exist and can be activated as seen in the keybind section.  
-
+#####Keyboard users:
+- The game works best by setting mouse to `Steering Only` in options and using the keyboard for forward and brake.  
+- It is recommended you turn off camera `auto-align`.  
 
 #### Tweaking values
-A config file is generated in '[LMD folder]/UserData/AlternativeCameraSettings.cfg'.  
+A config file is generated in `[LMD folder]/UserData/AlternativeCameraSettings.cfg`.  
 This file can be edited with any text editor and contains all the mods settings.  
 
 
 #### Keybinds
-- [9] Start the camera  
-- [0] Toggle the camera mod (might be buggy)  
-- [Enter, Space] Reset camera rotation to behind the player  
-- [Mouse Scroll] Zoom camera in and out  
-- [Right Click, Right Bumper] Hold to invert camera auto-align  
-- [Keypad 1] Recommended settings; 70 FoV and nice follow distance, works well for steering  
-- [Keypad 3] First person (Experimental); 80 FoV and the camera is attached to the neck, character model might clip weirdly  
-- [Keypad 3] Toggle invert mouse horizontal  
-- [Keypad 4] Toggle camera auto-align (for use with a controller)  
-- [Keypad 7] Toggle HUD rendering  
-- [Keypad 9] Find and update gameobjects references  
+| Keyboard & Mouse      | Gamepad                   | Action                                  |
+| ---                   | ---                       | ---                                     |
+| Mouse                 | Right Stick               | Look around                             |
+| Right Click           | Right Bumper              | Hold to disable camera auto-align       |
+| 9                     | -                         | Start the camera                        |
+| 0                     | -                         | Toggle the camera mod (might be buggy)  |
+| Enter / Space         | -                         | Snap camera to behind the player        |
+| Mouse Scroll          | -                         | Move camera in and out                  |
+| H                     | -                         | Toggle HUD & UI rendering               |
+| Keypad 1              | -                         | Recommended camera preset               |
+| Keypad 2              | -                         | First person ( *Experimental* )         |
+| Keypad 3              | -                         | Toggle invert mouse horizontal          |
+| Keypad 4              | -                         | Toggle camera auto-align                |
+| Keypad 9              | -                         | Find and update gameobjects references  |
 
 
 #### Known Issues & Fixes
