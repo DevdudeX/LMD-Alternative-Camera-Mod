@@ -22,6 +22,9 @@
     <Reference Include="MelonLoader">
       <HintPath>..\..\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\MelonLoader\net6\MelonLoader.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Postprocessing.Runtime">
+      <HintPath>..\..\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\MelonLoader\Il2CppAssemblies\Unity.Postprocessing.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
     </Reference>

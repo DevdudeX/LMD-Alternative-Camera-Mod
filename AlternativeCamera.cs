@@ -22,15 +22,12 @@ namespace AlternativeCameraMod
 		private static bool forceDisable = false;
 
 		private MelonPreferences_Category mouseSettingsCat;
-		private MelonPreferences_Category gamepadSettingsCat;
-		private MelonPreferences_Category cameraSettingsCat;
-		private MelonPreferences_Category otherSettingsCat;
-
 		private MelonPreferences_Entry<float> cfg_mSensitivityHorizontal;
 		private MelonPreferences_Entry<float> cfg_mSensitivityVertical;
 		private MelonPreferences_Entry<float> cfg_mSensitivityMultiplier;
 		private MelonPreferences_Entry<bool> cfg_mInvertHorizontal;
 
+		private MelonPreferences_Category gamepadSettingsCat;
 		private MelonPreferences_Entry<float> cfg_gamepadStickDeadzoneR;
 		private MelonPreferences_Entry<float> cfg_gamepadSensHorizontal;
 		private MelonPreferences_Entry<float> cfg_gamepadSensVertical;
@@ -38,6 +35,7 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Entry<bool> cfg_gamepadInvertHorizontal;
 		private MelonPreferences_Entry<bool> cfg_gamepadInvertVertical;
 
+		private MelonPreferences_Category cameraSettingsCat;
 		private MelonPreferences_Entry<float> cfgCameraCollisionPadding;
 		private MelonPreferences_Entry<float> cfgZoomLerpOutSpeed;
 		private MelonPreferences_Entry<float> cfgZoomLerpInSpeed;
@@ -48,6 +46,7 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Entry<float> cfgStandardFoV;
 		private MelonPreferences_Entry<float> cfgFirstPersonFoV;
 
+		private MelonPreferences_Category otherSettingsCat;
 		private MelonPreferences_Entry<bool> cfgAutoEnableOnLevelLoad;
 
 		private static KeyCode modToggleKey = KeyCode.Alpha0;
@@ -62,8 +61,8 @@ namespace AlternativeCameraMod
 		// Transforms and GameObjects
 		/// <summary>The name of the gameobject that will act as the cameras target.</summary>
 		private static string targetName = "Bike(Clone)";
-		private static Transform playerBikeParent;
-		private static Transform playerBikeObject;
+		private static Transform playerBikeParentTransform;
+		private static Transform playerBikeTransform;
 		private static Transform camTransform;
 
 		/// <summary>The main camera itself. Used to set the field of view.</summary>
@@ -73,7 +72,7 @@ namespace AlternativeCameraMod
 		private static PlayCamera defaultCameraScript;
 
 		// UI GameObjects
-		private static GameObject ui_mainUIParent;
+		private static Transform ui_mainUIParent;
 		private static GameObject ui_pauseMenuUI;
 		private static GameObject ui_settingsUI;
 		private static GameObject ui_controlsUI;
@@ -85,7 +84,7 @@ namespace AlternativeCameraMod
 
 		// Gameplay Settings
 		private static Vector3 targetOffset = new Vector3(0f, 2.4f, 0f);
-		private static LayerMask cameraCollisionLayers = LayerMask.GetMask("Ground") | LayerMask.GetMask("Obstacle") | LayerMask.GetMask("EnvironmentOther") | LayerMask.GetMask("Terrain") | LayerMask.GetMask("Lava");
+		private static LayerMask cameraCollisionLayers = LayerMask.GetMask("Ground","Obstacle","EnvironmentOther","Terrain","Lava");
 
 		// Camera angle limits
 		private static int xMinLimit = -82;
@@ -226,7 +225,7 @@ namespace AlternativeCameraMod
 			// All keybind handling
 			HandleSettingsInputs();
 
-			if (playerBikeObject == null)
+			if (playerBikeTransform == null)
 			{
 				return;
 			}
@@ -239,7 +238,7 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private void CameraLogic()
 		{
-			dirToCam = camTransform.position - playerBikeObject.TransformPoint(targetOffset);
+			dirToCam = camTransform.position - playerBikeTransform.TransformPoint(targetOffset);
 
 			// Clamp distance at 0
 			if (wantedZoom < 0.0f) {
@@ -318,7 +317,7 @@ namespace AlternativeCameraMod
 					if (cfgCameraAutoAlign.Value == true && !holdingInvertAutoAlign)
 					{
 						// Lerp the horizontal rotation relative to the player
-						rotHorizontal = Mathf.LerpAngle(rotHorizontal, -playerBikeParent.localRotation.eulerAngles.y, cfgAutoAlignSpeed.Value * Time.deltaTime);
+						rotHorizontal = Mathf.LerpAngle(rotHorizontal, -playerBikeParentTransform.localRotation.eulerAngles.y, cfgAutoAlignSpeed.Value * Time.deltaTime);
 						rotHorizontal = ClampAngle(rotHorizontal, -360, 360);
 					}
 					rotation = Quaternion.Euler(-rotVertical, -rotHorizontal, 0f);
@@ -328,7 +327,7 @@ namespace AlternativeCameraMod
 					if (cfgCameraAutoAlign.Value == true && !holdingInvertAutoAlign)
 					{
 						// Lerp the horizontal rotation relative to the player
-						rotHorizontal = Mathf.LerpAngle(rotHorizontal, playerBikeParent.localRotation.eulerAngles.y, cfgAutoAlignSpeed.Value * Time.deltaTime);
+						rotHorizontal = Mathf.LerpAngle(rotHorizontal, playerBikeParentTransform.localRotation.eulerAngles.y, cfgAutoAlignSpeed.Value * Time.deltaTime);
 						rotHorizontal = ClampAngle(rotHorizontal, -360, 360);
 					}
 					rotation = Quaternion.Euler(-rotVertical, rotHorizontal, 0f);
@@ -336,9 +335,9 @@ namespace AlternativeCameraMod
 
 				RaycastHit hitInfo;
 				// Raycast from the target towards the camera
-				if (Physics.Raycast(playerBikeObject.TransformPoint(targetOffset), dirToCam.normalized, out hitInfo, wantedZoom + 0.2f, cameraCollisionLayers))
+				if (Physics.Raycast(playerBikeTransform.TransformPoint(targetOffset), dirToCam.normalized, out hitInfo, wantedZoom + 0.2f, cameraCollisionLayers))
 				{
-					projectedDistance = Vector3.Distance(hitInfo.point, playerBikeObject.TransformPoint(targetOffset));
+					projectedDistance = Vector3.Distance(hitInfo.point, playerBikeTransform.TransformPoint(targetOffset));
 				} else
 				{
 					projectedDistance = 900;
@@ -358,7 +357,7 @@ namespace AlternativeCameraMod
 					targetZoomAmount = Mathf.Lerp(targetZoomAmount, wantedZoom, Time.deltaTime * cfgZoomLerpOutSpeed.Value);
 				}
 
-				Vector3 finalPosition = rotation * new Vector3(0f, 0f, -targetZoomAmount) + playerBikeObject.TransformPoint(targetOffset);
+				Vector3 finalPosition = rotation * new Vector3(0f, 0f, -targetZoomAmount) + playerBikeTransform.TransformPoint(targetOffset);
 
 				// Apply values
 				camTransform.position = finalPosition;
@@ -404,12 +403,61 @@ namespace AlternativeCameraMod
 		}
 
 		/// <summary>
+		/// Handles all settings keybinds.
+		/// </summary>
+		private void HandleSettingsInputs()
+		{
+			if (Input.GetKeyDown(grabGOsKey))
+			{
+				// Find gameobjects again/update references on level load
+				GetTargetGameObjects();
+				GetUiObjects();
+				AlignViewWithBike();
+			}
+			if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+			{
+				// On checkpoint restarts || On track restarts
+				AlignViewWithBike();
+			}
+
+			if (Input.GetKeyDown(camPresetStandardKey))
+			{
+				// Standard
+				ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
+			}
+			if (Input.GetKeyDown(camPresetFirstPersonKey))
+			{
+				// First Person
+				ApplyCameraSettings(0f, (new Vector3(0.0f, 0.3f, 0f)), cfgFirstPersonFoV.Value, 0.6f, "neck_BindJNT");
+
+				// Navigate to bike mesh renderer to prevent it from vanishing in first person
+				SkinnedMeshRenderer bikeMeshRenderer = playerBikeParentTransform.GetChild(7).transform.GetChild(1).gameObject.GetComponent<SkinnedMeshRenderer>();
+				bikeMeshRenderer.updateWhenOffscreen = true;
+			}
+
+			// Mouse inverting
+			if (Input.GetKeyDown(camToggleInvertHorizontalKey))
+			{
+				cfg_mInvertHorizontal.Value = !cfg_mInvertHorizontal.Value;
+				LoggerInstance.Msg("Toggled invert camera horizontal ==> ["+ cfg_mInvertHorizontal.Value +"]");
+				AlignViewWithBike();
+			}
+
+			// Camera auto align
+			if (Input.GetKeyDown(camToggleAutoAlignKey))
+			{
+				cfgCameraAutoAlign.Value = !cfgCameraAutoAlign.Value;
+				LoggerInstance.Msg("Toggled auto-align ==> ["+ cfgCameraAutoAlign.Value +"]");
+			}
+		}
+
+		/// <summary>
 		/// Finds and assigns important GameObjects and Transforms.
 		/// </summary>
 		private static void GetTargetGameObjects()
 		{
-			playerBikeParent = GameObject.Find("Bike(Clone)").GetComponent<Transform>();
-			playerBikeObject = GameObject.Find(targetName).GetComponent<Transform>();
+			playerBikeParentTransform = GameObject.Find("Bike(Clone)").GetComponent<Transform>();
+			playerBikeTransform = GameObject.Find(targetName).GetComponent<Transform>();
 			camTransform = GameObject.Find("PlayCamera(Clone)").GetComponent<Transform>();
 			mainCameraComponent = camTransform.gameObject.GetComponent<Camera>();
 			defaultCameraScript = camTransform.gameObject.GetComponent<PlayCamera>();
@@ -421,17 +469,17 @@ namespace AlternativeCameraMod
 		private static void GetUiObjects()
 		{
 			uiRendererCamera = GameObject.Find("UICam").GetComponent<Camera>();
-			ui_mainUIParent = GameObject.Find("Wrapper");
+			ui_mainUIParent = GameObject.Find("Wrapper").GetComponent<Transform>();
 
-			ui_pauseMenuUI = ui_mainUIParent.transform.Find("PauseScreen(Clone)").gameObject;
-			ui_settingsUI = ui_mainUIParent.transform.Find("SettingsScreen(Clone)").gameObject;
-			ui_controlsUI = ui_mainUIParent.transform.Find("TutorialScreen(Clone)").gameObject;
-			ui_resultScreenUI = ui_mainUIParent.transform.Find("ResultScreen(Clone)").gameObject;
-			ui_highscoreStandaloneUI = ui_mainUIParent.transform.Find("HighscoreStandalone(Clone)").gameObject;
-			ui_dailyChallengeStandaloneUI = ui_mainUIParent.transform.Find("DailyChallengesStandalone(Clone)").gameObject;
-			ui_cutsceneUI = ui_mainUIParent.transform.Find("CutsceneScreen(Clone)").gameObject;
+			ui_pauseMenuUI = ui_mainUIParent.Find("PauseScreen(Clone)").gameObject;
+			ui_settingsUI = ui_mainUIParent.Find("SettingsScreen(Clone)").gameObject;
+			ui_controlsUI = ui_mainUIParent.Find("TutorialScreen(Clone)").gameObject;
+			ui_resultScreenUI = ui_mainUIParent.Find("ResultScreen(Clone)").gameObject;
+			ui_highscoreStandaloneUI = ui_mainUIParent.Find("HighscoreStandalone(Clone)").gameObject;
+			ui_dailyChallengeStandaloneUI = ui_mainUIParent.Find("DailyChallengesStandalone(Clone)").gameObject;
+			ui_cutsceneUI = ui_mainUIParent.Find("CutsceneScreen(Clone)").gameObject;
 
-			GameObject playscreenParentUI = ui_mainUIParent.transform.Find("PlayScreen(Clone)").gameObject;
+			GameObject playscreenParentUI = ui_mainUIParent.Find("PlayScreen(Clone)").gameObject;
 			if (playscreenParentUI != null)
 			{
 				GameObject playscreenGroupUI = playscreenParentUI.transform.Find("PlayScreen_Group").gameObject;
@@ -452,7 +500,6 @@ namespace AlternativeCameraMod
 			mainCameraComponent.fieldOfView = 38f;	// or 34?
 			mainCameraComponent.nearClipPlane = 0.3f;
 		}
-
 		/// <summary>
 		/// Allows applying multiple camera settings quickly.
 		/// </summary>
@@ -489,7 +536,6 @@ namespace AlternativeCameraMod
 			}
 			return false;
 		}
-
 		/// <summary>
 		/// Checks if the secret area gui is currently on screen.
 		/// </summary>
@@ -507,10 +553,10 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private void AlignViewWithBike()
 		{
-			if (playerBikeParent.gameObject == null) {
+			if (playerBikeParentTransform.gameObject == null) {
 				return;
 			}
-			Vector3 bikeRotation = playerBikeParent.localRotation.eulerAngles;
+			Vector3 bikeRotation = playerBikeParentTransform.localRotation.eulerAngles;
 			if (cfg_mInvertHorizontal.Value == true)
 			{
 				rotHorizontal = -bikeRotation.y;
@@ -518,55 +564,6 @@ namespace AlternativeCameraMod
 			else
 			{
 				rotHorizontal = bikeRotation.y;
-			}
-		}
-
-		/// <summary>
-		/// Handles all settings keybinds.
-		/// </summary>
-		private void HandleSettingsInputs()
-		{
-			if (Input.GetKeyDown(grabGOsKey))
-			{
-				// Find gameobjects again/update references on level load
-				GetTargetGameObjects();
-				GetUiObjects();
-				AlignViewWithBike();
-			}
-			if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
-			{
-				// On checkpoint restarts || On track restarts
-				AlignViewWithBike();
-			}
-
-			if (Input.GetKeyDown(camPresetStandardKey))
-			{
-				// Standard
-				ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
-			}
-			if (Input.GetKeyDown(camPresetFirstPersonKey))
-			{
-				// First Person
-				ApplyCameraSettings(0f, (new Vector3(0.0f, 0.3f, 0f)), cfgFirstPersonFoV.Value, 0.6f, "neck_BindJNT");
-
-				// Navigate to bike mesh renderer to prevent it from vanishing in first person
-				SkinnedMeshRenderer bikeMeshRenderer = playerBikeParent.GetChild(7).transform.GetChild(1).gameObject.GetComponent<SkinnedMeshRenderer>();
-				bikeMeshRenderer.updateWhenOffscreen = true;
-			}
-
-			// Mouse inverting
-			if (Input.GetKeyDown(camToggleInvertHorizontalKey))
-			{
-				cfg_mInvertHorizontal.Value = !cfg_mInvertHorizontal.Value;
-				LoggerInstance.Msg("Toggled invert camera horizontal ==> ["+ cfg_mInvertHorizontal.Value +"]");
-				AlignViewWithBike();
-			}
-
-			// Camera auto align
-			if (Input.GetKeyDown(camToggleAutoAlignKey))
-			{
-				cfgCameraAutoAlign.Value = !cfgCameraAutoAlign.Value;
-				LoggerInstance.Msg("Toggled auto-align ==> ["+ cfgCameraAutoAlign.Value +"]");
 			}
 		}
 
@@ -580,7 +577,6 @@ namespace AlternativeCameraMod
 			}
 			ToggleGameHUD(!uiRendererCamera.enabled);
 		}
-
 		/// <summary>
 		/// Enables or disables rendering of the game HUD.
 		/// </summary>
@@ -592,12 +588,6 @@ namespace AlternativeCameraMod
 			}
 			// Toggle UI camera rendering
 			uiRendererCamera.enabled = visible;
-			LoggerInstance.Msg("Toggled hud rendering ==> [" + uiRendererCamera.enabled + "]");
-		}
-
-		public static void DrawDemoText()
-		{
-			GUI.Label(new Rect(20, 20, 1000, 200), "<b><color=white><size=16>DevdudeX's Camera Mod Demo v"+ MOD_VERSION +"</size></color></b>");
 		}
 
 		/// <summary>
@@ -605,12 +595,10 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private static float ClampAngle(float angle, float min, float max)
 		{
-			if (angle < -360f)
-			{
+			if (angle < -360f) {
 				angle += 360f;
 			}
-			if (angle > 360f)
-			{
+			if (angle > 360f) {
 				angle -= 360f;
 			}
 			return Mathf.Clamp(angle, min, max);
@@ -631,6 +619,11 @@ namespace AlternativeCameraMod
 			return 0;
 		}
 
+
+		public static void DrawDemoText()
+		{
+			GUI.Label(new Rect(20, 20, 1000, 200), "<b><color=white><size=16>DevdudeX's Camera Mod Demo v"+ MOD_VERSION +"</size></color></b>");
+		}
 		public override void OnDeinitializeMelon()
 		{
 			// In case the melon gets unregistered

@@ -47,5 +47,5 @@ This file can be edited with any text editor and contains all the mods settings.
 
 #### Known Issues & Fixes
 - Movement isn't working: Go to the last checkpoint / restart run.  
-- Camera doesn't work: Try pressing [9], [Keypad 9], and [0] on your keyboard.  
-- Game freezes on quitting: Use [Alt+Tab] to select the commandline window and then close it.
+- Camera doesn't work: Try pressing `Keyboard [9]`, `[Keypad 9]`, and `Keyboard [0]` on your keyboard.  
+- Game freezes on quitting: Use `[Alt + Tab]` to select the commandline window and then close it.
