@@ -18,7 +18,7 @@ namespace AlternativeCameraMod
 		private const string MOD_VERSION = "1.0.4";
 		public static AlternativeCamera instance;
 		private static bool hasStartedOnce = false;
-		private static bool cameraModEnabled = true;
+		private static bool cameraModEnabled = false;
 		private static bool forceDisable = false;
 
 		private MelonPreferences_Category mouseSettingsCat;
@@ -126,29 +126,29 @@ namespace AlternativeCameraMod
 			otherSettingsCat.SetFilePath("UserData/AlternativeCameraSettings.cfg");
 
 			// Mouse Settings
-			cfg_mSensitivityHorizontal = mouseSettingsCat.CreateEntry<float>("HorizontalSensitivity", 1.4f);
-			cfg_mSensitivityVertical = mouseSettingsCat.CreateEntry<float>("VerticalSensitivity", 1.4f);
-			cfg_mSensitivityMultiplier = mouseSettingsCat.CreateEntry<float>("SensitivityMultiplier", 1f);
+			cfg_mSensitivityHorizontal = mouseSettingsCat.CreateEntry<float>("HorizontalSensitivity", 1);
+			cfg_mSensitivityVertical = mouseSettingsCat.CreateEntry<float>("VerticalSensitivity", 1);
+			cfg_mSensitivityMultiplier = mouseSettingsCat.CreateEntry<float>("SensitivityMultiplier", 1);
 			cfg_mInvertHorizontal = mouseSettingsCat.CreateEntry<bool>("InvertHorizontal", false);
 			cfgZoomStepIncrement = mouseSettingsCat.CreateEntry<float>("ZoomStepIncrement", 0.20f, description:"How much one scroll zooms the camera.");
 
 			// Gamepad Settings
 			cfg_gamepadStickDeadzoneR = gamepadSettingsCat.CreateEntry<float>("GamepadStickDeadzoneR", 0.1f);
-			cfg_gamepadSensHorizontal = gamepadSettingsCat.CreateEntry<float>("GamepadHorizontalSensitivity", 1f);
-			cfg_gamepadSensVertical = gamepadSettingsCat.CreateEntry<float>("GamepadVerticalSensitivity", 1f);
-			cfg_gamepadSensMultiplier = gamepadSettingsCat.CreateEntry<float>("GamepadSensitivityMultiplier", 1f);
+			cfg_gamepadSensHorizontal = gamepadSettingsCat.CreateEntry<float>("GamepadHorizontalSensitivity", 1);
+			cfg_gamepadSensVertical = gamepadSettingsCat.CreateEntry<float>("GamepadVerticalSensitivity", 1);
+			cfg_gamepadSensMultiplier = gamepadSettingsCat.CreateEntry<float>("GamepadSensitivityMultiplier", 1);
 			cfg_gamepadInvertHorizontal = gamepadSettingsCat.CreateEntry<bool>("GamepadInvertHorizontal", false);
 			cfg_gamepadInvertVertical = gamepadSettingsCat.CreateEntry<bool>("GamepadInvertVertical", false);
 
 			// Camera Settings
-			cfgZoomLerpOutSpeed = cameraSettingsCat.CreateEntry<float>("ZoomOutLerpSpeed", 1.0f);
+			cfgZoomLerpOutSpeed = cameraSettingsCat.CreateEntry<float>("ZoomOutLerpSpeed", 1);
 			cfgZoomLerpInSpeed = cameraSettingsCat.CreateEntry<float>("ZoomInLerpSpeed", 0.0880f);
 			cfgCameraCollisionPadding = cameraSettingsCat.CreateEntry<float>("CameraCollisionPadding", 0.20f, description:"Distance the camera is pushed away from terrain.");
 			cfgDefaultCameraOnPause = cameraSettingsCat.CreateEntry<bool>("DefaultCameraOnPause", true);
 			cfgCameraAutoAlign = cameraSettingsCat.CreateEntry<bool>("CameraAutoAlign", true);
 			cfgAutoAlignSpeed = cameraSettingsCat.CreateEntry<float>("AutoAlignSpeed", 1.80f, description:"How quickly the camera moves behind the player.");
-			cfgStandardFoV = cameraSettingsCat.CreateEntry<float>("StandardFoV", 70f);
-			cfgFirstPersonFoV = cameraSettingsCat.CreateEntry<float>("FirstPersonFoV", 98f);
+			cfgStandardFoV = cameraSettingsCat.CreateEntry<float>("StandardFoV", 70);
+			cfgFirstPersonFoV = cameraSettingsCat.CreateEntry<float>("FirstPersonFoV", 98);
 
 			// Other Settings
 			cfgAutoEnableOnLevelLoad = otherSettingsCat.CreateEntry<bool>("EnableAltCameraOnLevelLoad", true);
@@ -166,29 +166,20 @@ namespace AlternativeCameraMod
 				return;
 			}
 
-			if (Input.GetKeyDown(modStartupKey))
-			{
-				StartUpMod();
-			}
-
-			// FIRST CHECKPOINT: Mod not ready
-			if (!hasStartedOnce) {
-				return;
-			}
-
 			// Here to allow disabling HUD while using the normal camera.
 			if (Input.GetKeyDown(uiToggleKey))
 			{
+				uiRendererCamera = GameObject.Find("UICam").GetComponent<Camera>();
 				ToggleGameHUD();
 			}
 
 			if (Input.GetKeyDown(modToggleKey))
 			{
-				cameraModEnabled = !cameraModEnabled;
 				if (!hasStartedOnce) {
-					return;
+					StartUpMod();
 				}
 
+				cameraModEnabled = !cameraModEnabled;
 				if (cameraModEnabled == false && defaultCameraScript.enabled == false)
 				{
 					// Turn the mod OFF
@@ -201,16 +192,19 @@ namespace AlternativeCameraMod
 				{
 					// Turn the mod ON
 					defaultCameraScript.enabled = false;
-					ApplyCameraSettings(6f, new Vector3(0f, 2.4f, 0f), 70f, 0.28f, "Bike(Clone)");
+					ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.3f, "Bike(Clone)");
 					AlignViewWithBike();
 				}
+
+				LoggerInstance.Msg("hasStartedOnce --> ["+ hasStartedOnce + "]");
+				LoggerInstance.Msg("cameraModEnabled --> ["+ cameraModEnabled + "]");
+				LoggerInstance.Msg("defaultCameraScript.enabled --> ["+ defaultCameraScript.enabled + "]");
 			}
 
-			// SECOND CHECKPOINT: Mod not enabled
-			if (cameraModEnabled == false) {
+			// FIRST CHECKPOINT: Mod not enabled or hasn't grabbed references yet
+			if (cameraModEnabled == false || hasStartedOnce == false) {
 				return;
 			}
-
 
 			// ==================== MAIN MOD METHODS ====================
 			hasMenuOpen = GameMenuUiActive();
@@ -225,11 +219,7 @@ namespace AlternativeCameraMod
 			// All keybind handling
 			HandleSettingsInputs();
 
-			if (playerBikeTransform == null)
-			{
-				return;
-			}
-
+			// Calculating and setting the position/rotation of the camera
 			CameraLogic();
 		}
 
@@ -238,15 +228,10 @@ namespace AlternativeCameraMod
 		/// </summary>
 		private void CameraLogic()
 		{
+			if (playerBikeTransform == null) {
+				return;
+			}
 			dirToCam = camTransform.position - playerBikeTransform.TransformPoint(targetOffset);
-
-			// Clamp distance at 0
-			if (wantedZoom < 0.0f) {
-				wantedZoom = 0.0f;
-			}
-			if (targetZoomAmount < 0.0f) {
-				targetZoomAmount = 0.0f;
-			}
 
 			// Paused game check; only run when playing
 			if (!hasMenuOpen)
@@ -255,11 +240,6 @@ namespace AlternativeCameraMod
 				if (defaultCameraScript.enabled == true)
 				{
 					defaultCameraScript.enabled = false;
-				}
-
-				if(Input.anyKeyDown)
-				{
-					//LoggerInstance.Msg("Input ==> ["+ Input.inputString +"]");
 				}
 
 				// Lock and hide the cursor
@@ -276,12 +256,12 @@ namespace AlternativeCameraMod
 					// Scrolling backwards; zoom out
 					wantedZoom += cfgZoomStepIncrement.Value;
 				}
+				if (wantedZoom < 0.0f) {
+					wantedZoom = 0.0f;
+				}
 
 				float gamepadHorizontalInputRStick = Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") + Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
 				float gamepadVerticalInputRStick = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
-
-				//float totalHorizontalInputValue = Input.GetAxisRaw("Mouse X") + gamepadHorizontalInput;
-				//float totalVerticalInputValue = Input.GetAxisRaw("Mouse Y") + gamepadVerticalInput;
 
 				bool anyJoystickButton5 = Input.GetKey(KeyCode.Joystick1Button5) || Input.GetKey(KeyCode.Joystick2Button5) || Input.GetKey(KeyCode.Joystick3Button5) || Input.GetKey(KeyCode.Joystick4Button5);
 				bool holdingInvertAutoAlign = anyJoystickButton5 || Input.GetKey(KeyCode.Mouse1);
@@ -356,6 +336,9 @@ namespace AlternativeCameraMod
 					// Zoom the camera back out to wanted distance over time
 					targetZoomAmount = Mathf.Lerp(targetZoomAmount, wantedZoom, Time.deltaTime * cfgZoomLerpOutSpeed.Value);
 				}
+				if (targetZoomAmount < 0.0f) {
+					targetZoomAmount = 0.0f;
+				}
 
 				Vector3 finalPosition = rotation * new Vector3(0f, 0f, -targetZoomAmount) + playerBikeTransform.TransformPoint(targetOffset);
 
@@ -391,11 +374,10 @@ namespace AlternativeCameraMod
 			GetUiObjects();
 
 			// Apply some starting camera settings
-			ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
+			//ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
 
-			Vector3 eulerAngles = camTransform.eulerAngles;
-			rotHorizontal = eulerAngles.y;
-			rotVertical = eulerAngles.x;
+			rotHorizontal = camTransform.eulerAngles.y;
+			rotVertical = camTransform.eulerAngles.x;
 
 			AlignViewWithBike();
 
@@ -428,7 +410,7 @@ namespace AlternativeCameraMod
 			if (Input.GetKeyDown(camPresetFirstPersonKey))
 			{
 				// First Person
-				ApplyCameraSettings(0f, (new Vector3(0.0f, 0.3f, 0f)), cfgFirstPersonFoV.Value, 0.6f, "neck_BindJNT");
+				ApplyCameraSettings(0f, new Vector3(0.0f, 0.3f, 0f), cfgFirstPersonFoV.Value, 0.6f, "neck_BindJNT");
 
 				// Navigate to bike mesh renderer to prevent it from vanishing in first person
 				SkinnedMeshRenderer bikeMeshRenderer = playerBikeParentTransform.GetChild(7).transform.GetChild(1).gameObject.GetComponent<SkinnedMeshRenderer>();
@@ -439,7 +421,6 @@ namespace AlternativeCameraMod
 			if (Input.GetKeyDown(camToggleInvertHorizontalKey))
 			{
 				cfg_mInvertHorizontal.Value = !cfg_mInvertHorizontal.Value;
-				LoggerInstance.Msg("Toggled invert camera horizontal ==> ["+ cfg_mInvertHorizontal.Value +"]");
 				AlignViewWithBike();
 			}
 
@@ -447,7 +428,6 @@ namespace AlternativeCameraMod
 			if (Input.GetKeyDown(camToggleAutoAlignKey))
 			{
 				cfgCameraAutoAlign.Value = !cfgCameraAutoAlign.Value;
-				LoggerInstance.Msg("Toggled auto-align ==> ["+ cfgCameraAutoAlign.Value +"]");
 			}
 		}
 
@@ -506,8 +486,8 @@ namespace AlternativeCameraMod
 		private void ApplyCameraSettings(float followDistance, Vector3 followTargetOffset, float cameraFov, float nearClipPlane, string followTargetName)
 		{
 			targetName = followTargetName;
-			// Update references
-			GetTargetGameObjects();
+			// Update reference
+			playerBikeTransform = GameObject.Find(targetName).GetComponent<Transform>();
 
 			wantedZoom = followDistance;
 			targetOffset = followTargetOffset;
