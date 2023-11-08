@@ -1,21 +1,23 @@
-﻿using UnityEngine;
+﻿// Mod
 using MelonLoader;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
-using System;
-using Il2CppMegagon.Downhill.Cameras;
 using AlternativeCameraMod;
+// Unity
+using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
+// Megagon
+using Il2CppMegagon.Downhill.Cameras;
 
-[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.4", "DevdudeX")]
+[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.5", "DevdudeX")]
 [assembly: MelonGame()]
 namespace AlternativeCameraMod
 {
 	/// <summary>
-	/// Manages the alternative camera.
+	/// Manages the alternative camera system.
 	/// </summary>
 	public class AlternativeCamera : MelonMod
 	{
 		// Keep this updated!
-		private const string MOD_VERSION = "1.0.4";
+		private const string MOD_VERSION = "1.0.5";
 		public static AlternativeCamera instance;
 		private static bool hasStartedOnce = false;
 		private static bool cameraModEnabled = false;
@@ -48,6 +50,7 @@ namespace AlternativeCameraMod
 
 		private MelonPreferences_Category otherSettingsCat;
 		private MelonPreferences_Entry<bool> cfgAutoEnableOnLevelLoad;
+		private MelonPreferences_Entry<float> cfgFocalLength;
 
 		private static KeyCode modToggleKey = KeyCode.Alpha0;
 		private static KeyCode modStartupKey = KeyCode.Alpha9;
@@ -64,6 +67,8 @@ namespace AlternativeCameraMod
 		private static Transform playerBikeParentTransform;
 		private static Transform playerBikeTransform;
 		private static Transform camTransform;
+		private GameObject postProcessingObject;
+		private DepthOfField m_dofSettings;
 
 		/// <summary>The main camera itself. Used to set the field of view.</summary>
 		private static Camera mainCameraComponent;
@@ -92,10 +97,12 @@ namespace AlternativeCameraMod
 
 		// Active variables
 		private static bool hasMenuOpen = true;
-		//static bool invertCamVertical = false;	// WIP
+		private static bool hasDOFSettings;
 		private static float wantedZoom = 8f;
 		private static float targetZoomAmount;
 		private static Quaternion rotation;
+		private static float baseFocalLength;
+		private static float baseFoV;
 
 		/// <summary>The distance from the bike to any world-collision between it and the camera.</summary>
 		private static float projectedDistance = 200f;
@@ -126,8 +133,8 @@ namespace AlternativeCameraMod
 			otherSettingsCat.SetFilePath("UserData/AlternativeCameraSettings.cfg");
 
 			// Mouse Settings
-			cfg_mSensitivityHorizontal = mouseSettingsCat.CreateEntry<float>("HorizontalSensitivity", 1);
-			cfg_mSensitivityVertical = mouseSettingsCat.CreateEntry<float>("VerticalSensitivity", 1);
+			cfg_mSensitivityHorizontal = mouseSettingsCat.CreateEntry<float>("HorizontalSensitivity", 0.8f);
+			cfg_mSensitivityVertical = mouseSettingsCat.CreateEntry<float>("VerticalSensitivity", 0.8f);
 			cfg_mSensitivityMultiplier = mouseSettingsCat.CreateEntry<float>("SensitivityMultiplier", 1);
 			cfg_mInvertHorizontal = mouseSettingsCat.CreateEntry<bool>("InvertHorizontal", false);
 			cfgZoomStepIncrement = mouseSettingsCat.CreateEntry<float>("ZoomStepIncrement", 0.20f, description:"How much one scroll zooms the camera.");
@@ -150,8 +157,10 @@ namespace AlternativeCameraMod
 			cfgStandardFoV = cameraSettingsCat.CreateEntry<float>("StandardFoV", 70);
 			cfgFirstPersonFoV = cameraSettingsCat.CreateEntry<float>("FirstPersonFoV", 98);
 
+
 			// Other Settings
 			cfgAutoEnableOnLevelLoad = otherSettingsCat.CreateEntry<bool>("EnableAltCameraOnLevelLoad", true);
+			cfgFocalLength = otherSettingsCat.CreateEntry<float>("AltFocalLength", 64);
 
 			mouseSettingsCat.SaveToFile();
 			gamepadSettingsCat.SaveToFile();
@@ -194,11 +203,11 @@ namespace AlternativeCameraMod
 					defaultCameraScript.enabled = false;
 					ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.3f, "Bike(Clone)");
 					AlignViewWithBike();
+					// Adjust DoF
+					if (hasDOFSettings) {
+						m_dofSettings.focalLength.value = cfgFocalLength.Value;
+					}
 				}
-
-				LoggerInstance.Msg("hasStartedOnce --> ["+ hasStartedOnce + "]");
-				LoggerInstance.Msg("cameraModEnabled --> ["+ cameraModEnabled + "]");
-				LoggerInstance.Msg("defaultCameraScript.enabled --> ["+ defaultCameraScript.enabled + "]");
 			}
 
 			// FIRST CHECKPOINT: Mod not enabled or hasn't grabbed references yet
@@ -345,6 +354,12 @@ namespace AlternativeCameraMod
 				// Apply values
 				camTransform.position = finalPosition;
 				camTransform.rotation = rotation;
+
+				// Adjust DoF
+				if (hasDOFSettings) {
+					m_dofSettings.focusDistance.value = Vector3.Distance(camTransform.position, playerBikeTransform.position);
+					m_dofSettings.focalLength.value = cfgFocalLength.Value;
+				}
 			}
 			else	// The menu is open; game is paused
 			{
@@ -355,6 +370,11 @@ namespace AlternativeCameraMod
 				// and optionally show the default camera
 				if (defaultCameraScript.enabled == false && cfgDefaultCameraOnPause.Value)
 				{
+					// Adjust DoF
+					if (hasDOFSettings) {
+						m_dofSettings.focalLength.value = baseFocalLength;
+					}
+					//mainCameraComponent.fieldOfView = baseFoV;
 					defaultCameraScript.enabled = true;
 				}
 			}
@@ -380,6 +400,11 @@ namespace AlternativeCameraMod
 			rotVertical = camTransform.eulerAngles.x;
 
 			AlignViewWithBike();
+
+			if (hasDOFSettings) {
+				baseFocalLength = m_dofSettings.focalLength.GetValue<float>();
+			}
+			baseFoV = mainCameraComponent.fieldOfView;
 
 			hasStartedOnce = true;
 		}
@@ -434,13 +459,15 @@ namespace AlternativeCameraMod
 		/// <summary>
 		/// Finds and assigns important GameObjects and Transforms.
 		/// </summary>
-		private static void GetTargetGameObjects()
+		private void GetTargetGameObjects()
 		{
 			playerBikeParentTransform = GameObject.Find("Bike(Clone)").GetComponent<Transform>();
 			playerBikeTransform = GameObject.Find(targetName).GetComponent<Transform>();
 			camTransform = GameObject.Find("PlayCamera(Clone)").GetComponent<Transform>();
 			mainCameraComponent = camTransform.gameObject.GetComponent<Camera>();
 			defaultCameraScript = camTransform.gameObject.GetComponent<PlayCamera>();
+			postProcessingObject = camTransform.Find("DefaultPostProcessing").gameObject;
+			hasDOFSettings = postProcessingObject.GetComponent<PostProcessVolume>().sharedProfile.TryGetSettings<DepthOfField>(out m_dofSettings);
 		}
 
 		/// <summary>
@@ -473,12 +500,15 @@ namespace AlternativeCameraMod
 		}
 
 		/// <summary>
-		/// Resets the camera settings to default values (34 FoV?).
+		/// Resets the camera settings to default values. FoV, nearClipPlane, focalLength.
 		/// </summary>
 		private void ApplyDefaultCameraSettings()
 		{
 			mainCameraComponent.fieldOfView = 38f;	// or 34?
 			mainCameraComponent.nearClipPlane = 0.3f;
+			if (hasDOFSettings) {
+				m_dofSettings.focalLength.value = baseFocalLength;
+			}
 		}
 		/// <summary>
 		/// Allows applying multiple camera settings quickly.
@@ -602,7 +632,7 @@ namespace AlternativeCameraMod
 
 		public static void DrawDemoText()
 		{
-			GUI.Label(new Rect(20, 20, 1000, 200), "<b><color=white><size=16>DevdudeX's Camera Mod Demo v"+ MOD_VERSION +"</size></color></b>");
+			GUI.Label(new Rect(20, 8, 1000, 200), "<b><color=white><size=15>DevdudeX's Alt Camera prerelease v"+ MOD_VERSION +"</size></color></b>");
 		}
 		public override void OnDeinitializeMelon()
 		{

@@ -4,6 +4,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>AlternativeCamera</AssemblyName>
+    <Authors>DevdudeX</Authors>
+    <Description>DevdudeX's alternative camera mod.</Description>
   </PropertyGroup>
 
   <ItemGroup>
