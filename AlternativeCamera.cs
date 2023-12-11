@@ -7,7 +7,7 @@ using UnityEngine.Rendering.PostProcessing;
 // Megagon
 using Il2CppMegagon.Downhill.Cameras;
 
-[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.5", "DevdudeX")]
+[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.6", "DevdudeX")]
 [assembly: MelonGame()]
 namespace AlternativeCameraMod
 {
@@ -17,7 +17,7 @@ namespace AlternativeCameraMod
 	public class AlternativeCamera : MelonMod
 	{
 		// Keep this updated!
-		private const string MOD_VERSION = "1.0.5";
+		private const string MOD_VERSION = "1.0.6";
 		public static AlternativeCamera instance;
 		private static bool hasStartedOnce = false;
 		private static bool cameraModEnabled = false;
@@ -51,6 +51,7 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Category otherSettingsCat;
 		private MelonPreferences_Entry<bool> cfgAutoEnableOnLevelLoad;
 		private MelonPreferences_Entry<float> cfgFocalLength;
+		private MelonPreferences_Entry<float> cfgFocusDistanceOffset;
 
 		private static KeyCode modToggleKey = KeyCode.Alpha0;
 		private static KeyCode modStartupKey = KeyCode.Alpha9;
@@ -60,6 +61,8 @@ namespace AlternativeCameraMod
 		private static KeyCode camPresetFirstPersonKey = KeyCode.Keypad2;
 		private static KeyCode camToggleInvertHorizontalKey = KeyCode.Keypad3;
 		private static KeyCode camToggleAutoAlignKey = KeyCode.Keypad4;
+		private static KeyCode focalLegthModeKey = KeyCode.L;
+		private static KeyCode focusDistanceModeKey = KeyCode.K;
 
 		// Transforms and GameObjects
 		/// <summary>The name of the gameobject that will act as the cameras target.</summary>
@@ -103,6 +106,7 @@ namespace AlternativeCameraMod
 		private static Quaternion rotation;
 		private static float baseFocalLength;
 		private static float baseFoV;
+		private static float wantedFocalLength;
 
 		/// <summary>The distance from the bike to any world-collision between it and the camera.</summary>
 		private static float projectedDistance = 200f;
@@ -160,7 +164,8 @@ namespace AlternativeCameraMod
 
 			// Other Settings
 			cfgAutoEnableOnLevelLoad = otherSettingsCat.CreateEntry<bool>("EnableAltCameraOnLevelLoad", true);
-			cfgFocalLength = otherSettingsCat.CreateEntry<float>("AltFocalLength", 64);
+			cfgFocalLength = otherSettingsCat.CreateEntry<float>("AltFocalLength", 66);
+			cfgFocusDistanceOffset = otherSettingsCat.CreateEntry<float>("FocusDistanceOffset", 7);
 
 			mouseSettingsCat.SaveToFile();
 			gamepadSettingsCat.SaveToFile();
@@ -258,12 +263,36 @@ namespace AlternativeCameraMod
 				if (Input.GetAxis("Mouse ScrollWheel") > 0f)
 				{
 					// Scrolling forward; zoom in
-					wantedZoom -= cfgZoomStepIncrement.Value;
+					if (Input.GetKey(focalLegthModeKey) && wantedFocalLength > 0)
+					{
+						wantedFocalLength--;
+						Debug.Log("FocalLength " + wantedFocalLength);
+					}
+					else if (Input.GetKey(focusDistanceModeKey))
+					{
+						cfgFocusDistanceOffset.Value++;
+						Debug.Log("FocusDistanceOffset " + cfgFocusDistanceOffset.Value);
+					}
+					else {
+						wantedZoom -= cfgZoomStepIncrement.Value;
+					}
 				}
 				else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
 				{
 					// Scrolling backwards; zoom out
-					wantedZoom += cfgZoomStepIncrement.Value;
+					if (Input.GetKey(focalLegthModeKey))
+					{
+						wantedFocalLength++;
+						Debug.Log("FocalLength " + wantedFocalLength);
+					}
+					else if (Input.GetKey(focusDistanceModeKey) && cfgFocusDistanceOffset.Value > 0)
+					{
+						cfgFocusDistanceOffset.Value--;
+						Debug.Log("FocusDistanceOffset " + cfgFocusDistanceOffset.Value);
+					}
+					else {
+						wantedZoom += cfgZoomStepIncrement.Value;
+					}
 				}
 				if (wantedZoom < 0.0f) {
 					wantedZoom = 0.0f;
@@ -357,8 +386,8 @@ namespace AlternativeCameraMod
 
 				// Adjust DoF
 				if (hasDOFSettings) {
-					m_dofSettings.focusDistance.value = Vector3.Distance(camTransform.position, playerBikeTransform.position);
-					m_dofSettings.focalLength.value = cfgFocalLength.Value;
+					m_dofSettings.focusDistance.value = cfgFocusDistanceOffset.Value + Vector3.Distance(camTransform.position, playerBikeTransform.position);
+					m_dofSettings.focalLength.value = wantedFocalLength;
 				}
 			}
 			else	// The menu is open; game is paused
@@ -403,6 +432,7 @@ namespace AlternativeCameraMod
 
 			if (hasDOFSettings) {
 				baseFocalLength = m_dofSettings.focalLength.GetValue<float>();
+				wantedFocalLength = cfgFocalLength.Value;
 			}
 			baseFoV = mainCameraComponent.fieldOfView;
 

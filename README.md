@@ -43,12 +43,15 @@ This file can be edited with any text editor and contains all the mods settings.
 | 0                     | -                         | Toggle the camera mod (might be buggy)  |
 | Enter / Space         | -                         | Snap camera to behind the player        |
 | Mouse Scroll          | -                         | Move camera in and out                  |
+| Hold L + Mouse Scroll | -                         | Change DoF focal length                 |
+| Hold K + Mouse Scroll | -                         | Change DoF focus distance offset        |
 | H                     | -                         | Toggle HUD & UI rendering               |
 | Keypad 1              | -                         | Recommended camera preset               |
 | Keypad 2              | -                         | First person ( *Experimental* )         |
 | Keypad 3              | -                         | Toggle invert mouse horizontal          |
 | Keypad 4              | -                         | Toggle camera auto-align                |
 | Keypad 9              | -                         | Find and update gameobjects references  |
+
 
 
 #### Known Issues & Fixes
