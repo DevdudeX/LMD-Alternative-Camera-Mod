@@ -3,6 +3,11 @@ This is a mod made for Melon Loader that replaces LMD's default distant "isometr
 
 ![Camera preview](/images/banner.png?raw=true)
 
+#### Mod Compatibility Warning
+If you are already using the [Photo Mode](https://github.com/DevdudeX/LMD-Photo-Mode-Mod) mod please disable it while using this mod.  
+You can do this by simply renaming the file in your mods folder before launching.  
+`PhotoMode.dll` --> `PhotoMode.dll.disabled`
+
 ## Setup Instructions
 #### Preparing
 Your game folder can be found by right-clicking on the game in steam and going 'Manage -> Browse local files'  
