@@ -1,4 +1,6 @@
 # DevdudeX's Alternative Camera for Lonely Mountains: Downhill
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L4L5S9BK3)
+
 This is a mod made for Melon Loader that replaces LMD's default distant "isometric-like" camera with a third person system.  
 
 ![Camera preview](/images/banner.png?raw=true)
