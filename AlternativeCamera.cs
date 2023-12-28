@@ -7,7 +7,7 @@ using UnityEngine.Rendering.PostProcessing;
 // Megagon
 using Il2CppMegagon.Downhill.Cameras;
 
-[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.6", "DevdudeX")]
+[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.7", "DevdudeX")]
 [assembly: MelonGame()]
 namespace AlternativeCameraMod
 {
@@ -17,12 +17,13 @@ namespace AlternativeCameraMod
 	public class AlternativeCamera : MelonMod
 	{
 		// Keep this updated!
-		private const string MOD_VERSION = "1.0.6";
+		private const string MOD_VERSION = "1.0.7";
 		public static AlternativeCamera instance;
 		private static bool hasStartedOnce = false;
 		private static bool cameraModEnabled = false;
 		private static bool forceDisable = false;
 
+		#region Configuration Settings
 		private MelonPreferences_Category mouseSettingsCat;
 		private MelonPreferences_Entry<float> cfg_mSensitivityHorizontal;
 		private MelonPreferences_Entry<float> cfg_mSensitivityVertical;
@@ -42,7 +43,7 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Entry<float> cfgZoomLerpOutSpeed;
 		private MelonPreferences_Entry<float> cfgZoomLerpInSpeed;
 		private MelonPreferences_Entry<bool> cfgDefaultCameraOnPause;
-		private MelonPreferences_Entry<bool> cfgCameraAutoAlign;
+		private MelonPreferences_Entry<bool> cfgCameraAlwaysAutoAlign;
 		private MelonPreferences_Entry<float> cfgAutoAlignSpeed;
 		private MelonPreferences_Entry<float> cfgZoomStepIncrement;
 		private MelonPreferences_Entry<float> cfgStandardFoV;
@@ -63,6 +64,16 @@ namespace AlternativeCameraMod
 		private static KeyCode camToggleAutoAlignKey = KeyCode.Keypad4;
 		private static KeyCode focalLegthModeKey = KeyCode.L;
 		private static KeyCode focusDistanceModeKey = KeyCode.K;
+
+		// Gameplay Settings
+		private static Vector3 targetOffset = new Vector3(0f, 2.4f, 0f);
+		private static LayerMask cameraCollisionLayers = LayerMask.GetMask("Ground","Obstacle","EnvironmentOther","Terrain","Lava");
+
+		// Camera angle limits
+		private static readonly int xMinLimit = -82;
+		private static readonly int xMaxLimit = 82;
+
+		#endregion
 
 		// Transforms and GameObjects
 		/// <summary>The name of the gameobject that will act as the cameras target.</summary>
@@ -90,13 +101,6 @@ namespace AlternativeCameraMod
 		private static GameObject ui_cutsceneUI;
 		private static GameObject ui_cutsceneLocationUI;
 
-		// Gameplay Settings
-		private static Vector3 targetOffset = new Vector3(0f, 2.4f, 0f);
-		private static LayerMask cameraCollisionLayers = LayerMask.GetMask("Ground","Obstacle","EnvironmentOther","Terrain","Lava");
-
-		// Camera angle limits
-		private static int xMinLimit = -82;
-		private static int xMaxLimit = 82;
 
 		// Active variables
 		private static bool hasMenuOpen = true;
@@ -115,6 +119,31 @@ namespace AlternativeCameraMod
 		/// <summary>Camera rotation around x-axis (ear-to-ear or up-down)</summary>
 		private static float rotVertical;
 		private static Vector3 dirToCam;
+
+
+		// Gamepad Inputs
+		private float anyGamepadDpadHorizontal;
+		private float anyGamepadDpadVertical;
+		private float anyGamepadTriggerInputL;
+		private float anyGamepadTriggerInputR;
+		private float anyGamepadStickHorizontalR;
+		private float anyGamepadStickVerticalR;
+		/// <summary>Gamepad [A] held state</summary>
+		private bool anyGamepadBtn0;
+		/// <summary>Gamepad [Right Bumper] held state</summary>
+		private bool anyGamepadBtn5;
+		/// <summary>Gamepad [B] pressed state</summary>
+		private bool anyGamepadBtnDown1;
+		/// <summary>Gamepad [X] pressed state</summary>
+		private bool anyGamepadBtnDown2;
+		/// <summary>Gamepad [Y] pressed state</summary>
+		private bool anyGamepadBtnDown3;
+		/// <summary>Left Bumper pressed state</summary>
+		private bool anyGamepadBtnDown4;
+		/// <summary>Right Bumper pressed state</summary>
+		private bool anyGamepadBtnDown5;
+		/// <summary>Start Button pressed state</summary>
+		private bool anyGamepadBtnDown7;
 
 		public override void OnEarlyInitializeMelon()
 		{
@@ -156,7 +185,7 @@ namespace AlternativeCameraMod
 			cfgZoomLerpInSpeed = cameraSettingsCat.CreateEntry<float>("ZoomInLerpSpeed", 0.0880f);
 			cfgCameraCollisionPadding = cameraSettingsCat.CreateEntry<float>("CameraCollisionPadding", 0.20f, description:"Distance the camera is pushed away from terrain.");
 			cfgDefaultCameraOnPause = cameraSettingsCat.CreateEntry<bool>("DefaultCameraOnPause", true);
-			cfgCameraAutoAlign = cameraSettingsCat.CreateEntry<bool>("CameraAutoAlign", true);
+			cfgCameraAlwaysAutoAlign = cameraSettingsCat.CreateEntry<bool>("CameraAutoAlign", true);
 			cfgAutoAlignSpeed = cameraSettingsCat.CreateEntry<float>("AutoAlignSpeed", 1.80f, description:"How quickly the camera moves behind the player.");
 			cfgStandardFoV = cameraSettingsCat.CreateEntry<float>("StandardFoV", 70);
 			cfgFirstPersonFoV = cameraSettingsCat.CreateEntry<float>("FirstPersonFoV", 98);
@@ -171,6 +200,11 @@ namespace AlternativeCameraMod
 			gamepadSettingsCat.SaveToFile();
 			cameraSettingsCat.SaveToFile();
 			otherSettingsCat.SaveToFile();
+		}
+
+		public override void OnUpdate()
+		{
+			UpdateGamepadInputs();
 		}
 
 		public override void OnLateUpdate()
@@ -237,6 +271,42 @@ namespace AlternativeCameraMod
 			CameraLogic();
 		}
 
+		private void UpdateGamepadInputs()
+		{
+			/*
+				JoystickButton0 - X
+				JoystickButton1 - A
+				JoystickButton2 - B
+				JoystickButton3 - Y
+				JoystickButton4 - LB
+				JoystickButton5 - RB
+				JoystickButton6 - LT
+				JoystickButton7 - RT
+				JoystickButton8 - back
+				JoystickButton9 - start
+				JoystickButton10 - left stick[not direction, button]
+				JoystickButton11 - right stick[not direction, button]
+			*/
+			anyGamepadDpadHorizontal = Input.GetAxisRaw("Joy1Axis6") + Input.GetAxisRaw("Joy2Axis6") + Input.GetAxisRaw("Joy3Axis6") + Input.GetAxisRaw("Joy4Axis6");
+			anyGamepadDpadVertical = Input.GetAxisRaw("Joy1Axis7") + Input.GetAxisRaw("Joy2Axis7") + Input.GetAxisRaw("Joy3Axis7") + Input.GetAxisRaw("Joy4Axis7");
+
+			anyGamepadTriggerInputL = Input.GetAxisRaw("Joy1Axis9") + Input.GetAxisRaw("Joy2Axis9") + Input.GetAxisRaw("Joy3Axis9") + Input.GetAxisRaw("Joy4Axis9");
+			anyGamepadTriggerInputR = Input.GetAxisRaw("Joy1Axis10") + Input.GetAxisRaw("Joy2Axis10") + Input.GetAxisRaw("Joy3Axis10") + Input.GetAxisRaw("Joy4Axis10");
+			anyGamepadStickHorizontalR = Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") + Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
+			anyGamepadStickVerticalR = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
+
+			anyGamepadBtn0 = Input.GetKey(KeyCode.Joystick1Button0) || Input.GetKey(KeyCode.Joystick2Button0) || Input.GetKey(KeyCode.Joystick3Button0) || Input.GetKey(KeyCode.Joystick4Button0);
+			anyGamepadBtn5 = Input.GetKey(KeyCode.Joystick1Button5) || Input.GetKey(KeyCode.Joystick2Button5) || Input.GetKey(KeyCode.Joystick3Button5) || Input.GetKey(KeyCode.Joystick4Button5);
+
+			anyGamepadBtnDown1 = Input.GetKeyDown(KeyCode.Joystick1Button1) || Input.GetKeyDown(KeyCode.Joystick2Button1) || Input.GetKeyDown(KeyCode.Joystick3Button1) || Input.GetKeyDown(KeyCode.Joystick4Button1);
+			anyGamepadBtnDown2 = Input.GetKeyDown(KeyCode.Joystick1Button2) || Input.GetKeyDown(KeyCode.Joystick2Button2) || Input.GetKeyDown(KeyCode.Joystick3Button2) || Input.GetKeyDown(KeyCode.Joystick4Button2);
+			anyGamepadBtnDown3 = Input.GetKeyDown(KeyCode.Joystick1Button3) || Input.GetKeyDown(KeyCode.Joystick2Button3) || Input.GetKeyDown(KeyCode.Joystick3Button3) || Input.GetKeyDown(KeyCode.Joystick4Button3);
+			anyGamepadBtnDown4 = Input.GetKeyDown(KeyCode.Joystick1Button4) || Input.GetKeyDown(KeyCode.Joystick2Button4) || Input.GetKeyDown(KeyCode.Joystick3Button4) || Input.GetKeyDown(KeyCode.Joystick4Button4);
+			anyGamepadBtnDown5 = Input.GetKeyDown(KeyCode.Joystick1Button5) || Input.GetKeyDown(KeyCode.Joystick2Button5) || Input.GetKeyDown(KeyCode.Joystick3Button5) || Input.GetKeyDown(KeyCode.Joystick4Button5);
+			anyGamepadBtnDown7 = Input.GetKeyDown(KeyCode.Joystick1Button7) || Input.GetKeyDown(KeyCode.Joystick2Button7) || Input.GetKeyDown(KeyCode.Joystick3Button7) || Input.GetKeyDown(KeyCode.Joystick4Button7);
+		}
+
+
 		/// <summary>
 		/// Handles the processing of the position and rotation of the camera.
 		/// </summary>
@@ -298,57 +368,35 @@ namespace AlternativeCameraMod
 					wantedZoom = 0.0f;
 				}
 
-				float gamepadHorizontalInputRStick = Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") + Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
-				float gamepadVerticalInputRStick = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
-
-				bool anyJoystickButton5 = Input.GetKey(KeyCode.Joystick1Button5) || Input.GetKey(KeyCode.Joystick2Button5) || Input.GetKey(KeyCode.Joystick3Button5) || Input.GetKey(KeyCode.Joystick4Button5);
-				bool holdingInvertAutoAlign = anyJoystickButton5 || Input.GetKey(KeyCode.Mouse1);
 
 				// Horizontal mouse movement will make camera rotate around vertical y-axis
 				// Vertical mouse movement will make camera rotate along x-axis (your ear-to-ear axis)
 				rotHorizontal += Input.GetAxisRaw("Mouse X") * cfg_mSensitivityHorizontal.Value * cfg_mSensitivityMultiplier.Value;
 				rotVertical += Input.GetAxisRaw("Mouse Y") * cfg_mSensitivityVertical.Value * cfg_mSensitivityMultiplier.Value;
 
-				// Also take controller input
-				rotHorizontal += ApplyInnerDeadzone(gamepadHorizontalInputRStick, cfg_gamepadStickDeadzoneR.Value) * cfg_gamepadSensHorizontal.Value * cfg_gamepadSensMultiplier.Value;
-				rotVertical -= ApplyInnerDeadzone(gamepadVerticalInputRStick, cfg_gamepadStickDeadzoneR.Value) * cfg_gamepadSensVertical.Value * cfg_gamepadSensMultiplier.Value;
-				rotVertical = ClampAngle(rotVertical, (float)xMinLimit, (float)xMaxLimit);  // Clamp the up-down rotation
+				// Also apply controller input
+				rotHorizontal += ApplyInnerDeadzone(anyGamepadStickHorizontalR, cfg_gamepadStickDeadzoneR.Value) * cfg_gamepadSensHorizontal.Value * cfg_gamepadSensMultiplier.Value;
+				rotVertical -= ApplyInnerDeadzone(anyGamepadStickVerticalR, cfg_gamepadStickDeadzoneR.Value) * cfg_gamepadSensVertical.Value * cfg_gamepadSensMultiplier.Value;
+				rotVertical = ClampAngle(rotVertical, xMinLimit, xMaxLimit);  // Clamp the up-down rotation
 
-				/*
-					JoystickButton0 - X
-					JoystickButton1 - A
-					JoystickButton2 - B
-					JoystickButton3 - Y
-					JoystickButton4 - LB
-					JoystickButton5 - RB
-					JoystickButton6 - LT
-					JoystickButton7 - RT
-					JoystickButton8 - back
-					JoystickButton9 - start
-					JoystickButton10 - left stick[not direction, button]
-					JoystickButton11 - right stick[not direction, button]
-				*/
+				bool holdingInvertAutoAlign = anyGamepadBtn5 || Input.GetKey(KeyCode.Mouse1);
 
-				if (cfg_mInvertHorizontal.Value == true)
+				// Always auto-align is true or invert button is enabling it
+				if ((cfgCameraAlwaysAutoAlign.Value == true && !holdingInvertAutoAlign) || (cfgCameraAlwaysAutoAlign.Value == false && holdingInvertAutoAlign))
 				{
-					// Auto align is on and no input is being given
-					if (cfgCameraAutoAlign.Value == true && !holdingInvertAutoAlign)
+					if (cfg_mInvertHorizontal.Value == true)
 					{
 						// Lerp the horizontal rotation relative to the player
 						rotHorizontal = Mathf.LerpAngle(rotHorizontal, -playerBikeParentTransform.localRotation.eulerAngles.y, cfgAutoAlignSpeed.Value * Time.deltaTime);
 						rotHorizontal = ClampAngle(rotHorizontal, -360, 360);
+						rotation = Quaternion.Euler(-rotVertical, -rotHorizontal, 0f);
 					}
-					rotation = Quaternion.Euler(-rotVertical, -rotHorizontal, 0f);
-				}
-				else
-				{
-					if (cfgCameraAutoAlign.Value == true && !holdingInvertAutoAlign)
+					else
 					{
-						// Lerp the horizontal rotation relative to the player
 						rotHorizontal = Mathf.LerpAngle(rotHorizontal, playerBikeParentTransform.localRotation.eulerAngles.y, cfgAutoAlignSpeed.Value * Time.deltaTime);
 						rotHorizontal = ClampAngle(rotHorizontal, -360, 360);
+						rotation = Quaternion.Euler(-rotVertical, rotHorizontal, 0f);
 					}
-					rotation = Quaternion.Euler(-rotVertical, rotHorizontal, 0f);
 				}
 
 				RaycastHit hitInfo;
@@ -430,7 +478,8 @@ namespace AlternativeCameraMod
 
 			AlignViewWithBike();
 
-			if (hasDOFSettings) {
+			if (hasDOFSettings)
+			{
 				baseFocalLength = m_dofSettings.focalLength.GetValue<float>();
 				wantedFocalLength = cfgFocalLength.Value;
 			}
@@ -482,7 +531,7 @@ namespace AlternativeCameraMod
 			// Camera auto align
 			if (Input.GetKeyDown(camToggleAutoAlignKey))
 			{
-				cfgCameraAutoAlign.Value = !cfgCameraAutoAlign.Value;
+				cfgCameraAlwaysAutoAlign.Value = !cfgCameraAlwaysAutoAlign.Value;
 			}
 		}
 
@@ -540,6 +589,7 @@ namespace AlternativeCameraMod
 				m_dofSettings.focalLength.value = baseFocalLength;
 			}
 		}
+
 		/// <summary>
 		/// Allows applying multiple camera settings quickly.
 		/// </summary>
@@ -576,6 +626,7 @@ namespace AlternativeCameraMod
 			}
 			return false;
 		}
+
 		/// <summary>
 		/// Checks if the secret area gui is currently on screen.
 		/// </summary>
@@ -617,6 +668,7 @@ namespace AlternativeCameraMod
 			}
 			ToggleGameHUD(!uiRendererCamera.enabled);
 		}
+
 		/// <summary>
 		/// Enables or disables rendering of the game HUD.
 		/// </summary>
@@ -650,19 +702,15 @@ namespace AlternativeCameraMod
 		/// <returns>The axis if outside the deadzone, otherwise returns 0.</returns>
 		private static float ApplyInnerDeadzone(float axis, float deadzone)
 		{
-			if (axis > deadzone) {
-				return axis;
-			}
-			if (axis < -deadzone) {
+			if (axis > deadzone || axis < -deadzone) {
 				return axis;
 			}
 			return 0;
 		}
 
-
 		public static void DrawDemoText()
 		{
-			GUI.Label(new Rect(20, 8, 1000, 200), "<b><color=white><size=15>DevdudeX's Alt Camera prerelease v"+ MOD_VERSION +"</size></color></b>");
+			GUI.Label(new Rect(20, 8, 1000, 200), "<b><color=white><size=15>DevdudeX's Alt Camera v"+ MOD_VERSION +"</size></color></b>");
 		}
 		public override void OnDeinitializeMelon()
 		{

@@ -40,18 +40,18 @@ This file can be edited with any text editor and contains all the mods settings.
 | Keyboard & Mouse      | Gamepad                   | Action                                  |
 | ---                   | ---                       | ---                                     |
 | Mouse                 | Right Stick               | Look around                             |
-| Right Click           | Right Bumper              | Hold to disable camera auto-align       |
+| Right Click           | Right Bumper              | Hold to invert camera auto-align mode   |
 | 9                     | -                         | Start the camera                        |
-| 0                     | -                         | Toggle the camera mod (might be buggy)  |
+| 0                     | -                         | Toggle the camera mod                   |
+| H                     | -                         | Toggle HUD & UI rendering               |
 | Enter / Space         | -                         | Snap camera to behind the player        |
 | Mouse Scroll          | -                         | Move camera in and out                  |
 | Hold L + Mouse Scroll | -                         | Change DoF focal length                 |
 | Hold K + Mouse Scroll | -                         | Change DoF focus distance offset        |
-| H                     | -                         | Toggle HUD & UI rendering               |
 | Keypad 1              | -                         | Recommended camera preset               |
 | Keypad 2              | -                         | First person ( *Experimental* )         |
-| Keypad 3              | -                         | Toggle invert mouse horizontal          |
-| Keypad 4              | -                         | Toggle camera auto-align                |
+| Keypad 3              | -                         | Toggle invert look horizontal           |
+| Keypad 4              | -                         | Toggle camera auto-align mode           |
 | Keypad 9              | -                         | Find and update gameobjects references  |
 
 
@@ -60,3 +60,4 @@ This file can be edited with any text editor and contains all the mods settings.
 - Movement isn't working: Go to the last checkpoint / restart run.  
 - Camera doesn't work: Try pressing `Keyboard [9]`, `[Keypad 9]`, and `Keyboard [0]` on your keyboard.  
 - Game freezes on quitting: Use `[Alt + Tab]` to select the commandline window and then close it.
+- Controls are currently not rebindable.
