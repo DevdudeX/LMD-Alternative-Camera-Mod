@@ -379,25 +379,30 @@ namespace AlternativeCameraMod
 				rotVertical -= ApplyInnerDeadzone(anyGamepadStickVerticalR, cfg_gamepadStickDeadzoneR.Value) * cfg_gamepadSensVertical.Value * cfg_gamepadSensMultiplier.Value;
 				rotVertical = ClampAngle(rotVertical, xMinLimit, xMaxLimit);  // Clamp the up-down rotation
 
-				bool holdingInvertAutoAlign = anyGamepadBtn5 || Input.GetKey(KeyCode.Mouse1);
+
 
 				// Always auto-align is true or invert button is enabling it
-				if ((cfgCameraAlwaysAutoAlign.Value == true && !holdingInvertAutoAlign) || (cfgCameraAlwaysAutoAlign.Value == false && holdingInvertAutoAlign))
+				bool holdingInvertAutoAlignMode = anyGamepadBtn5 || Input.GetKey(KeyCode.Mouse1);
+				bool autoAligningIsActive = (cfgCameraAlwaysAutoAlign.Value && !holdingInvertAutoAlignMode) || (cfgCameraAlwaysAutoAlign.Value == false && holdingInvertAutoAlignMode);
+				if (autoAligningIsActive)
 				{
-					if (cfg_mInvertHorizontal.Value == true)
-					{
-						// Lerp the horizontal rotation relative to the player
+					// Lerp the horizontal rotation relative to the player
+					if (cfg_mInvertHorizontal.Value == true) {
 						rotHorizontal = Mathf.LerpAngle(rotHorizontal, -playerBikeParentTransform.localRotation.eulerAngles.y, cfgAutoAlignSpeed.Value * Time.deltaTime);
-						rotHorizontal = ClampAngle(rotHorizontal, -360, 360);
-						rotation = Quaternion.Euler(-rotVertical, -rotHorizontal, 0f);
 					}
-					else
-					{
+					else {
 						rotHorizontal = Mathf.LerpAngle(rotHorizontal, playerBikeParentTransform.localRotation.eulerAngles.y, cfgAutoAlignSpeed.Value * Time.deltaTime);
-						rotHorizontal = ClampAngle(rotHorizontal, -360, 360);
-						rotation = Quaternion.Euler(-rotVertical, rotHorizontal, 0f);
 					}
 				}
+				// Keep angles reasonable
+				rotHorizontal = ClampAngle(rotHorizontal, -360, 360);
+				if (cfg_mInvertHorizontal.Value == true) {
+					rotation = Quaternion.Euler(-rotVertical, -rotHorizontal, 0f);
+				}
+				else {
+					rotation = Quaternion.Euler(-rotVertical, rotHorizontal, 0f);
+				}
+
 
 				RaycastHit hitInfo;
 				// Raycast from the target towards the camera
