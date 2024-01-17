@@ -148,7 +148,7 @@ namespace AlternativeCameraMod
 		public override void OnEarlyInitializeMelon()
 		{
 			instance = this;
-			MelonEvents.OnGUI.Subscribe(DrawDemoText, 100);
+			//MelonEvents.OnGUI.Subscribe(DrawDemoText, 100);	// FIXME:
 		}
 
 		public override void OnInitializeMelon()
@@ -652,6 +652,7 @@ namespace AlternativeCameraMod
 			if (playerBikeParentTransform.gameObject == null) {
 				return;
 			}
+
 			Vector3 bikeRotation = playerBikeParentTransform.localRotation.eulerAngles;
 			if (cfg_mInvertHorizontal.Value == true)
 			{
