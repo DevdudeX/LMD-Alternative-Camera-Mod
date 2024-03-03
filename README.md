@@ -12,6 +12,7 @@ Additionally this mod contains a photo mode, that lets you pause time and positi
 ## Credits
 [DevdudeX](https://github.com/DevdudeX) created both original mods, `AlternativeCamera` and `PhotoMode`. 
 Kudos to him for doing the heavy lifting and the initial hard work on the mods and especially the core loop with the input and camera logic.
+
 Support him here: 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L4L5S9BK3)
 
@@ -101,7 +102,8 @@ A configuration file is generated in `[LMD folder]/UserData/AlternativeCameraWit
 This file can be edited with any text editor and contains all the mods settings with description.  
 
 ### Bike Mode Keys
-These are presets, keys rebindable.
+The keys are presets and can be customized.
+Controller inputs are fixed
 
 | Action                                  | Keyboard/Mouse            | Controller                  |
 | ---                                     | ---                       | ---                         |
@@ -114,7 +116,7 @@ These are presets, keys rebindable.
 | Toggle Game HUD                         | H                         | -                           |
 | Toggle Mod HUD Displays                 | J                         | -                           |
 | Look around                             | Mouse *)                  | Right Stick *)              |
-| Snap camera to behind the player        | Right Control             | Right Stick Click           |
+| Snap camera to behind the player        | Right Control             | Right Stick Click *)        |
 | Hold to invert camera auto-align mode   | Mouse Right Button *)     | Right Bumper *)             |
 | Move camera in and out                  | Mouse Scroll *)           | Dpad Up / Down *)           |
 | Change DoF focal length                 | Hold L + Mouse Scroll *)  | -                           |
@@ -123,10 +125,10 @@ These are presets, keys rebindable.
 | Decrease FoV by 10 (hold Alt for 5)     | 9                         | Dpad Left *)                |
 | Reset FoV to default/preset             | 0                         |                             |
 
-*) fixed, not rebindable
+*) not customizable
 
 ### Photo Mode Keys
-These keys are not rebindable.
+These input assignment is as follows (not customizable):
 
 | Action                  | Keyboard/Mouse   | Controller           |
 | ---                     | ---              | ---                  |
@@ -144,8 +146,8 @@ These keys are not rebindable.
 
 
 ## Info for keyboard users
-- The game works best by setting mouse to `Steering Only` in options and using the keyboard for forward and brake 
-- It is recommended to turn off camera `auto-align` 
+- If you want to actively play with mouse, the automatic alignment of the camera by the mod must be switched, otherwise mouse input has no effect (`AlignMode=Manual`)
+- The game works best by setting mouse to `Steering Only` in LMD options and using the keyboard for forward and brake 
 
 ## Known Issues & Fixes
 - Game may freeze on quitting: Add the `--quitfix` to Steam Launch Options ([MelonLoader launch option](https://github.com/LavaGang/MelonLoader#launch-options))  

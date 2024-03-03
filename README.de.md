@@ -9,6 +9,7 @@ Zusätzlich enthält diese Mod einen Fotomodus, mit dem du die Zeit anhalten und d
 ## Credits
 [DevdudeX](https://github.com/DevdudeX) hat beide ursprünglichen Mods erstellt, `AlternativeCamera` und `PhotoMode`. Kudos an ihn für die geleistete Arbeit 
 und Erstellung der Mods und insbesondere der Eingabe- und Kameralogik.
+
 Unterstütze ihn hier:  
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L4L5S9BK3)
 
@@ -73,6 +74,7 @@ Nehmen wir an, deine Steam-Bibliothek befindet sich hier: `D:\SteamLibrary\`.
 
 ### Mod Sprachdateien
 Sprachdateien befinden sich hier:  `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\Mods\AlternativeCameraWithPhotoMode-assets\Languages`
+
 Derzeit verfügbare Sprachdateien:  
 - Englische Sprache: `lang.en.ini`  
 - Deutsche Sprache: `lang.de.ini`
@@ -85,6 +87,7 @@ Eine Konfigurationsdatei wird in `[LMD-Ordner]\UserData\AlternativeCameraWithPho
 
 ### Tastatur und Controller-Belegung im Spielmodus
 Diese Tasten sind Voreinstellungen und können in der Konfigurationsdatei angepasst werden.
+Die Controller-Belegung ist fest definiert.
 
 | Aktion                                             | Tastatur/Maus             | Controller                  |
 | ---                                                | ---                       | ---                         |
@@ -97,7 +100,7 @@ Diese Tasten sind Voreinstellungen und können in der Konfigurationsdatei angepas
 | Game HUD an-/abschalten                            | H                         | -                           |
 | Mod HUD Anzeige an/-abschalten                     | J                         | -                           |
 | Kamera schwenken                                   | Mouse *)                  | Rechter Stick *)            |
-| Kamera hinter das Fahrrad bewegen                  | Right Control             | Rechter Stick Klick         |
+| Kamera hinter das Fahrrad bewegen                  | Right Control             | Rechter Stick Klick *)      |
 | Taste halten -> Pos.Modus temp. umschalten         | Mouse Right Button *)     | Rechte Schultertaste *)     |
 | Kamera Zoom                                        | Mouse Scroll *)           | Steuerkreuz hoch/runter *)  |
 | Tiefenschärfe anpassen                             | Hold L + Mouse Scroll *)  | -                           |
@@ -106,10 +109,10 @@ Diese Tasten sind Voreinstellungen und können in der Konfigurationsdatei angepas
 | Sichtfeld (FoV) verringern um 10 (halte Alt für 5) | 9                         | Steuerkreuz links *)        |
 | Sichtefeld (FoV) zurücksetzen                      | 0                         |                             |
 
-*) fixed, not rebindable
+*) nicht anpassbar
 
 ### Tastatur- und Controller-Belegung im Fotomodus
-Die Tastenbelegung ist wie folgt (nicht anpassbar)
+Die Tastenbelegung ist wie folgt (nicht anpassbar):
 
 | Aktion                          | Tastatur/Maus        | Controller               |
 | ---                             | ---                  | ---                      |
@@ -126,7 +129,7 @@ Die Tastenbelegung ist wie folgt (nicht anpassbar)
 | Tiefenschärfe-Modus umschalten  | V                    | Steuerkreuz unten        |
 
 ## Info für Tastaturbenutzer
-- Das Spiel funktioniert mit Tastatur am besten, wenn du die Maus in den Optionen auf „Nur Lenken“ einstellst und die Tastatur zum Vorwärts- und Bremsen verwendest
+- Das Spiel funktioniert mit Tastatur am besten, wenn du die Maus in den Optionen auf „Nur Lenken“ einstellst und die Tastatur für Fahren und Bremsen verwendest
 - Es wird empfohlen, die automatische Ausrichtung der Kamera auszuschalten
 
 ## Bekannte Probleme und Korrekturen
