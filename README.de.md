@@ -1,4 +1,3 @@
-# Multilanguage README Pattern
 [![en](https://img.shields.io/badge/lang-en-yellow.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.md)
 [![de](https://img.shields.io/badge/lang-de-blue.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.de.md)
 
