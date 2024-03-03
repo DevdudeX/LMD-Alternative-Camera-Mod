@@ -1,14 +1,21 @@
+# Multilanguage README Pattern
+[![en](https://img.shields.io/badge/lang-en-blue.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.md)
+[![de](https://img.shields.io/badge/lang-de-yellow.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.de.md)
 
 
 # DevdudeX's Alternative Camera with Photo Mode for Lonely Mountains: Downhill
 
-This is a mod for *Lonely Mountains: Downhill* that replaces the default distant "isometric-like" camera with a third/first person system with automatic and manual camera work. It still supports the original camera and allows to switch between them while biking. Additionally this mod contains a photo mode, that lets you pause time and fly around to position the camera freely. Perfect for taking screenshots!
-The mod is based on LavaGang's [Melon Loader](https://github.com/LavaGang/MelonLoader), a modding environment for games made in Unity. 
+This is a mod for *Lonely Mountains: Downhill* that replaces the default distant "isometric-like" camera with a third/first person system with 
+automatic and manual camera work. It still supports the original camera and allows to switch between them while biking. 
+Additionally this mod contains a photo mode, that lets you pause time and position the camera freely. Perfect for taking screenshots!
+
 
 ## Credits
 [DevdudeX](https://github.com/DevdudeX) created both mods, the AlternativeCamera and the PhotoMode. Kudos to him for doing the heavy lifting and the initial hard work on the mods and especially the core loop with the input and camera logic. 
 Support him here: 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L4L5S9BK3)
+
+The mod is based on LavaGang's [Melon Loader](https://github.com/LavaGang/MelonLoader), a modding environment for games made in Unity. 
 
 ## Screenshots
 Taken with the Mods Photo Mode:
@@ -22,7 +29,6 @@ Taken with the Mods Photo Mode:
 ![FreePhotoPos2](/images/LMD_screenshot_pm02.png?raw=true)
 
 Screenshot of the Photo Mode
-![PhotoMode01](/images/LMD_photomode_01.png?raw=true)
 ![PhotoMode01](/images/LMD_photomode_02.png?raw=true)
 
 ## Mod Compatibility Warning
@@ -43,7 +49,7 @@ If you are already using the [Photo Mode](https://github.com/DevdudeX/LMD-Photo-
 
 #### Step 1: Locating the Game Folder
 Your game folder can be found by right-clicking on the game in Steam and going 'Manage -> Browse local files'
-(e.g. D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill)
+(e.g. `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill`)
 
 #### Step 2: Download the Melon Mod Loader
 Look under 'Automated Installation':  
@@ -52,7 +58,12 @@ https://melonwiki.xyz/#/
 
 #### Step 3: Install the Melon Mod Loader
 Install Melon Loader to your LMD game install folder.  
-Run the game once and if the Melon Loader splash screen appears on launch, everything is fine. Then exit the game. If it freezes on exit, add the '--quitfix' command line option.
+Run the game once and if the Melon Loader splash screen appears on launch, everything is fine. Then exit the game. 
+Sollte es beim Beenden hängen, füge `--quitfix` zu den Startoptionen hinzu.
+
+
+If it freezes on exit, add '--quitfix' to the Steam Launch Options.
+Go to Steam, right click the game, then „Properties -> General -> Launch Options“
 
 #### Step 4: Download and install this mod's release 
 Download `AlternativeCameraWithPhotoMode.dll` from the releases and add it to the `Mods` folder in your LMD game folder.   
@@ -84,11 +95,6 @@ Currently available language files:
 ### Config File
 `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\UserData\AlternativeCameraWithPhotoMode.ini`
 
-
-## Info for keyboard users
-- The game works best by setting mouse to `Steering Only` in options and using the keyboard for forward and brake 
-- It is recommended to turn off camera `auto-align` 
-
 ## Configuration
 A configuration file is generated in `[LMD folder]/UserData/AlternativeCameraWithPhotoMode.ini`.  
 This file can be edited with any text editor and contains all the mods settings with description.  
@@ -105,7 +111,7 @@ These are presets, keys rebindable.
 | Toggle camera auto-align mode           | F5                        | -                           |
 | Toggle invert look horizontal           | F6                        | -                           |
 | Toggle Game HUD                         | H                         | -                           |
-| Toggle Mod HUD Displays                 | F10                       | -                           |
+| Toggle Mod HUD Displays                 | J                         | -                           |
 | Look around                             | Mouse *)                  | Right Stick *)              |
 | Snap camera to behind the player        | Right Control             | Right Stick Click           |
 | Hold to invert camera auto-align mode   | Mouse Right Button *)     | Right Bumper *)             |
@@ -130,15 +136,19 @@ These keys are not rebindable.
 | Move / Pan              | W A S D + Mouse  | L-Stick / R-Stick    |
 | Up / Down               | R / F            | L-Trig / R-Trig      |
 | Tilt Left / Right       | Q / E            | Dpad left / right    |
-| Speed up movement       | LShift           | Button A             |
+| Speed up movement       | Shift            | A                    |
 | Reset rotation / FoV    | K                | Dpad up              |
 | Change FoV              | Mouse Scroll     | LB / RB              |
 | Toggle DoF mode         | V                | Dpad down            |
 
 
+## Info for keyboard users
+- The game works best by setting mouse to `Steering Only` in options and using the keyboard for forward and brake 
+- It is recommended to turn off camera `auto-align` 
+
 ## Known Issues & Fixes
-- Game may freeze on quitting: Add the `--quitfix` ([MelonLoader launch option](https://github.com/LavaGang/MelonLoader#launch-options))  
-- Bike sometimes gets stuck and does not move anymore after switching between biking and photo mode; intentionally falling of the bike fixes this (use controller `B`)
-On steam: right-click on LMD --> Properties --> Launch Options --> Paste the command (with `--` infront!)
-- Low and mid depth of field setting blurs the bike in third person mode
+- Game may freeze on quitting: Add the `--quitfix` to Steam Launch Options ([MelonLoader launch option](https://github.com/LavaGang/MelonLoader#launch-options))  
+- Bike sometimes gets stuck and does not move anymore after switching between biking and photo mode; intentionally falling of the bike usually fixes this (use controller `B`)
+- Low and mid depth of field setting in LMD blurs the bike in third person mode
+
 
