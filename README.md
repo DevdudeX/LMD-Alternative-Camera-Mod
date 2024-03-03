@@ -48,28 +48,28 @@ If you are already using the [Photo Mode](https://github.com/DevdudeX/LMD-Photo-
 
 ## Setup Instructions
 
-#### Step 1: Locating the Game Folder
+### Step 1: Locating the Game Folder
 Your game folder can be found by right-clicking on the game in Steam and going 'Manage -> Browse local files'
 (e.g. `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill`)
 
-#### Step 2: Download the Melon Mod Loader
+### Step 2: Download the Melon Mod Loader
 As of March 3, 2024 the current version is v0.6.2: [Installer Direct Download Link](https://github.com/HerpDerpinstine/MelonLoader/releases/latest/download/MelonLoader.Installer.exe)
 
-Go to https://melonwiki.xyz/#/  
-Look under [Automated Installation](https://melonwiki.xyz/#/?id=automated-installation)
-[Check requirements](https://melonwiki.xyz/#/?id=requirements)  (.NET4.8 + .NET6)
+- Go to https://melonwiki.xyz/#/  
+- Look under [Automated Installation](https://melonwiki.xyz/#/?id=automated-installation)
+- [Check requirements](https://melonwiki.xyz/#/?id=requirements)  (.NET4.8 + .NET6)
 
-#### Step 3: Install the Melon Mod Loader
+### Step 3: Install the Melon Mod Loader
 Install Melon Loader to your LMD game install folder.  
 Run the game once and if the Melon Loader splash screen appears on launch, everything is fine. Then exit the game. 
 If LMD freezes on exit, add `--quitfix` to the Steam Launch Options.
 Go to Steam, right click the game, then `Properties -> General -> Launch Options`
 
-#### Step 4: Download and install this mod's release 
+### Step 4: Download and install this mod's release 
 Download `AlternativeCameraWithPhotoMode_v<X.Y.Z>.zip` from the releases and unpack it to the `Mods` folder in your LMD game folder.
 Optionally download any of the `AlternativeCameraWithPhotoMode.ini.<lang>.zip` and unpack it to the `UserData` folder in your LMD game folder. The configuration files are different in the localized comments about the entries. Technically they are same, of course.
 
-#### Step 5: Start the game
+### Step 5: Start the game
 When starting the game the mod is automatically initialized.
 On the first start it automatically creates the `AlternativeCameraWithPhotoMode.ini` if it is missing.
 The mod is showing its name and version in the main menu. If this text is missing, the mod is not loaded.
