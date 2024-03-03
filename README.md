@@ -11,7 +11,8 @@ Additionally this mod contains a photo mode, that lets you pause time and positi
 
 
 ## Credits
-[DevdudeX](https://github.com/DevdudeX) created both mods, the AlternativeCamera and the PhotoMode. Kudos to him for doing the heavy lifting and the initial hard work on the mods and especially the core loop with the input and camera logic. 
+[DevdudeX](https://github.com/DevdudeX) created both original mods, `AlternativeCamera` and `PhotoMode`. 
+Kudos to him for doing the heavy lifting and the initial hard work on the mods and especially the core loop with the input and camera logic.
 Support him here: 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L4L5S9BK3)
 

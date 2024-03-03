@@ -8,7 +8,8 @@ Dies ist eine Mod für *Lonely Mountains: Downhill*, die die standardmäßige "isom
 Zusätzlich enthält diese Mod einen Fotomodus, mit dem du die Zeit anhalten und die Kamera frei positionieren kannst. Perfekt für Screenshots!  
 
 ## Credits
-[DevdudeX](https://github.com/DevdudeX) hat beide ursprünglichen Mods erstellt, die AlternativeCamera und den PhotoMode. Kudos an ihn für die geistete Arbeit und Erstellung  der Mods und insbesondere der Eingabe- und Kameralogik.
+[DevdudeX](https://github.com/DevdudeX) hat beide ursprünglichen Mods erstellt, `AlternativeCamera` und `PhotoMode`. Kudos an ihn für die geleistete Arbeit 
+und Erstellung der Mods und insbesondere der Eingabe- und Kameralogik.
 Unterstütze ihn hier:  
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L4L5S9BK3)
 
