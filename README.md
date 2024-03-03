@@ -52,9 +52,10 @@ Your game folder can be found by right-clicking on the game in Steam and going '
 (e.g. `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill`)
 
 #### Step 2: Download the Melon Mod Loader
-Look under 'Automated Installation':  
-https://melonwiki.xyz/#/  
-(v0.6.1 is the current version at time of writing)  
+Go to https://melonwiki.xyz/#/  
+Look under 'Automated Installation':
+v0.6.2 is the current version on March 3, 2024
+
 
 #### Step 3: Install the Melon Mod Loader
 Install Melon Loader to your LMD game install folder.  

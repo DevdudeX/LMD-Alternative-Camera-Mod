@@ -3,7 +3,7 @@
 [![de](https://img.shields.io/badge/lang-de-blue.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.de.md)
 
 
-# DevdudeXs alternative Kamera mit Fotomodus für Lonely Mountains: Downhill 
+# DevdudeX's Alternative Kamera mit Fotomodus für Lonely Mountains: Downhill 
 Dies ist eine Mod für *Lonely Mountains: Downhill*, die die standardmäßige "isometrische" Kamerasicht durch ein Third-/First-Person-System mit automatischer und manueller Kameraführung ersetzt. Es unterstützt weiterhin die Originalkamera und ermöglicht den Wechsel zwischen diesen beiden Modi während dem Fahren. 
 Zusätzlich enthält diese Mod einen Fotomodus, mit dem du die Zeit anhalten und die Kamera frei positionieren kannst. Perfekt für Screenshots!  
 
