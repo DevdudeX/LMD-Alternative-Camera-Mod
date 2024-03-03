@@ -5,9 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>AlternativeCameraWithPhotoMode</AssemblyName>
-    <Authors>DevdudeX</Authors>
-    <Description>DevdudeX's alternative camera mod.</Description>
+    <Authors>DevdudeX,faehromon</Authors>
+    <Description>DevdudeX's alternative camera with photo mode.</Description>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <FileVersion>2.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -79,7 +81,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;D:\Spiele\Steam\steamapps\common\Lonely Mountains - Downhill\Mods&quot;&#xD;&#xA;mkdir &quot;D:\Spiele\Steam\steamapps\common\Lonely Mountains - Downhill\Mods\AlternativeCameraWithPhotoMode-assets\Languages&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)Assets\Languages\*.ini&quot; &quot;D:\Spiele\Steam\steamapps\common\Lonely Mountains - Downhill\Mods\AlternativeCameraWithPhotoMode-assets\Languages&quot;&#xD;&#xA;" />
+    <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;%25SteamLibrary%25\steamapps\common\Lonely Mountains - Downhill\Mods&quot;&#xD;&#xA;mkdir &quot;%25SteamLibrary%25\steamapps\common\Lonely Mountains - Downhill\Mods\AlternativeCameraWithPhotoMode-assets\Languages&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)Assets\Languages\*.ini&quot; &quot;%25SteamLibrary%25\steamapps\common\Lonely Mountains - Downhill\Mods\AlternativeCameraWithPhotoMode-assets\Languages&quot;&#xD;&#xA;" />
   </Target>
 
 </Project>
