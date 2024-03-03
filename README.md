@@ -68,8 +68,8 @@ If it freezes on exit, add '--quitfix' to the Steam Launch Options.
 Go to Steam, right click the game, then „Properties -> General -> Launch Options“
 
 #### Step 4: Download and install this mod's release 
-Download `AlternativeCameraWithPhotoMode.dll` from the releases and add it to the `Mods` folder in your LMD game folder.   
-The mod is automatically initialized. 
+Download `AlternativeCameraWithPhotoMode_v<X.Y.Z>.zip` from the releases and unpack it to the `Mods` folder in your LMD game folder.
+Optionally download any of the `AlternativeCameraWithPhotoMode.ini.<lang>.zip` and unpack it to the `UserData` folder in your LMD game folder. The configuration are different in the localized comments about the entries. Technically they are same, of course.
 
 #### Step 5: Start the game
 When starting the game the mod is automatically initialized.

@@ -53,11 +53,13 @@ Schaue dort unter „Automatisierte Installation“
 (v0.6.2 ist die aktuelle Version Stand 3.März'24)  
 
 #### Schritt 3: Installiere den Melon Mod Loader
-Installiere den Melon Loader in deinem LMD-Spielinstallationsordner.  Führe das Spiel dann einmal aus und wenn beim Start der Melon Loader-Startbildschirm erscheint, ist alles in Ordnung. Beende das Spiel wieder. Sollte es beim Beenden hängen, füge `--quitfix` zu den Startoptionen hinzu.
+Installiere den Melon Loader in deinem LMD-Spielinstallationsordner. Führe das Spiel dann einmal aus und wenn beim Start der Melon Loader-Startbildschirm erscheint, ist alles in Ordnung. Beende das Spiel wieder. Sollte es beim Beenden hängen, füge `--quitfix` zu den Startoptionen hinzu.
 Dazu in Steam mit der rechten Maustaste auf das Spiel klicken und dann „Eigenschaften -> Allgemein -> Startoptionen“
 
 #### Schritt 4:  Lade diese Mod herunter und installiere sie
-Lade `AlternativeCameraWithPhotoMode_v2.0.0.zip` aus den Veröffentlichungen herunter und entpacke es im Ordner `Mods` im LMD-Spielordner.  
+Lade `AlternativeCameraWithPhotoMode_v<X.Y.Z>.zip` unter den Releases herunter und entpacke es in den `Mods`-Ordner im LMD Spieleordner.
+Optional lade eine der vorbereiteten Konfigurationdateien `AlternativeCameraWithPhotoMode.ini.<lang>.zip` herunter und entpacke sie in den `UserData`-Ordner im LMD Spieleordner. Die Dateien unterscheiden sich in den lokalisierten Kommentaren zu den Einträgen. Technisch sind sie natürlich gleich.
+
  
 #### Schritt 5: Starte das Spiel
 Beim Start des Spiels wird die Mod automatisch initialisiert. Beim ersten Start wird automatisch die `AlternativeCameraWithPhotoMode.ini` erstellt, falls diese fehlt. Die Ini kannst du aber auch vorher hier herunterladen. 
