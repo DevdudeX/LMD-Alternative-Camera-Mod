@@ -125,7 +125,9 @@ public class AlternativeCamera : MelonMod
    private float _dpadPressDetectThreshold; // Used to treat dpad as a button
    private bool _dpadSingleClickDetect;
    private bool _holdingInvertManualAlignMode;
-
+   private Vector3 _lastMousePos;
+   private bool _mouseMoved;
+   private int _mouseVisibleThreshold;
    private bool _escapeKeyDown;
    private bool _menuWasOpenedWhileInPhotoMode;
 
@@ -366,7 +368,7 @@ public class AlternativeCamera : MelonMod
 
          case ScreenMode.PlayScreen:
             if (!IsHudVisible()) return;
-            
+
             if (_hudInfoParts.Count > 0 && _hudInfoVisible && IsHudVisible())
             {
                x = 20;
@@ -450,12 +452,12 @@ public class AlternativeCamera : MelonMod
             case ModHudInfoPart.FPS:
                target.Append(_lang.GetText("Mod", "FPSLabel_{fps}", "FPS: {0}", _fps));
                break;
-            
+
             case ModHudInfoPart.CamAlign:
                string align = _camAutoAlign
                   ? (_holdingInvertManualAlignMode ? "Manual" : "Auto")
                   : (_holdingInvertManualAlignMode ? "Auto" : "Manual");
-               
+
                target.Append(_lang.GetText("Mod", "CamAlignLabel_{align}", "({0})", align));
                break;
          }
@@ -498,16 +500,22 @@ public class AlternativeCamera : MelonMod
 
          if (_isMenuOpen)
          {
-            // If the menu is open and default camera on pause is set don't run any functions
+            EnableMouseCursorOnDemand();
+            // and optionally show the default camera
             if (_cfg.Camera.DefaultCameraOnPause.Value)
             {
-               Cursor.visible = true;
-               Cursor.lockState = CursorLockMode.None;
+               // Adjust DoF
+               if (_hasDepthOfFieldSetting)
+               {
+                  _depthOfFieldSettings.focalLength.value = _baseFocalLength;
+               }
+
+               _mainCamera.fieldOfView = DefaultIsometricFoV;
                _defaultPlayCamera.enabled = true;
             }
             return;
          }
-
+         
          if (initCamModeOnLevelStart && _mode == ModMode.BikeCam)
          {
             SelectCameraMode(_currentCamMode);
@@ -536,6 +544,26 @@ public class AlternativeCamera : MelonMod
       HandleCommonUserInputs();
 
       _firstInit = false;
+   }
+
+
+   private void EnableMouseCursorOnDemand()
+   {
+      if (_mouseMoved)
+      {
+         _mouseVisibleThreshold = _fps * 3;
+         Cursor.lockState = CursorLockMode.None;
+         Cursor.visible = true;
+      }
+      else if (_mouseVisibleThreshold > 0)
+      {
+         _mouseVisibleThreshold -= 1;
+      }
+      else if (_mouseVisibleThreshold <= 0)
+      {
+         Cursor.lockState = CursorLockMode.None;
+         Cursor.visible = false;
+      }
    }
 
 
@@ -869,6 +897,10 @@ public class AlternativeCamera : MelonMod
       UpdateControllerTriggerAndStickInputs();
       UpdateControllerButtonsDown();
       _holdingInvertManualAlignMode = _anyGamepadBtn5 || Input.GetKey(KeyCode.Mouse1);
+
+      var mpos = Input.mousePosition;
+      _mouseMoved = !_lastMousePos.Equals(mpos);
+      _lastMousePos = mpos;
    }
 
 
@@ -1002,187 +1034,161 @@ public class AlternativeCamera : MelonMod
 
       _dirToCam = _camTransform.position - _playerBikeTransform.TransformPoint(_targetOffset);
 
-      // Paused game check; only run when playing
-      if (!_isMenuOpen)
+      // Double check that the default camera is disabled
+      _defaultPlayCamera.enabled = false;
+
+      // Lock and hide the cursor
+      Cursor.lockState = CursorLockMode.Locked;
+      Cursor.visible = false;
+
+      bool zoomIn = Input.GetAxis("Mouse ScrollWheel") > 0f
+                     || _anyGamepadDpadUp;
+      bool zoomOut = Input.GetAxis("Mouse ScrollWheel") < 0f
+                     || _anyGamepadDpadDown;
+
+      if (zoomIn)
       {
-         // Double check that the default camera is disabled
-         _defaultPlayCamera.enabled = false;
-
-         // Lock and hide the cursor
-         if (!Debugger.IsAttached)
+         // Scrolling forward; zoom in
+         if (Input.GetKey(_cfg.Keyboard.AdjustFocalLengthKey.Value) && _wantedFocalLength > 0)
          {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            _wantedFocalLength--;
+            _logger.LogDebug("FocalLength " + _wantedFocalLength);
          }
-
-         bool zoomIn = Input.GetAxis("Mouse ScrollWheel") > 0f
-                        || _anyGamepadDpadUp;
-         bool zoomOut = Input.GetAxis("Mouse ScrollWheel") < 0f
-                        || _anyGamepadDpadDown;
-
-         if (zoomIn)
+         else if (Input.GetKey(_cfg.Keyboard.AdjustFocusDistanceKey.Value))
          {
-            // Scrolling forward; zoom in
-            if (Input.GetKey(_cfg.Keyboard.AdjustFocalLengthKey.Value) && _wantedFocalLength > 0)
-            {
-               _wantedFocalLength--;
-               _logger.LogDebug("FocalLength " + _wantedFocalLength);
-            }
-            else if (Input.GetKey(_cfg.Keyboard.AdjustFocusDistanceKey.Value))
-            {
-               _cfg.Camera.FocusDistanceOffset.Value++;
-               _logger.LogDebug("FocusDistanceOffset " + _cfg.Camera.FocusDistanceOffset.Value);
-            }
-            else
-            {
-               _wantedZoom -= _cfg.Camera.ZoomStepIncrement.Value;
-            }
-         }
-         else if (zoomOut)
-         {
-            // Scrolling backwards; zoom out
-            if (Input.GetKey(_cfg.Keyboard.AdjustFocalLengthKey.Value))
-            {
-               _wantedFocalLength++;
-               _logger.LogDebug("FocalLength " + _wantedFocalLength);
-            }
-            else if (Input.GetKey(_cfg.Keyboard.AdjustFocusDistanceKey.Value) && _cfg.Camera.FocusDistanceOffset.Value > 0)
-            {
-               _cfg.Camera.FocusDistanceOffset.Value--;
-               _logger.LogDebug("FocusDistanceOffset " + _cfg.Camera.FocusDistanceOffset.Value);
-            }
-            else
-            {
-               _wantedZoom += _cfg.Camera.ZoomStepIncrement.Value;
-            }
-         }
-
-         if (_wantedZoom < 0.0f)
-         {
-            _wantedZoom = 0.0f;
-         }
-
-         // Horizontal mouse movement will make camera rotate around vertical y-axis
-         // Vertical mouse movement will make camera rotate along x-axis (your ear-to-ear axis)
-         _rotationHorizontal += Input.GetAxisRaw("Mouse X") * _cfg.Mouse.SensitivityHorizontal.Value *
-                           _cfg.Mouse.SensitivityMultiplier.Value;
-         _rotationVertical += Input.GetAxisRaw("Mouse Y") * _cfg.Mouse.SensitivityVertical.Value *
-                         _cfg.Mouse.SensitivityMultiplier.Value;
-
-         // Also apply controller input
-         _rotationHorizontal += ApplyInnerDeadzone(_anyGamepadStickHorizontalR, _cfg.Controller.RightStickDeadzone.Value) *
-                           _cfg.Controller.SensitivityHorizontal.Value * _cfg.Controller.SensitivityMultiplier.Value;
-         _rotationVertical -= ApplyInnerDeadzone(_anyGamepadStickVerticalR, _cfg.Controller.RightStickDeadzone.Value) *
-                         _cfg.Controller.SensitivityVertical.Value * _cfg.Controller.SensitivityMultiplier.Value;
-         _rotationVertical = ClampAngle(_rotationVertical, -50, 30); // Clamp the up-down rotation
-
-         // Handle alignment, either auto or manual by mouse/stick
-         bool autoAligningIsActive = (_camAutoAlign && !_holdingInvertManualAlignMode) ||
-                                     (!_camAutoAlign && _holdingInvertManualAlignMode);
-
-         if (autoAligningIsActive)
-         {
-            // auto align camera behind the bike
-            if (_cfg.Mouse.InvertHorizontalLook.Value)
-            {
-               // Lerp the horizontal rotation relative to the player
-               _rotationHorizontal = Mathf.LerpAngle(_rotationHorizontal,
-                  -_playerBikeParentTransform.localRotation.eulerAngles.y,
-                  _cfg.Camera.AutoAlignSpeed.Value * Time.deltaTime);
-               _rotationHorizontal = ClampAngle(_rotationHorizontal, -360, 360);
-               _rotation = Quaternion.Euler(-_rotationVertical, -_rotationHorizontal, 0f);
-            }
-            else
-            {
-               _rotationHorizontal = Mathf.LerpAngle(_rotationHorizontal,
-                  _playerBikeParentTransform.localRotation.eulerAngles.y,
-                  _cfg.Camera.AutoAlignSpeed.Value * Time.deltaTime);
-               _rotationHorizontal = ClampAngle(_rotationHorizontal, -360, 360);
-               _rotation = Quaternion.Euler(-_rotationVertical, _rotationHorizontal, 0f);
-            }
-         }
-         else if (!_camAutoAlign && _cfg.Camera.ManualAlignmentInput.Value == CameraManualAlignmentInput.MouseOrRStick)
-         {
-            // move the camera to where the Mouse/RStick moved it
-            _rotationHorizontal = ClampAngle(_rotationHorizontal, -360, 360);
-            if (_cfg.Mouse.InvertHorizontalLook.Value)
-            {
-               _rotation = Quaternion.Euler(-_rotationVertical, -_rotationHorizontal, 0f);
-            }
-            else
-            {
-               _rotation = Quaternion.Euler(-_rotationVertical, _rotationHorizontal, 0f);
-            }
-         }
-
-         // Raycast from the target towards the camera
-         if (Physics.Raycast(_playerBikeTransform.TransformPoint(_targetOffset),
-                _dirToCam.normalized,
-                out var hitInfo,
-                _wantedZoom + 0.2f,
-                __cameraCollisionLayers))
-         {
-            _projectedDistance = Vector3.Distance(hitInfo.point, _playerBikeTransform.TransformPoint(_targetOffset));
+            _cfg.Camera.FocusDistanceOffset.Value++;
+            _logger.LogDebug("FocusDistanceOffset " + _cfg.Camera.FocusDistanceOffset.Value);
          }
          else
          {
-            _projectedDistance = 900;
-         }
-
-         if (_projectedDistance < _wantedZoom)
-         {
-            // Desired camera distance is greater than the collision distance so zoom in to prevent clipping
-            // b=bike, c=camera, *=collision
-            // b-------*---c
-            // b------c*
-            float newTargetZoom = _projectedDistance - _cfg.Camera.CollisionPadding.Value;
-            _targetZoomAmount = Mathf.Lerp(_targetZoomAmount, newTargetZoom, _cfg.Camera.ZoomLerpInSpeed.Value);
-         }
-         else
-         {
-            // Zoom the camera back out to wanted distance over time
-            _targetZoomAmount = Mathf.Lerp(_targetZoomAmount, _wantedZoom, Time.deltaTime * _cfg.Camera.ZoomLerpOutSpeed.Value);
-         }
-
-         if (_targetZoomAmount < 0.0f)
-         {
-            _targetZoomAmount = 0.0f;
-         }
-
-         Vector3 finalPosition = _rotation * new Vector3(0f, 0f, -_targetZoomAmount) +
-                                 _playerBikeTransform.TransformPoint(_targetOffset);
-
-         // Apply values
-         _camTransform.position = finalPosition;
-         _camTransform.rotation = _rotation;
-
-         // Adjust DoF
-         if (_hasDepthOfFieldSetting)
-         {
-            _depthOfFieldSettings.focusDistance.value = _cfg.Camera.FocusDistanceOffset.Value +
-                                                        Vector3.Distance(_camTransform.position,
-                                                           _playerBikeTransform.position);
-            _depthOfFieldSettings.focalLength.value = _wantedFocalLength;
+            _wantedZoom -= _cfg.Camera.ZoomStepIncrement.Value;
          }
       }
-      else // The menu is open; game is paused
+      else if (zoomOut)
       {
-         // While paused show the cursor
-         Cursor.lockState = CursorLockMode.None;
-         Cursor.visible = true;
-
-         // and optionally show the default camera
-         if (!_defaultPlayCamera.enabled && _cfg.Camera.DefaultCameraOnPause.Value)
+         // Scrolling backwards; zoom out
+         if (Input.GetKey(_cfg.Keyboard.AdjustFocalLengthKey.Value))
          {
-            // Adjust DoF
-            if (_hasDepthOfFieldSetting)
-            {
-               _depthOfFieldSettings.focalLength.value = _baseFocalLength;
-            }
-
-            //mainCameraComponent.fieldOfView = baseFoV;
-            _defaultPlayCamera.enabled = true;
+            _wantedFocalLength++;
+            _logger.LogDebug("FocalLength " + _wantedFocalLength);
          }
+         else if (Input.GetKey(_cfg.Keyboard.AdjustFocusDistanceKey.Value) && _cfg.Camera.FocusDistanceOffset.Value > 0)
+         {
+            _cfg.Camera.FocusDistanceOffset.Value--;
+            _logger.LogDebug("FocusDistanceOffset " + _cfg.Camera.FocusDistanceOffset.Value);
+         }
+         else
+         {
+            _wantedZoom += _cfg.Camera.ZoomStepIncrement.Value;
+         }
+      }
+
+      if (_wantedZoom < 0.0f)
+      {
+         _wantedZoom = 0.0f;
+      }
+
+      // Horizontal mouse movement will make camera rotate around vertical y-axis
+      // Vertical mouse movement will make camera rotate along x-axis (your ear-to-ear axis)
+      _rotationHorizontal += Input.GetAxisRaw("Mouse X") * _cfg.Mouse.SensitivityHorizontal.Value *
+                        _cfg.Mouse.SensitivityMultiplier.Value;
+      _rotationVertical += Input.GetAxisRaw("Mouse Y") * _cfg.Mouse.SensitivityVertical.Value *
+                      _cfg.Mouse.SensitivityMultiplier.Value;
+
+      // Also apply controller input
+      _rotationHorizontal += ApplyInnerDeadzone(_anyGamepadStickHorizontalR, _cfg.Controller.RightStickDeadzone.Value) *
+                        _cfg.Controller.SensitivityHorizontal.Value * _cfg.Controller.SensitivityMultiplier.Value;
+      _rotationVertical -= ApplyInnerDeadzone(_anyGamepadStickVerticalR, _cfg.Controller.RightStickDeadzone.Value) *
+                      _cfg.Controller.SensitivityVertical.Value * _cfg.Controller.SensitivityMultiplier.Value;
+      _rotationVertical = ClampAngle(_rotationVertical, -50, 30); // Clamp the up-down rotation
+
+      // Handle alignment, either auto or manual by mouse/stick
+      bool autoAligningIsActive = (_camAutoAlign && !_holdingInvertManualAlignMode) ||
+                                  (!_camAutoAlign && _holdingInvertManualAlignMode);
+
+      if (autoAligningIsActive)
+      {
+         // auto align camera behind the bike
+         if (_cfg.Mouse.InvertHorizontalLook.Value)
+         {
+            // Lerp the horizontal rotation relative to the player
+            _rotationHorizontal = Mathf.LerpAngle(_rotationHorizontal,
+               -_playerBikeParentTransform.localRotation.eulerAngles.y,
+               _cfg.Camera.AutoAlignSpeed.Value * Time.deltaTime);
+            _rotationHorizontal = ClampAngle(_rotationHorizontal, -360, 360);
+            _rotation = Quaternion.Euler(-_rotationVertical, -_rotationHorizontal, 0f);
+         }
+         else
+         {
+            _rotationHorizontal = Mathf.LerpAngle(_rotationHorizontal,
+               _playerBikeParentTransform.localRotation.eulerAngles.y,
+               _cfg.Camera.AutoAlignSpeed.Value * Time.deltaTime);
+            _rotationHorizontal = ClampAngle(_rotationHorizontal, -360, 360);
+            _rotation = Quaternion.Euler(-_rotationVertical, _rotationHorizontal, 0f);
+         }
+      }
+      else if (!_camAutoAlign && _cfg.Camera.ManualAlignmentInput.Value == CameraManualAlignmentInput.MouseOrRStick)
+      {
+         // move the camera to where the Mouse/RStick moved it
+         _rotationHorizontal = ClampAngle(_rotationHorizontal, -360, 360);
+         if (_cfg.Mouse.InvertHorizontalLook.Value)
+         {
+            _rotation = Quaternion.Euler(-_rotationVertical, -_rotationHorizontal, 0f);
+         }
+         else
+         {
+            _rotation = Quaternion.Euler(-_rotationVertical, _rotationHorizontal, 0f);
+         }
+      }
+
+      // Raycast from the target towards the camera
+      if (Physics.Raycast(_playerBikeTransform.TransformPoint(_targetOffset),
+             _dirToCam.normalized,
+             out var hitInfo,
+             _wantedZoom + 0.2f,
+             __cameraCollisionLayers))
+      {
+         _projectedDistance = Vector3.Distance(hitInfo.point, _playerBikeTransform.TransformPoint(_targetOffset));
+      }
+      else
+      {
+         _projectedDistance = 900;
+      }
+
+      if (_projectedDistance < _wantedZoom)
+      {
+         // Desired camera distance is greater than the collision distance so zoom in to prevent clipping
+         // b=bike, c=camera, *=collision
+         // b-------*---c
+         // b------c*
+         float newTargetZoom = _projectedDistance - _cfg.Camera.CollisionPadding.Value;
+         _targetZoomAmount = Mathf.Lerp(_targetZoomAmount, newTargetZoom, _cfg.Camera.ZoomLerpInSpeed.Value);
+      }
+      else
+      {
+         // Zoom the camera back out to wanted distance over time
+         _targetZoomAmount = Mathf.Lerp(_targetZoomAmount, _wantedZoom, Time.deltaTime * _cfg.Camera.ZoomLerpOutSpeed.Value);
+      }
+
+      if (_targetZoomAmount < 0.0f)
+      {
+         _targetZoomAmount = 0.0f;
+      }
+
+      Vector3 finalPosition = _rotation * new Vector3(0f, 0f, -_targetZoomAmount) +
+                              _playerBikeTransform.TransformPoint(_targetOffset);
+
+      // Apply values
+      _camTransform.position = finalPosition;
+      _camTransform.rotation = _rotation;
+
+      // Adjust DoF
+      if (_hasDepthOfFieldSetting)
+      {
+         _depthOfFieldSettings.focusDistance.value = _cfg.Camera.FocusDistanceOffset.Value +
+                                                     Vector3.Distance(_camTransform.position,
+                                                        _playerBikeTransform.position);
+         _depthOfFieldSettings.focalLength.value = _wantedFocalLength;
       }
    }
 
@@ -1760,7 +1766,7 @@ public class AlternativeCamera : MelonMod
          {
             Directory.CreateDirectory(pathWithSubFolder);
          }
-         
+
          if (File.Exists(path))
          {
             // try to anticipate what kind of format the user likes
@@ -1774,7 +1780,7 @@ public class AlternativeCamera : MelonMod
             do
             {
                cnt++;
-               newPath= Path.Combine(Path.GetDirectoryName(path),
+               newPath = Path.Combine(Path.GetDirectoryName(path),
                   Path.GetFileNameWithoutExtension(path) + sepChar + cnt.ToString("D3") + Path.GetExtension(path));
             }
             while (File.Exists(newPath));
@@ -1840,7 +1846,7 @@ public class AlternativeCamera : MelonMod
       actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionReset", "Reset rotation / FoV"));
       actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionChangeFoV", "Change FoV"));
       actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionToggleDoF", "Toggle DoF mode"));
-      
+
       string sep = "  ";
       var keys = new StringBuilder();
       keys.AppendLine(_lang.GetText("PhotoMode", "KeyMouseHeader", "CONTROLLER"));
@@ -1889,7 +1895,7 @@ public class AlternativeCamera : MelonMod
       var offLabel = _lang.GetText("PhotoMode", "Off", "off");
       var dofModeLabel = _lang.GetText("PhotoMode", "DoFModeLabel_{state}", "DoF focus mode: {0}", _photoModeFocus ? onLabel : offLabel);
       var note = _lang.GetText("PhotoMode", "Note", "(This instructions box is not part of the photo)");
-      
+
       float xOffset = 50;
       float xOffset2 = 400;
       float xOffset3 = 600;
@@ -1898,7 +1904,7 @@ public class AlternativeCamera : MelonMod
       float yPosNote = 540;
       float yPosState = 600;
       float yPosSaveInfo = 680;
-      
+
       GUI.Box(new Rect(xOffset - 20, yPosTitle - 20, 800, 470), "");
 
       GUI.Label(new Rect(xOffset + shadowOff, yPosTitle + shadowOff, 1000, 200), $"<b><color=black><size=30>{pmLabel}</size></color></b>");
