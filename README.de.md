@@ -128,7 +128,7 @@ Die Tastenbelegung ist wie folgt (nicht anpassbar):
 | Sichtfeld (FoV) anpassen        | Mausrad scrollen     | LB / RB                  |
 | Tiefenschärfe-Modus umschalten  | V                    | Steuerkreuz unten        |
 
-## Info für Spieler mit Tastatur-/Maus
+## Info zu Tastatur-/Maus
 - Wenn du aktiv mit Maus spielen möchtest, muss die automatische Ausrichtung der Kamera durch die Mod ausgeschaltet sein, da sonst die Mauseingabe nichts bewirkt (`AlignMode=Manual`)
 - Das Spiel funktioniert mit Maus und Tastatur am besten, wenn du die Maus in den Optionen auf „Nur Lenken“ einstellst und die Tastatur für Fahren und Bremsen verwendest
 
