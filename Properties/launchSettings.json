@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "AlternativeCameraMod": {
+      "commandName": "Project"
+    },
+    "RunInLMD": {
+      "commandName": "Executable",
+      "executablePath": "D:\\Spiele\\Steam\\steamapps\\common\\Lonely Mountains - Downhill\\LMD_Win_x64.exe",
+      "commandLineArgs": "--quitfix",
+      "workingDirectory": "D:\\Spiele\\Steam\\steamapps\\common\\Lonely Mountains - Downhill\\",
+      "nativeDebugging": false
+    }
+  }
+}
