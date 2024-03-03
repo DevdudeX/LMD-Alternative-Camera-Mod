@@ -1,9 +1,10 @@
+
 [![en](https://img.shields.io/badge/lang-en-yellow.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.md)
 [![de](https://img.shields.io/badge/lang-de-blue.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.de.md)
 
 
 # DevdudeX's Alternative Kamera mit Fotomodus für Lonely Mountains: Downhill 
-Dies ist eine Mod für *Lonely Mountains: Downhill*, die die standardmäßige "isometrische" Kamerasicht durch ein Third-/First-Person-System mit automatischer und manueller Kameraführung ersetzt. Es unterstützt weiterhin die Originalkamera und ermöglicht den Wechsel zwischen diesen beiden Modi während dem Fahren. 
+Dies ist eine Mod für *Lonely Mountains: Downhill*, die die standardmäßige "isometrische" Kamerasicht durch ein Third-/First-Person-System mit automatischer und manueller Kameraführung erweitert. Es unterstützt weiterhin die Originalkamera und ermöglicht den Wechsel zwischen diesen beiden Modi während der Fahrt. 
 Zusätzlich enthält diese Mod einen Fotomodus, mit dem du die Zeit anhalten und die Kamera frei positionieren kannst. Perfekt für Screenshots!  
 
 ## Credits
@@ -48,13 +49,16 @@ Screenshot des Fotomodus
 Du findest den Spielordner, indem du in Steam mit der rechten Maustaste auf das Spiel klickst und dann „Verwalten -> Lokale Dateien durchsuchen“ wählst.  (z. B. `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill`)
 
 #### Schritt 2: Lade den Melon Mod Loader herunter
-Gehe auf https://melonwiki.xyz/#/  
-Schaue dort unter „Automatisierte Installation“
-(v0.6.2 ist die aktuelle Version Stand 3.März'24)  
+Stand 3. März '24 ist die aktuelle Version v0.6.2: [Installer Download Direktlink](https://github.com/HerpDerpinstine/MelonLoader/releases/latest/download/MelonLoader.Installer.exe)
 
+Gehe auf https://melonwiki.xyz/#/  
+Schaue unter [Automatisierte Installation](https://melonwiki.xyz/#/?id=automated-installation)
+Beachte die [Vorraussetzungen](https://melonwiki.xyz/#/?id=requirements)  (.NET4.8 + .NET6)
+ 
 #### Schritt 3: Installiere den Melon Mod Loader
-Installiere den Melon Loader in deinem LMD-Spielinstallationsordner. Führe das Spiel dann einmal aus und wenn beim Start der Melon Loader-Startbildschirm erscheint, ist alles in Ordnung. Beende das Spiel wieder. Sollte es beim Beenden hängen, füge `--quitfix` zu den Startoptionen hinzu.
-Dazu in Steam mit der rechten Maustaste auf das Spiel klicken und dann „Eigenschaften -> Allgemein -> Startoptionen“
+Installiere den Melon Loader in deinem LMD-Spielinstallationsordner. Führe das Spiel dann einmal aus und wenn beim Start der Melon Loader-Startbildschirm erscheint, ist alles in Ordnung. Beende das Spiel wieder. 
+
+Sollte LMD beim Beenden einfrieren, füge `--quitfix` zu den Startoptionen hinzu. Dazu in Steam mit der rechten Maustaste auf das Spiel klicken und dann `Eigenschaften -> Allgemein -> Startoptionen`
 
 #### Schritt 4:  Lade diese Mod herunter und installiere sie
 Lade `AlternativeCameraWithPhotoMode_v<X.Y.Z>.zip` unter den Releases herunter und entpacke es in den `Mods`-Ordner im LMD Spieleordner.
@@ -73,6 +77,7 @@ Nehmen wir an, deine Steam-Bibliothek befindet sich hier: `D:\SteamLibrary\`.
 
 ### Mod Basisordner
 `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\Mods`
+Das ist der Ort für die Mod Datei selbst: `AlternativeCameraWithPhotoMode.dll` 
 
 ### Mod Sprachdateien
 Sprachdateien befinden sich hier:  `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\Mods\AlternativeCameraWithPhotoMode-assets\Languages`
@@ -85,11 +90,10 @@ Derzeit verfügbare Sprachdateien:
 `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\UserData\AlternativeCameraWithPhotoMode.ini`
 
 ## Konfiguration
-Eine Konfigurationsdatei wird in `[LMD-Ordner]\UserData\AlternativeCameraWithPhotoMode.ini` generiert.  Diese Datei kann mit jedem Texteditor bearbeitet werden und enthält alle Einstellungen der Mod mit Beschreibung.
+Die Konfigurationsdatei `AlternativeCameraWithPhotoMode.ini` kann mit jedem Texteditor bearbeitet werden und enthält alle Einstellungen der Mod mit Beschreibung.
 
 ### Tastatur und Controller-Belegung im Spielmodus
-Diese Tasten sind Voreinstellungen und können in der Konfigurationsdatei angepasst werden.
-Die Controller-Belegung ist fest definiert.
+Diese Tasten sind Voreinstellungen und können in der Konfigurationsdatei angepasst werden. Die Controller-Belegung ist fest definiert.
 
 | Aktion                                             | Tastatur/Maus             | Controller                  |
 | ---                                                | ---                       | ---                         |
@@ -130,15 +134,13 @@ Die Tastenbelegung ist wie folgt (nicht anpassbar):
 | Sichtfeld (FoV) anpassen        | Mausrad scrollen     | LB / RB                  |
 | Tiefenschärfe-Modus umschalten  | V                    | Steuerkreuz unten        |
 
-## Info zu Tastatur-/Maus
+## Info zu Tastatur/Maus
 - Wenn du aktiv mit Maus spielen möchtest, muss die automatische Ausrichtung der Kamera durch die Mod ausgeschaltet sein, da sonst die Mauseingabe nichts bewirkt (`AlignMode=Manual`)
-- Das Spiel funktioniert mit Maus und Tastatur am besten, wenn du die Maus in den Optionen auf „Nur Lenken“ einstellst und die Tastatur für Fahren und Bremsen verwendest
+- Das Spielen klappt mit Maus und Tastatur am besten, wenn du die Maus in den Optionen auf `Nur Lenken` einstellst und die Tastatur für Fahren und Bremsen verwendest
 
 
 ## Bekannte Probleme und Korrekturen
-- Das Spiel kann beim Beenden einfrieren: Füge `--quitfix` zu den Steam-Startoptionen hinzu ([MelonLoader-Startoption](https://github.com/LavaGang/MelonLoader#launch-options))
-- Das Fahrrad fährt manchmal nicht los und bewegt sich nicht mehr, nachdem zwischen Fahrrad- und Fotomodus gewechselt wurde. Durch absichtliches Herunterfallen vom Fahrrad behebt das Problem meist (Controller `B`).  
+- Das Spiel kann beim Beenden einfrieren: Füge `--quitfix` zu den Steam-Startoptionen hinzu (siehe [Melon Loader Startoptionen](https://github.com/LavaGang/MelonLoader#launch-options))
+- Das Fahrrad steckt manchmal fest und fährt nicht mehr los, nachdem zwischen Fahrrad- und Fotomodus gewechselt wurde; das passiert meistens, wenn das Fahrrad noch am Startpunkt steht; egal wo, nur ein Neustart des Levels oder des Checkpoints löst das; manchmal funktioniert auch ein absichtliches Herunterfallen vom Fahrrad klappt auch (Controller `B`).  
+- Hin und wieder verstellt sich auch bei automatischer Kamerapositionierung die vertikale Ausrichtung ein klein wenig und muss einmalig manuell nachkorrigiert werden
 - Bei niedriger und mittlerer Tiefeschärfe-Einstellung in LMD ist das Fahrrad im Third-Person-Modus unscharf
-
-
-

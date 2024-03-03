@@ -1,11 +1,11 @@
+
 [![en](https://img.shields.io/badge/lang-en-blue.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.md)
 [![de](https://img.shields.io/badge/lang-de-yellow.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.de.md)
 
 
 # DevdudeX's Alternative Camera with Photo Mode for Lonely Mountains: Downhill
 
-This is a mod for *Lonely Mountains: Downhill* that replaces the default distant "isometric-like" camera with a third/first person system with 
-automatic and manual camera work. It still supports the original camera and allows to switch between them while biking. 
+This is a mod for *Lonely Mountains: Downhill* that extends the default distant "isometric-like" camera with a third/first person system with automatic and manual camera work. It still supports the original camera and allows to switch between them while riding the bike. 
 Additionally this mod contains a photo mode, that lets you pause time and position the camera freely. Perfect for taking screenshots!
 
 
@@ -53,28 +53,26 @@ Your game folder can be found by right-clicking on the game in Steam and going '
 (e.g. `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill`)
 
 #### Step 2: Download the Melon Mod Loader
-Go to https://melonwiki.xyz/#/  
-Look under 'Automated Installation':
-v0.6.2 is the current version on March 3, 2024
+As of March 3, 2024 the current version is v0.6.2: [Installer Direct Download Link](https://github.com/HerpDerpinstine/MelonLoader/releases/latest/download/MelonLoader.Installer.exe)
 
+Go to https://melonwiki.xyz/#/  
+Look under [Automated Installation](https://melonwiki.xyz/#/?id=automated-installation)
+[Check requirements](https://melonwiki.xyz/#/?id=requirements)  (.NET4.8 + .NET6)
 
 #### Step 3: Install the Melon Mod Loader
 Install Melon Loader to your LMD game install folder.  
 Run the game once and if the Melon Loader splash screen appears on launch, everything is fine. Then exit the game. 
-Sollte es beim Beenden hängen, füge `--quitfix` zu den Startoptionen hinzu.
-
-
-If it freezes on exit, add '--quitfix' to the Steam Launch Options.
-Go to Steam, right click the game, then „Properties -> General -> Launch Options“
+If LMD freezes on exit, add `--quitfix` to the Steam Launch Options.
+Go to Steam, right click the game, then `Properties -> General -> Launch Options`
 
 #### Step 4: Download and install this mod's release 
 Download `AlternativeCameraWithPhotoMode_v<X.Y.Z>.zip` from the releases and unpack it to the `Mods` folder in your LMD game folder.
-Optionally download any of the `AlternativeCameraWithPhotoMode.ini.<lang>.zip` and unpack it to the `UserData` folder in your LMD game folder. The configuration are different in the localized comments about the entries. Technically they are same, of course.
+Optionally download any of the `AlternativeCameraWithPhotoMode.ini.<lang>.zip` and unpack it to the `UserData` folder in your LMD game folder. The configuration files are different in the localized comments about the entries. Technically they are same, of course.
 
 #### Step 5: Start the game
 When starting the game the mod is automatically initialized.
 On the first start it automatically creates the `AlternativeCameraWithPhotoMode.ini` if it is missing.
-The mod is showing its name and version in the main menu below the game version. If this text is missing, the mod is not loaded.
+The mod is showing its name and version in the main menu. If this text is missing, the mod is not loaded.
 
 
 ## Essential Files and Folders
@@ -85,6 +83,7 @@ Let's assume your Steam Library is located here: `D:\SteamLibrary\`
 
 ### Mod Base Folder
 `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\Mods`
+This is the location for the mod file itself: `AlternativeCameraWithPhotoMode.dll` 
 
 ### Mod Assets/Languages Folder
 Language files are located here:
@@ -94,16 +93,14 @@ Currently available language files:
 - English Language: `lang.en.ini`
 - German Language: `lang.de.ini`
 
-### Config File
+### Configuration File
 `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\UserData\AlternativeCameraWithPhotoMode.ini`
 
 ## Configuration
-A configuration file is generated in `[LMD folder]/UserData/AlternativeCameraWithPhotoMode.ini`.  
-This file can be edited with any text editor and contains all the mods settings with description.  
+The configuration file  `AlternativeCameraWithPhotoMode.ini` can be edited with any text editor and contains all the mods settings with description.  
 
 ### Bike Mode Keys
-The keys are presets and can be customized.
-Controller inputs are fixed
+The keys are presets and can be customized. Controller inputs are fixed.
 
 | Action                                  | Keyboard/Mouse            | Controller                  |
 | ---                                     | ---                       | ---                         |
@@ -116,7 +113,7 @@ Controller inputs are fixed
 | Toggle Game HUD                         | H                         | -                           |
 | Toggle Mod HUD Displays                 | J                         | -                           |
 | Look around                             | Mouse *)                  | Right Stick *)              |
-| Snap camera to behind the player        | Right Control             | Right Stick Click *)        |
+| Snap camera to behind the bike          | Right Control             | Right Stick Click *)        |
 | Hold to invert camera auto-align mode   | Mouse Right Button *)     | Right Bumper *)             |
 | Move camera in and out                  | Mouse Scroll *)           | Dpad Up / Down *)           |
 | Change DoF focal length                 | Hold L + Mouse Scroll *)  | -                           |
@@ -146,12 +143,11 @@ These input assignment is as follows (not customizable):
 
 
 ## Info for keyboard/mouse
-- If you want to actively play with mouse, the automatic alignment of the camera by the mod must be switched, otherwise mouse input has no effect (`AlignMode=Manual`)
-- The game works best by setting mouse to `Steering Only` in LMD options and using the keyboard for forward and brake 
+- If you want to actively play with mouse, the automatic alignment of the camera by the mod must be switched off, otherwise mouse input has no effect (`AlignMode=Manual`)
+- Playing with keyboard and mouse works best by setting mouse to `Steering Only` in LMD options and using the keyboard for forward and brake
 
 ## Known Issues & Fixes
-- Game may freeze on quitting: Add the `--quitfix` to Steam Launch Options ([MelonLoader launch option](https://github.com/LavaGang/MelonLoader#launch-options))  
-- Bike sometimes gets stuck and does not move anymore after switching between biking and photo mode; intentionally falling of the bike usually fixes this (use controller `B`)
+- Game may freeze on quitting: Add the `--quitfix` to Steam Launch Options (see [Melon Loader launch option](https://github.com/LavaGang/MelonLoader#launch-options))  
+- Bike sometimes gets stuck and does not move anymore after switching between bike and photo mode; this mostly happens when the bike is still at level start or a checkpoint; only restart of level or checkpoint resolves such situations; sometimes it works to intentionally fall of the bike (controller `B`)
+- Every now and then, even with automatic camera positioning, the vertical alignment changes  slightly and has to be corrected manually once
 - Low and mid depth of field setting in LMD blurs the bike in third person mode
-
-
