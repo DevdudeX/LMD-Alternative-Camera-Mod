@@ -51,11 +51,9 @@ Du findest den Spielordner, indem du in Steam mit der rechten Maustaste auf das 
 ### Schritt 2: Lade den Melon Mod Loader herunter
 Stand 3. März '24 ist die aktuelle Version v0.6.2: [Installer Download Direktlink](https://github.com/HerpDerpinstine/MelonLoader/releases/latest/download/MelonLoader.Installer.exe)
 
-Gehe auf https://melonwiki.xyz/#/  
-
-Schaue unter [Automatisierte Installation](https://melonwiki.xyz/#/?id=automated-installation)
-
-Beachte die [Vorraussetzungen](https://melonwiki.xyz/#/?id=requirements)  (.NET4.8 + .NET6)
+- Gehe auf https://melonwiki.xyz/#/  
+- Schaue unter [Automatisierte Installation](https://melonwiki.xyz/#/?id=automated-installation)
+- Beachte die [Vorraussetzungen](https://melonwiki.xyz/#/?id=requirements)  (.NET4.8 + .NET6)
  
 ### Schritt 3: Installiere den Melon Mod Loader
 Installiere den Melon Loader in deinem LMD-Spielinstallationsordner. Führe das Spiel dann einmal aus und wenn beim Start der Melon Loader-Startbildschirm erscheint, ist alles in Ordnung. Beende das Spiel wieder. 
