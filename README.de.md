@@ -128,9 +128,10 @@ Die Tastenbelegung ist wie folgt (nicht anpassbar):
 | Sichtfeld (FoV) anpassen        | Mausrad scrollen     | LB / RB                  |
 | Tiefenschärfe-Modus umschalten  | V                    | Steuerkreuz unten        |
 
-## Info für Tastaturbenutzer
-- Das Spiel funktioniert mit Tastatur am besten, wenn du die Maus in den Optionen auf „Nur Lenken“ einstellst und die Tastatur für Fahren und Bremsen verwendest
-- Es wird empfohlen, die automatische Ausrichtung der Kamera auszuschalten
+## Info für Spieler mit Tastatur-/Maus
+- Wenn du aktiv mit Maus spielen möchtest, muss die automatische Ausrichtung der Kamera durch die Mod ausgeschaltet sein, da sonst die Mauseingabe nichts bewirkt (`AlignMode=Manual`)
+- Das Spiel funktioniert mit Maus und Tastatur am besten, wenn du die Maus in den Optionen auf „Nur Lenken“ einstellst und die Tastatur für Fahren und Bremsen verwendest
+
 
 ## Bekannte Probleme und Korrekturen
 - Das Spiel kann beim Beenden einfrieren: Füge `--quitfix` zu den Steam-Startoptionen hinzu ([MelonLoader-Startoption](https://github.com/LavaGang/MelonLoader#launch-options))

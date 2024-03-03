@@ -145,7 +145,7 @@ These input assignment is as follows (not customizable):
 | Toggle DoF mode         | V                | Dpad down            |
 
 
-## Info for keyboard users
+## Info for keyboard/mouse
 - If you want to actively play with mouse, the automatic alignment of the camera by the mod must be switched, otherwise mouse input has no effect (`AlignMode=Manual`)
 - The game works best by setting mouse to `Steering Only` in LMD options and using the keyboard for forward and brake 
 
