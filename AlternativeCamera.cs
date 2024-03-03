@@ -25,7 +25,7 @@ namespace AlternativeCameraMod;
 /// </summary>
 public class AlternativeCamera : MelonMod
 {
-   public const string MOD_VERSION = "2.0.0";
+   public const string MOD_VERSION = "2.0.0"; // also update in project build properties
 
    private bool _disableModProcessing;
    private bool _modInitialized;
