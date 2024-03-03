@@ -3,18 +3,18 @@
 [![de](https://img.shields.io/badge/lang-de-blue.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.de.md)
 
 
-# DevdudeX's Alternative Kamera mit Fotomodus für Lonely Mountains: Downhill 
-Dies ist eine Mod für *Lonely Mountains: Downhill*, die die standardmäßige "isometrische" Kamerasicht durch ein Third-/First-Person-System mit automatischer und manueller Kameraführung erweitert. Es unterstützt weiterhin die Originalkamera und ermöglicht den Wechsel zwischen diesen beiden Modi während der Fahrt. 
-Zusätzlich enthält diese Mod einen Fotomodus, mit dem du die Zeit anhalten und die Kamera frei positionieren kannst. Perfekt für Screenshots!  
+# DevdudeX's Alternative Kamera mit Fotomodus fÃ¼r Lonely Mountains: Downhill 
+Dies ist eine Mod fÃ¼r *Lonely Mountains: Downhill*, die die standardmÃ¤ÃŸige "isometrische" Kamerasicht durch ein Third-/First-Person-System mit automatischer und manueller KamerafÃ¼hrung erweitert. Es unterstÃ¼tzt weiterhin die Originalkamera und ermÃ¶glicht den Wechsel zwischen diesen beiden Modi wÃ¤hrend der Fahrt. 
+ZusÃ¤tzlich enthÃ¤lt diese Mod einen Fotomodus, mit dem du die Zeit anhalten und die Kamera frei positionieren kannst. Perfekt fÃ¼r Screenshots!  
 
 ## Credits
-[DevdudeX](https://github.com/DevdudeX) hat beide ursprünglichen Mods erstellt, `AlternativeCamera` und `PhotoMode`. Kudos an ihn für die geleistete Arbeit 
+[DevdudeX](https://github.com/DevdudeX) hat beide ursprÃ¼nglichen Mods erstellt, `AlternativeCamera` und `PhotoMode`. Kudos an ihn fÃ¼r die geleistete Arbeit 
 und Erstellung der Mods und insbesondere der Eingabe- und Kameralogik.
 
-Unterstütze ihn hier:  
+UnterstÃ¼tze ihn hier:  
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L4L5S9BK3)
 
-Die Mod basiert auf LavaGangs [Melon Loader](https://github.com/LavaGang/MelonLoader), einer Modding-Umgebung für in Unity erstellte Spiele. 
+Die Mod basiert auf LavaGangs [Melon Loader](https://github.com/LavaGang/MelonLoader), einer Modding-Umgebung fÃ¼r in Unity erstellte Spiele. 
 
 ## Screenshots 
 Aufgenommen mit dem Mod Fotomodus: 
@@ -29,45 +29,48 @@ Aufgenommen mit dem Mod Fotomodus:
 Screenshot des Fotomodus
  ![PhotoMode01](/images/LMD_photomode_01.png?raw=true)    
 
-## Mod-Kompatibilitätswarnung
- Wenn du bereits die Original-Mod [AlternativeCamera](https://github.com/DevdudeX/LMD-Alternative-Camera-Mod) verwendest, deaktiviere diese bitte, während du diese Mod verwenden. 
+## Mod-KompatibilitÃ¤tswarnung
+ Wenn du bereits die Original-Mod [AlternativeCamera](https://github.com/DevdudeX/LMD-Alternative-Camera-Mod) verwendest, deaktiviere diese bitte, wÃ¤hrend du diese Mod verwenden. 
  Einfach die Datei im Mods-Ordner umbenennen, bevor du das Spiel startest:    `AlternativeCameraMod.dll` --> `AlternativeCameraMod.dll.disabled`  
  
- Wenn du bereits die Mod [PhotoMode](https://github.com/DevdudeX/LMD-Photo-Mode-Mod) verwendest, deaktiviere diese bitte, während du diese Mod verwendest. 
+ Wenn du bereits die Mod [PhotoMode](https://github.com/DevdudeX/LMD-Photo-Mode-Mod) verwendest, deaktiviere diese bitte, wÃ¤hrend du diese Mod verwendest. 
  Einfach die Datei im Mods-Ordner umbenennen, bevor du das Spiel startest:  `PhotoMode.dll` -> `PhotoMode.dll.disabled`.  
 
 ## Features
-- Alternative Kameramodi für Third- und First-Person basierend auf [AlternativeCamera](https://github.com/DevdudeX/LMD-Alternative-Camera-Mod) 
-- Wechsele während dem Spielen zwischen der Alternativkamera und dem Originalkameramodus
+- Alternative Kameramodi fÃ¼r Third- und First-Person basierend auf [AlternativeCamera](https://github.com/DevdudeX/LMD-Alternative-Camera-Mod) 
+- Wechsele wÃ¤hrend dem Spielen zwischen der Alternativkamera und dem Originalkameramodus
 - Tastatur- und Controllereingaben sind anpassbar
 - Erweiterter Fotomodus basierend auf [PhotoMode](https://github.com/DevdudeX/LMD-Photo-Mode-Mod)  
 - Lokalisierbar mit Sprachdateien
 
 ## Installation
 
-#### Schritt 1: Spielordner suchen
-Du findest den Spielordner, indem du in Steam mit der rechten Maustaste auf das Spiel klickst und dann „Verwalten -> Lokale Dateien durchsuchen“ wählst.  (z. B. `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill`)
+### Schritt 1: Spielordner suchen
+Du findest den Spielordner, indem du in Steam mit der rechten Maustaste auf das Spiel klickst und dann â€žVerwalten -> Lokale Dateien durchsuchenâ€œ wÃ¤hlst.  (z. B. `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill`)
 
-#### Schritt 2: Lade den Melon Mod Loader herunter
-Stand 3. März '24 ist die aktuelle Version v0.6.2: [Installer Download Direktlink](https://github.com/HerpDerpinstine/MelonLoader/releases/latest/download/MelonLoader.Installer.exe)
+### Schritt 2: Lade den Melon Mod Loader herunter
+Stand 3. MÃ¤rz '24 ist die aktuelle Version v0.6.2: [Installer Download Direktlink](https://github.com/HerpDerpinstine/MelonLoader/releases/latest/download/MelonLoader.Installer.exe)
 
 Gehe auf https://melonwiki.xyz/#/  
+
 Schaue unter [Automatisierte Installation](https://melonwiki.xyz/#/?id=automated-installation)
+
 Beachte die [Vorraussetzungen](https://melonwiki.xyz/#/?id=requirements)  (.NET4.8 + .NET6)
  
-#### Schritt 3: Installiere den Melon Mod Loader
-Installiere den Melon Loader in deinem LMD-Spielinstallationsordner. Führe das Spiel dann einmal aus und wenn beim Start der Melon Loader-Startbildschirm erscheint, ist alles in Ordnung. Beende das Spiel wieder. 
+### Schritt 3: Installiere den Melon Mod Loader
+Installiere den Melon Loader in deinem LMD-Spielinstallationsordner. FÃ¼hre das Spiel dann einmal aus und wenn beim Start der Melon Loader-Startbildschirm erscheint, ist alles in Ordnung. Beende das Spiel wieder. 
 
-Sollte LMD beim Beenden einfrieren, füge `--quitfix` zu den Startoptionen hinzu. Dazu in Steam mit der rechten Maustaste auf das Spiel klicken und dann `Eigenschaften -> Allgemein -> Startoptionen`
+Sollte LMD beim Beenden einfrieren, fÃ¼ge `--quitfix` zu den Startoptionen hinzu. Dazu in Steam mit der rechten Maustaste auf das Spiel klicken und dann `Eigenschaften -> Allgemein -> Startoptionen`
 
-#### Schritt 4:  Lade diese Mod herunter und installiere sie
+### Schritt 4:  Lade diese Mod herunter und installiere sie
 Lade `AlternativeCameraWithPhotoMode_v<X.Y.Z>.zip` unter den Releases herunter und entpacke es in den `Mods`-Ordner im LMD Spieleordner.
-Optional lade eine der vorbereiteten Konfigurationdateien `AlternativeCameraWithPhotoMode.ini.<lang>.zip` herunter und entpacke sie in den `UserData`-Ordner im LMD Spieleordner. Die Dateien unterscheiden sich in den lokalisierten Kommentaren zu den Einträgen. Technisch sind sie natürlich gleich.
+Optional lade eine der vorbereiteten Konfigurationdateien `AlternativeCameraWithPhotoMode.ini.<lang>.zip` herunter und entpacke sie in den `UserData`-Ordner im LMD Spieleordner. Die Dateien unterscheiden sich in den lokalisierten Kommentaren zu den EintrÃ¤gen. Technisch sind sie natÃ¼rlich gleich.
 
  
-#### Schritt 5: Starte das Spiel
+### Schritt 5: Starte das Spiel
 Beim Start des Spiels wird die Mod automatisch initialisiert. Beim ersten Start wird automatisch die `AlternativeCameraWithPhotoMode.ini` erstellt, falls diese fehlt. Die Ini kannst du aber auch vorher hier herunterladen. 
-Wenn die Mod aktiv ist, zeigt sie im Hauptmenü den Namen mit Version an. Fehlt dieser Text, ist die Mod nicht geladen.
+Wenn die Mod aktiv ist, zeigt sie im HauptmenÃ¼ den Namen mit Version an. Fehlt dieser Text, ist die Mod nicht geladen.
+
 
 ## Wichtige Dateien und Ordner
 Nehmen wir an, deine Steam-Bibliothek befindet sich hier: `D:\SteamLibrary\`.
@@ -77,12 +80,12 @@ Nehmen wir an, deine Steam-Bibliothek befindet sich hier: `D:\SteamLibrary\`.
 
 ### Mod Basisordner
 `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\Mods`
-Das ist der Ort für die Mod Datei selbst: `AlternativeCameraWithPhotoMode.dll` 
+Das ist der Ort fÃ¼r die Mod Datei selbst: `AlternativeCameraWithPhotoMode.dll` 
 
 ### Mod Sprachdateien
 Sprachdateien befinden sich hier:  `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\Mods\AlternativeCameraWithPhotoMode-assets\Languages`
 
-Derzeit verfügbare Sprachdateien:  
+Derzeit verfÃ¼gbare Sprachdateien:  
 - Englische Sprache: `lang.en.ini`  
 - Deutsche Sprache: `lang.de.ini`
 
@@ -90,10 +93,10 @@ Derzeit verfügbare Sprachdateien:
 `D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\UserData\AlternativeCameraWithPhotoMode.ini`
 
 ## Konfiguration
-Die Konfigurationsdatei `AlternativeCameraWithPhotoMode.ini` kann mit jedem Texteditor bearbeitet werden und enthält alle Einstellungen der Mod mit Beschreibung.
+Die Konfigurationsdatei `AlternativeCameraWithPhotoMode.ini` kann mit jedem Texteditor bearbeitet werden und enthÃ¤lt alle Einstellungen der Mod mit Beschreibung.
 
 ### Tastatur und Controller-Belegung im Spielmodus
-Diese Tasten sind Voreinstellungen und können in der Konfigurationsdatei angepasst werden. Die Controller-Belegung ist fest definiert.
+Diese Tasten sind Voreinstellungen und kÃ¶nnen in der Konfigurationsdatei angepasst werden. Die Controller-Belegung ist fest definiert.
 
 | Aktion                                             | Tastatur/Maus             | Controller                  |
 | ---                                                | ---                       | ---                         |
@@ -109,11 +112,11 @@ Diese Tasten sind Voreinstellungen und können in der Konfigurationsdatei angepas
 | Kamera hinter das Fahrrad bewegen                  | Right Control             | Rechter Stick Klick *)      |
 | Taste halten -> Pos.Modus temp. umschalten         | Mouse Right Button *)     | Rechte Schultertaste *)     |
 | Kamera Zoom                                        | Mouse Scroll *)           | Steuerkreuz hoch/runter *)  |
-| Tiefenschärfe anpassen                             | Hold L + Mouse Scroll *)  | -                           |
-| Tiefenschärfe Fokus anpassen                       | Hold K + Mouse Scroll *)  | -                           |
-| Sichtfeld (FoV) erhöhen um 10 (halte Alt für 5)    | 8                         | Steuerkreuz rechts *)       |
-| Sichtfeld (FoV) verringern um 10 (halte Alt für 5) | 9                         | Steuerkreuz links *)        |
-| Sichtefeld (FoV) zurücksetzen                      | 0                         |                             |
+| TiefenschÃ¤rfe anpassen                             | Hold L + Mouse Scroll *)  | -                           |
+| TiefenschÃ¤rfe Fokus anpassen                       | Hold K + Mouse Scroll *)  | -                           |
+| Sichtfeld (FoV) erhÃ¶hen um 10 (halte Alt fÃ¼r 5)    | 8                         | Steuerkreuz rechts *)       |
+| Sichtfeld (FoV) verringern um 10 (halte Alt fÃ¼r 5) | 9                         | Steuerkreuz links *)        |
+| Sichtefeld (FoV) zurÃ¼cksetzen                      | 0                         |                             |
 
 *) nicht anpassbar
 
@@ -130,17 +133,17 @@ Die Tastenbelegung ist wie folgt (nicht anpassbar):
 | Hoch/Runter                     | R / F                | L-Trig / R-Trig          |
 | Drehen Links/Rechts             | Q / E                | Steuerkreuz links/rechts |
 | Bewegung beschleunigen          | Shift                | A                        |
-| Rotation/Sichtfeld zurücksetzen |                      | Steuerkreuz oben         |
+| Rotation/Sichtfeld zurÃ¼cksetzen |                      | Steuerkreuz oben         |
 | Sichtfeld (FoV) anpassen        | Mausrad scrollen     | LB / RB                  |
-| Tiefenschärfe-Modus umschalten  | V                    | Steuerkreuz unten        |
+| TiefenschÃ¤rfe-Modus umschalten  | V                    | Steuerkreuz unten        |
 
 ## Info zu Tastatur/Maus
-- Wenn du aktiv mit Maus spielen möchtest, muss die automatische Ausrichtung der Kamera durch die Mod ausgeschaltet sein, da sonst die Mauseingabe nichts bewirkt (`AlignMode=Manual`)
-- Das Spielen klappt mit Maus und Tastatur am besten, wenn du die Maus in den Optionen auf `Nur Lenken` einstellst und die Tastatur für Fahren und Bremsen verwendest
+- Wenn du aktiv mit Maus spielen mÃ¶chtest, muss die automatische Ausrichtung der Kamera durch die Mod ausgeschaltet sein, da sonst die Mauseingabe nichts bewirkt (`AlignMode=Manual`)
+- Das Spielen klappt mit Maus und Tastatur am besten, wenn du die Maus in den Optionen auf `Nur Lenken` einstellst und die Tastatur fÃ¼r Fahren und Bremsen verwendest
 
 
 ## Bekannte Probleme und Korrekturen
-- Das Spiel kann beim Beenden einfrieren: Füge `--quitfix` zu den Steam-Startoptionen hinzu (siehe [Melon Loader Startoptionen](https://github.com/LavaGang/MelonLoader#launch-options))
-- Das Fahrrad steckt manchmal fest und fährt nicht mehr los, nachdem zwischen Fahrrad- und Fotomodus gewechselt wurde; das passiert meistens, wenn das Fahrrad noch am Startpunkt steht; egal wo, nur ein Neustart des Levels oder des Checkpoints löst das; manchmal funktioniert auch ein absichtliches Herunterfallen vom Fahrrad klappt auch (Controller `B`).  
+- Das Spiel kann beim Beenden einfrieren: FÃ¼ge `--quitfix` zu den Steam-Startoptionen hinzu (siehe [Melon Loader Startoptionen](https://github.com/LavaGang/MelonLoader#launch-options))
+- Das Fahrrad steckt manchmal fest und fÃ¤hrt nicht mehr los, nachdem zwischen Fahrrad- und Fotomodus gewechselt wurde; das passiert meistens, wenn das Fahrrad noch am Startpunkt steht; egal wo, nur ein Neustart des Levels oder des Checkpoints lÃ¶st das; manchmal funktioniert auch ein absichtliches Herunterfallen vom Fahrrad klappt auch (Controller `B`).  
 - Hin und wieder verstellt sich auch bei automatischer Kamerapositionierung die vertikale Ausrichtung ein klein wenig und muss einmalig manuell nachkorrigiert werden
-- Bei niedriger und mittlerer Tiefeschärfe-Einstellung in LMD ist das Fahrrad im Third-Person-Modus unscharf
+- Bei niedriger und mittlerer TiefeschÃ¤rfe-Einstellung in LMD ist das Fahrrad im Third-Person-Modus unscharf
