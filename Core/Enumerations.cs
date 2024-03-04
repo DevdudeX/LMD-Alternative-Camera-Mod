@@ -41,7 +41,6 @@ internal enum ControllerButton
 }
 
 
-[Flags]
 internal enum ModHudInfoPart
 {
    CamMode,

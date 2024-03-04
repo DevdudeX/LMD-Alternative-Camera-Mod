@@ -1,5 +1,4 @@
 ﻿// Mod
-
 using System.Collections;
 using System.Text;
 using MelonLoader;
@@ -25,29 +24,29 @@ namespace AlternativeCameraMod;
 /// </summary>
 public class AlternativeCamera : MelonMod
 {
-   public const string MOD_VERSION = "2.0.0"; // also update in project build properties
+   public const string MOD_VERSION = "2.0.0-dev"; // also update in project build properties
 
-   private bool _disableModProcessing;
+   private bool _modDisabled;
    private bool _modInitialized;
    private bool _modInitializing;
-   private Configuration? _cfg;
-   private ScreenMode _currentScreenState;
-   private Logger? _logger;
+   private Configuration _cfg = null!;
+   private LanguageConfig _lang = null!;
+   private InputHandler _input = null!;
+   private Logger _logger = null!;
    private string? _errorMessage;
-
+   
    // Transforms and GameObjects
    /// <summary>The name of the gameobject that will act as the cameras target.</summary>
    private string _targetName = "Bike(Clone)";
-
-   private Transform? _playerBikeParentTransform;
-   private Transform? _playerBikeTransform;
-   private Transform? _camTransform;
-   private GameObject? _postProcessingObject;
-   private DepthOfField? _depthOfFieldSettings;
+   private Transform _playerBikeParentTransform = null!;
+   private Transform _playerBikeTransform = null!;
+   private Transform _camTransform = null!;
+   private GameObject _postProcessingObject = null!;
+   private DepthOfField _depthOfFieldSettings = null!;
 
    // The main camera itself. Used to set the field of view
-   private Camera? _mainCamera;
-   private PlayCamera? _defaultPlayCamera;
+   private Camera _mainCamera = null!;
+   private PlayCamera _defaultPlayCamera = null!;
 
    private static readonly LayerMask __cameraCollisionLayers =
       LayerMask.GetMask("Ground", "Obstacle", "EnvironmentOther", "Terrain", "Lava");
@@ -55,9 +54,7 @@ public class AlternativeCamera : MelonMod
    // UI GameObjects
    private readonly Dictionary<string, GameObject> _menuObjects = new();
 
-   // Camera variables
-   private bool _isMenuOpen = true;
-   private bool _isMenuLastOpen;
+   // Camera
    private bool _hasDepthOfFieldSetting;
    private float _wantedZoom = 8f;
    private float _targetZoomAmount;
@@ -93,54 +90,23 @@ public class AlternativeCamera : MelonMod
    /// <summary>Camera rotation around x-axis (ear-to-ear or up-down)</summary>
    private float _rotationVertical;
    private Vector3 _dirToCam;
-
-   // Gamepad Inputs
-   private float _anyGamepadDpadHorizontal;
-   private float _anyGamepadDpadVertical;
-   private float _anyGamepadTriggerInputL;
-   private float _anyGamepadTriggerInputR;
-   private float _anyGamepadStickHorizontalR;
-   private float _anyGamepadStickVerticalR;
-
-   private bool _anyGamepadBtn0; // A
-   private bool _anyGamepadBtn5; // right bumper
-   private bool _anyGamepadBtnDown0; // A
-   private bool _anyGamepadBtnDown1; // B
-   private bool _anyGamepadBtnDown2; // X
-   private bool _anyGamepadBtnDown3; // Y
-   private bool _anyGamepadBtnDown4; // left bumper
-   private bool _anyGamepadBtnDown5; // right bumper
-   private bool _anyGamepadBtnDown6; // back/select
-   private bool _anyGamepadBtnDown7; // start
-   private bool _anyGamepadBtnDown8; // left stick click
-   private bool _anyGamepadBtnDown9; // right stick click
-   private int _anyGamepadDpadUpCnt;
-   private int _anyGamepadDpadDownCnt;
-   private int _anyGamepadDpadLeftCnt;
-   private int _anyGamepadDpadRightCnt;
-   private bool _anyGamepadDpadUp;
-   private bool _anyGamepadDpadDown;
-   private bool _anyGamepadDpadLeft;
-   private bool _anyGamepadDpadRight;
-   private float _dpadPressDetectThreshold; // Used to treat dpad as a button
-   private bool _dpadSingleClickDetect;
-   private bool _holdingInvertManualAlignMode;
-   private Vector3 _lastMousePos;
-   private bool _mouseMoved;
-   private int _mouseVisibleThreshold;
-   private bool _escapeKeyDown;
-   private bool _menuWasOpenedWhileInPhotoMode;
-
-   private int _fps;
+   
+   // Common
+   private ModMode _mode;
    private bool _firstInit;
+   private ScreenMode _currentScreenState;
+   private bool _isMenuOpen = true;
+   private bool _isMenuLastOpen;
+   private bool _menuWasOpenedWhileInPhotoMode;
+   private int _fps;
    private bool _hudInfoVisible = true;
-   private List<ModHudInfoPart> _hudInfoParts = new();
-   private CameraMode _currentCamMode;
-   private CameraMode _altCamStateMode;
+   private readonly List<ModHudInfoPart> _hudInfoParts = new();
+   private CameraMode _currentCamMode; // this is any
+   private CameraMode _altCamStateMode; // this is Third/First only
    private bool _camAutoAlign;
    private readonly CamPos _camPosBike = new();
 
-   private ModMode _mode;
+   // Photo mode
    private float _photoModeBaseTimeScale;
    private float _photoModeBaseFocusDistanceDoF;
    private float _rotationRoll;
@@ -151,8 +117,6 @@ public class AlternativeCamera : MelonMod
    private int _screenshotCounter;
    private readonly CamPos _camPosPhoto = new();
    private readonly CamPos _camPosPhotoShoot = new();
-
-   private LanguageConfig _lang;
 
 
    class CamPos
@@ -230,7 +194,7 @@ public class AlternativeCamera : MelonMod
    public override void OnInitializeMelon()
    {
       _firstInit = true;
-      
+
       // cfg for first creation and init
       var initLang = LanguageConfig.Load();
       _cfg = new Configuration(initLang); // OS lang
@@ -260,6 +224,8 @@ public class AlternativeCamera : MelonMod
       _isometricFoV = DefaultIsometricFoV;
       _thirdPersonFoV = LimitFoV(_cfg.Camera.ThirdPersonFoV.Value, CameraMode.ThirdPerson);
       _firstPersonFoV = LimitFoV(_cfg.Camera.FirstPersonFoV.Value, CameraMode.FirstPerson);
+
+      _input = new InputHandler(_cfg, _logger);
    }
 
 
@@ -282,7 +248,7 @@ public class AlternativeCamera : MelonMod
 
    public override void OnDeinitializeMelon()
    {
-      _disableModProcessing = true;
+      _modDisabled = true;
       MelonEvents.OnGUI.Unsubscribe(DrawHudText);
    }
 
@@ -295,7 +261,7 @@ public class AlternativeCamera : MelonMod
 
    private void HandleErrorState(string errMsg)
    {
-      _disableModProcessing = true;
+      _modDisabled = true;
       _errorMessage = errMsg;
       _logger.LogError(errMsg);
    }
@@ -303,7 +269,7 @@ public class AlternativeCamera : MelonMod
 
    private void HandleWarningState(string warnMsg, bool mustDisable = false)
    {
-      _disableModProcessing = mustDisable;
+      _modDisabled = mustDisable;
       _errorMessage = warnMsg;
       _logger.LogError(warnMsg);
    }
@@ -311,7 +277,7 @@ public class AlternativeCamera : MelonMod
 
    private void DrawHudText()
    {
-      if (_disableModProcessing)
+      if (_modDisabled)
       {
          // when disabled, only show text on menu screen, do not show others
          if (_currentScreenState != ScreenMode.MenuScreen)
@@ -455,8 +421,8 @@ public class AlternativeCamera : MelonMod
 
             case ModHudInfoPart.CamAlign:
                string align = _camAutoAlign
-                  ? (_holdingInvertManualAlignMode ? "Manual" : "Auto")
-                  : (_holdingInvertManualAlignMode ? "Auto" : "Manual");
+                  ? (_input.PlayMode.InvertAlignmentMode() ? "Manual" : "Auto")
+                  : (_input.PlayMode.InvertAlignmentMode() ? "Auto" : "Manual");
 
                target.Append(_lang.GetText("Mod", "CamAlignLabel_{align}", "({0})", align));
                break;
@@ -467,10 +433,8 @@ public class AlternativeCamera : MelonMod
 
    public override void OnUpdate()
    {
-      if (_disableModProcessing) return;
-
-      UpdateGamepadInputs();
-      _escapeKeyDown = CheckKeyPressed(KeyCode.Escape);
+      if (_modDisabled) return;
+      _input.OnUpdate();
    }
 
 
@@ -481,7 +445,7 @@ public class AlternativeCamera : MelonMod
 
       TrackScreenState();
 
-      if (_disableModProcessing)
+      if (_modDisabled)
       {
          return;
       }
@@ -500,7 +464,7 @@ public class AlternativeCamera : MelonMod
 
          if (_isMenuOpen)
          {
-            EnableMouseCursorOnDemand();
+            _input.EnableMouseCursorOnDemand(_fps);
             // and optionally show the default camera
             if (_cfg.Camera.DefaultCameraOnPause.Value)
             {
@@ -515,7 +479,7 @@ public class AlternativeCamera : MelonMod
             }
             return;
          }
-         
+
          if (initCamModeOnLevelStart && _mode == ModMode.BikeCam)
          {
             SelectCameraMode(_currentCamMode);
@@ -547,31 +511,11 @@ public class AlternativeCamera : MelonMod
    }
 
 
-   private void EnableMouseCursorOnDemand()
-   {
-      if (_mouseMoved)
-      {
-         _mouseVisibleThreshold = _fps * 3;
-         Cursor.lockState = CursorLockMode.None;
-         Cursor.visible = true;
-      }
-      else if (_mouseVisibleThreshold > 0)
-      {
-         _mouseVisibleThreshold -= 1;
-      }
-      else if (_mouseVisibleThreshold <= 0)
-      {
-         Cursor.lockState = CursorLockMode.None;
-         Cursor.visible = false;
-      }
-   }
-
-
    private bool SpecialTreatmentForUsingMenuDuringPhotoMode()
    {
-      // Escape key needs special handling as this toggles the game pause menu
+      // escape key/start button need special handling as these toggle the game pause menu
       // which interferes with photo mode
-      if (_escapeKeyDown || _anyGamepadBtnDown7/*start*/)
+      if (_input.OpenMenu())
       {
          if (_mode == ModMode.PhotoCam)
          {
@@ -584,7 +528,7 @@ public class AlternativeCamera : MelonMod
          else if (_mode == ModMode.BikeCam)
          {
             // check if previously the (pause) menu was be opened while in photo mode
-            // and return to photo mode when menu is closed by escape key
+            // and return to photo mode when menu is closed by escape key/start button
             if (_menuWasOpenedWhileInPhotoMode)
             {
                _isMenuOpen = false;
@@ -601,27 +545,24 @@ public class AlternativeCamera : MelonMod
 
    private void HandleCommonUserInputs()
    {
-      switch (_mode)
+      if (_mode == ModMode.BikeCam)
       {
-         case ModMode.BikeCam:
-            if (CheckKeyPressed(_cfg.Keyboard.HudToggleKey.Value))
-            {
-               ToggleHudVisiblity();
-            }
+         if (_input.PlayMode.ToggleHud())
+         {
+            ToggleHudVisiblity();
+         }
 
-            // Mod Hud Text Visibility
-            if (CheckKeyPressed(_cfg.Keyboard.HudInfoTextToggleKey.Value))
-            {
-               ToggleModHudInfoVisibility();
-            }
-            break;
-
-         case ModMode.PhotoCam:
-            if (CheckKeyPressed(KeyCode.H) || _anyGamepadBtnDown9)
-            {
-               ToggleHudVisiblity();
-            }
-            break;
+         if (_input.PlayMode.ToggleModHud())
+         {
+            ToggleModHudInfoVisibility();
+         }
+      }
+      else if (_mode == ModMode.PhotoCam)
+      {
+         if (_input.PhotoMode.ToggleHud())
+         {
+            ToggleHudVisiblity();
+         }
       }
    }
 
@@ -666,7 +607,7 @@ public class AlternativeCamera : MelonMod
    }
 
 
-   private Camera GetHudObject()
+   private Camera? GetHudObject()
    {
       var hudCamObj = GameObject.Find("UICam");
       if (hudCamObj == null)
@@ -890,138 +831,7 @@ public class AlternativeCamera : MelonMod
       return true;
    }
 
-
-   private void UpdateGamepadInputs()
-   {
-      UpdateDpadInputs();
-      UpdateControllerTriggerAndStickInputs();
-      UpdateControllerButtonsDown();
-      _holdingInvertManualAlignMode = _anyGamepadBtn5 || Input.GetKey(KeyCode.Mouse1);
-
-      var mpos = Input.mousePosition;
-      _mouseMoved = !_lastMousePos.Equals(mpos);
-      _lastMousePos = mpos;
-   }
-
-
-   private void UpdateControllerTriggerAndStickInputs()
-   {
-      _anyGamepadTriggerInputL = Input.GetAxisRaw("Joy1Axis9") + Input.GetAxisRaw("Joy2Axis9") +
-                                 Input.GetAxisRaw("Joy3Axis9") + Input.GetAxisRaw("Joy4Axis9");
-      _anyGamepadTriggerInputR = Input.GetAxisRaw("Joy1Axis10") + Input.GetAxisRaw("Joy2Axis10") +
-                                 Input.GetAxisRaw("Joy3Axis10") + Input.GetAxisRaw("Joy4Axis10");
-
-      _anyGamepadStickHorizontalR = Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") +
-                                    Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
-      _anyGamepadStickVerticalR = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") +
-                                  Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
-   }
-
-
-   private void UpdateDpadInputs()
-   {
-      _anyGamepadDpadHorizontal = Input.GetAxisRaw("Joy1Axis6") + Input.GetAxisRaw("Joy2Axis6") +
-                                  Input.GetAxisRaw("Joy3Axis6") + Input.GetAxisRaw("Joy4Axis6");
-      _anyGamepadDpadVertical = Input.GetAxisRaw("Joy1Axis7") + Input.GetAxisRaw("Joy2Axis7") +
-                                Input.GetAxisRaw("Joy3Axis7") + Input.GetAxisRaw("Joy4Axis7");
-
-      if (!_dpadSingleClickDetect && _dpadPressDetectThreshold <= 0)
-      {
-         _anyGamepadDpadLeft = _anyGamepadDpadHorizontal < 0f;
-         _anyGamepadDpadRight = _anyGamepadDpadHorizontal > 0f;
-         _anyGamepadDpadUp = _anyGamepadDpadVertical > 0f;
-         _anyGamepadDpadDown = _anyGamepadDpadVertical < 0f;
-
-         _dpadSingleClickDetect = _anyGamepadDpadLeft | _anyGamepadDpadRight | _anyGamepadDpadUp | _anyGamepadDpadDown;
-         if (_dpadSingleClickDetect)
-         {
-            _dpadPressDetectThreshold = 0.15f;
-         }
-      }
-      else
-      {
-         _anyGamepadDpadUp = false;
-         _anyGamepadDpadDown = false;
-         _anyGamepadDpadLeft = false;
-         _anyGamepadDpadRight = false;
-
-         float dt = Time.deltaTime <= 0 ? 0.005f : Time.deltaTime;
-         _dpadPressDetectThreshold -= dt;
-         if (_dpadPressDetectThreshold <= 0)
-         {
-            _dpadSingleClickDetect = false;
-            _dpadPressDetectThreshold = 0;
-         }
-      }
-   }
-
-
-   private void UpdateControllerButtonsDown()
-   {
-      _anyGamepadBtn0 = Input.GetKey(KeyCode.Joystick1Button0) || Input.GetKey(KeyCode.Joystick2Button0) ||
-                        Input.GetKey(KeyCode.Joystick3Button0) || Input.GetKey(KeyCode.Joystick4Button0);
-      _anyGamepadBtn5 = Input.GetKey(KeyCode.Joystick1Button5) || Input.GetKey(KeyCode.Joystick2Button5) ||
-                        Input.GetKey(KeyCode.Joystick3Button5) || Input.GetKey(KeyCode.Joystick4Button5);
-
-      _anyGamepadBtnDown0 = Input.GetKeyDown(KeyCode.Joystick1Button0) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button0) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button0) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button0);
-      _anyGamepadBtnDown1 = Input.GetKeyDown(KeyCode.Joystick1Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button1);
-      _anyGamepadBtnDown1 = Input.GetKeyDown(KeyCode.Joystick1Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button1);
-      _anyGamepadBtnDown2 = Input.GetKeyDown(KeyCode.Joystick1Button2) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button2) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button2) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button2);
-      _anyGamepadBtnDown3 = Input.GetKeyDown(KeyCode.Joystick1Button3) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button3) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button3) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button3);
-      _anyGamepadBtnDown4 = Input.GetKeyDown(KeyCode.Joystick1Button4) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button4) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button4) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button4);
-      _anyGamepadBtnDown5 = Input.GetKeyDown(KeyCode.Joystick1Button5) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button5) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button5) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button5);
-      _anyGamepadBtnDown6 = Input.GetKeyDown(KeyCode.Joystick1Button6) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button6) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button6) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button6);
-      _anyGamepadBtnDown7 = Input.GetKeyDown(KeyCode.Joystick1Button7) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button7) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button7) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button7);
-      _anyGamepadBtnDown8 = Input.GetKeyDown(KeyCode.Joystick1Button8) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button8) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button8) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button8);
-      _anyGamepadBtnDown9 = Input.GetKeyDown(KeyCode.Joystick1Button9) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button9) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button9) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button9);
-
-      // e.g. Xbox Controller
-      if (_anyGamepadBtnDown0) _logger.LogDebug("Button 0 down (A)"); // A
-      if (_anyGamepadBtnDown1) _logger.LogDebug("Button 1 down (B)"); // B
-      if (_anyGamepadBtnDown2) _logger.LogDebug("Button 2 down (X)"); // X
-      if (_anyGamepadBtnDown3) _logger.LogDebug("Button 3 down (Y)"); // Y
-      if (_anyGamepadBtnDown4) _logger.LogDebug("Button 4 down (LB)"); // left shoulder
-      if (_anyGamepadBtnDown5) _logger.LogDebug("Button 5 down (RB)"); // right shoulder
-      if (_anyGamepadBtnDown6) _logger.LogDebug("Button 6 down (SEL)"); // back/select
-      if (_anyGamepadBtnDown7) _logger.LogDebug("Button 7 down (START)"); // start
-      if (_anyGamepadBtnDown8) _logger.LogDebug("Button 8 down (LS)"); // left stick click
-      if (_anyGamepadBtnDown9) _logger.LogDebug("Button 9 down (RS)"); // right stick click
-   }
-
-
+   
    /// <summary>
    /// Handles the processing of the position and rotation of the camera.
    /// </summary>
@@ -1041,20 +851,18 @@ public class AlternativeCamera : MelonMod
       Cursor.lockState = CursorLockMode.Locked;
       Cursor.visible = false;
 
-      bool zoomIn = Input.GetAxis("Mouse ScrollWheel") > 0f
-                     || _anyGamepadDpadUp;
-      bool zoomOut = Input.GetAxis("Mouse ScrollWheel") < 0f
-                     || _anyGamepadDpadDown;
+      bool zoomIn = _input.PlayMode.ZoomIn();
+      bool zoomOut = _input.PlayMode.ZoomOut();
 
       if (zoomIn)
       {
          // Scrolling forward; zoom in
-         if (Input.GetKey(_cfg.Keyboard.AdjustFocalLengthKey.Value) && _wantedFocalLength > 0)
+         if (_input.PlayMode.AdjustFocalLength() && _wantedFocalLength > 0)
          {
             _wantedFocalLength--;
             _logger.LogDebug("FocalLength " + _wantedFocalLength);
          }
-         else if (Input.GetKey(_cfg.Keyboard.AdjustFocusDistanceKey.Value))
+         else if (_input.PlayMode.AdjustFocusDistance())
          {
             _cfg.Camera.FocusDistanceOffset.Value++;
             _logger.LogDebug("FocusDistanceOffset " + _cfg.Camera.FocusDistanceOffset.Value);
@@ -1067,12 +875,12 @@ public class AlternativeCamera : MelonMod
       else if (zoomOut)
       {
          // Scrolling backwards; zoom out
-         if (Input.GetKey(_cfg.Keyboard.AdjustFocalLengthKey.Value))
+         if (_input.PlayMode.AdjustFocalLength())
          {
             _wantedFocalLength++;
             _logger.LogDebug("FocalLength " + _wantedFocalLength);
          }
-         else if (Input.GetKey(_cfg.Keyboard.AdjustFocusDistanceKey.Value) && _cfg.Camera.FocusDistanceOffset.Value > 0)
+         else if (_input.PlayMode.AdjustFocusDistance() && _cfg.Camera.FocusDistanceOffset.Value > 0)
          {
             _cfg.Camera.FocusDistanceOffset.Value--;
             _logger.LogDebug("FocusDistanceOffset " + _cfg.Camera.FocusDistanceOffset.Value);
@@ -1090,21 +898,17 @@ public class AlternativeCamera : MelonMod
 
       // Horizontal mouse movement will make camera rotate around vertical y-axis
       // Vertical mouse movement will make camera rotate along x-axis (your ear-to-ear axis)
-      _rotationHorizontal += Input.GetAxisRaw("Mouse X") * _cfg.Mouse.SensitivityHorizontal.Value *
-                        _cfg.Mouse.SensitivityMultiplier.Value;
-      _rotationVertical += Input.GetAxisRaw("Mouse Y") * _cfg.Mouse.SensitivityVertical.Value *
-                      _cfg.Mouse.SensitivityMultiplier.Value;
+      _rotationHorizontal += _input.MouseHorizontal();
+      _rotationVertical += _input.MouseVertical();
 
       // Also apply controller input
-      _rotationHorizontal += ApplyInnerDeadzone(_anyGamepadStickHorizontalR, _cfg.Controller.RightStickDeadzone.Value) *
-                        _cfg.Controller.SensitivityHorizontal.Value * _cfg.Controller.SensitivityMultiplier.Value;
-      _rotationVertical -= ApplyInnerDeadzone(_anyGamepadStickVerticalR, _cfg.Controller.RightStickDeadzone.Value) *
-                      _cfg.Controller.SensitivityVertical.Value * _cfg.Controller.SensitivityMultiplier.Value;
+      _rotationHorizontal += _input.RightStickHorizontal();
+      _rotationVertical -= _input.RightStickVertical();
       _rotationVertical = ClampAngle(_rotationVertical, -50, 30); // Clamp the up-down rotation
 
       // Handle alignment, either auto or manual by mouse/stick
-      bool autoAligningIsActive = (_camAutoAlign && !_holdingInvertManualAlignMode) ||
-                                  (!_camAutoAlign && _holdingInvertManualAlignMode);
+      bool autoAligningIsActive = (_camAutoAlign && !_input.PlayMode.InvertAlignmentMode()) ||
+                                  (!_camAutoAlign && _input.PlayMode.InvertAlignmentMode());
 
       if (autoAligningIsActive)
       {
@@ -1195,38 +999,37 @@ public class AlternativeCamera : MelonMod
 
    private void HandleBikeModeUserInputs()
    {
-      if (CheckKeyPressed(_cfg.Keyboard.OriginalCamKey.Value))
+      if (_input.PlayMode.SelectOriginalCamera())
       {
          SelectCameraMode(CameraMode.Original);
       }
 
-      if (CheckKeyPressed(_cfg.Keyboard.ThirdPersonCamKey.Value)
+      if (_input.PlayMode.SelectThirdPerson()
           || (_firstInit && _cfg.Camera.InitialMode.Value == CameraMode.ThirdPerson))
       {
          SelectCameraMode(CameraMode.ThirdPerson);
       }
 
-      if (CheckKeyPressed(_cfg.Keyboard.FirstPersonCamKey.Value)
+      if (_input.PlayMode.SelectFirstPerson()
           || (_firstInit && _cfg.Camera.InitialMode.Value == CameraMode.FirstPerson))
       {
          SelectCameraMode(CameraMode.FirstPerson);
       }
 
-      if (CheckGamepadButtonPressed(_cfg.Controller.ToggleCamStateButton.Value)
-          || CheckKeyPressed(_cfg.Keyboard.ToggleCamStateKey.Value))
+      if (_input.PlayMode.ToggleCamState())
       {
          ToggleCamState();
       }
 
       // Mouse inverting
-      if (CheckKeyPressed(_cfg.Keyboard.InvertHorizontalLookKey.Value))
+      if (_input.PlayMode.InvertHorizontalLook())
       {
          _cfg.Mouse.InvertHorizontalLook.Value = !_cfg.Mouse.InvertHorizontalLook.Value;
          AlignViewWithBike();
       }
 
       // Camera auto align
-      if (CheckKeyPressed(_cfg.Keyboard.ToggleCamAlignModeKey.Value))
+      if (_input.PlayMode.ToggleCamAlignMode())
       {
          _camAutoAlign = !_camAutoAlign;
          if (_camAutoAlign)
@@ -1236,36 +1039,33 @@ public class AlternativeCamera : MelonMod
       }
 
       // Camera 'snap back' alignment
-      if (CheckKeyPressed(_cfg.Keyboard.SnapAlignCamKey.Value)
-          || CheckGamepadButtonPressed(_cfg.Controller.SnapAlignCamButton.Value))
+      if (_input.PlayMode.SnapBehindBike())
       {
          ResetCamPosition();
       }
 
       // Field of view
-      var alt = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+      var alt = _input.PlayMode.ToggleFieldOfViewIncrement();
       var incr = alt ? 5 : 10;
-      if (CheckKeyPressed(_cfg.Keyboard.FovDecreaseKey.Value) || _anyGamepadDpadLeft)
+      if (_input.PlayMode.IncreaseFieldOfView())
       {
          ChangeFieldOfView(-incr);
       }
-      if (CheckKeyPressed(_cfg.Keyboard.FovIncreaseKey.Value) || _anyGamepadDpadRight)
+      if (_input.PlayMode.DecreaseFieldOfView())
       {
          ChangeFieldOfView(incr);
       }
-      if (CheckKeyPressed(_cfg.Keyboard.FovResetKey.Value))
+      if (_input.PlayMode.ResetFieldOfView())
       {
          ChangeFieldOfView(0);
       }
 
       // Photo Mode
-      if (CheckKeyPressed(KeyCode.P) || _anyGamepadBtnDown3
-          || (_escapeKeyDown && _menuWasOpenedWhileInPhotoMode))
+      if (_input.PlayMode.EnterPhotoMode() || (_input.OpenMenu() && _menuWasOpenedWhileInPhotoMode))
       {
          _menuWasOpenedWhileInPhotoMode = false;
          TogglePhotoMode(true);
       }
-
    }
 
 
@@ -1322,50 +1122,7 @@ public class AlternativeCamera : MelonMod
          ApplyCameraMode(CameraMode.Original);
       }
    }
-
-
-   private bool CheckKeyPressed(KeyCode kc)
-   {
-      if (kc == KeyCode.None) return false;
-      bool pressed = Input.GetKeyDown(kc);
-      return pressed;
-   }
-
-
-   private bool CheckGamepadButtonPressed(ControllerButton gpBtn)
-   {
-      bool pressed = false;
-      switch (gpBtn)
-      {
-         case ControllerButton.X:
-            pressed = _anyGamepadBtnDown2;
-            _logger.LogDebug(pressed, "Gamepad X");
-            break;
-         case ControllerButton.Y:
-            pressed = _anyGamepadBtnDown3;
-            _logger.LogDebug(pressed, "Gamepad Y");
-            break;
-         case ControllerButton.LB:
-            pressed = _anyGamepadBtnDown4;
-            _logger.LogDebug(pressed, "Gamepad LB");
-            break;
-         case ControllerButton.RB:
-            pressed = _anyGamepadBtnDown5;
-            _logger.LogDebug(pressed, "Gamepad RB");
-            break;
-         case ControllerButton.LStick:
-            pressed = _anyGamepadBtnDown8;
-            _logger.LogDebug(pressed, "Gamepad LStick");
-            break;
-         case ControllerButton.RStick:
-            pressed = _anyGamepadBtnDown9;
-            _logger.LogDebug(pressed, "Gamepad RStick");
-            break;
-      }
-
-      return pressed;
-   }
-
+   
 
    private void ResetCamPosition()
    {
@@ -1555,23 +1312,8 @@ public class AlternativeCamera : MelonMod
       return Mathf.Clamp(angle, min, max);
    }
 
-
-   /// <summary>
-   /// Snaps the given value to 0 if it falls within the deadzone radius in either direction.
-   /// </summary>
-   /// <returns>The axis if outside the deadzone, otherwise returns 0.</returns>
-   private float ApplyInnerDeadzone(float axis, float deadzone)
-   {
-      if (axis > deadzone || axis < -deadzone)
-      {
-         return axis;
-      }
-
-      return 0;
-   }
-
-
-   #region Photo Mode
+   
+   #region --- Photo Mode ---
 
    /// <summary>
    /// Toggles photo mode to the provided state.
@@ -1668,23 +1410,23 @@ public class AlternativeCamera : MelonMod
 
    private void HandlePhotoModeUserInputs()
    {
-      if (CheckKeyPressed(KeyCode.P) || CheckKeyPressed(KeyCode.Backspace) || _anyGamepadBtnDown3)
+      if (_input.PhotoMode.Exit())
       {
          TogglePhotoMode(false);
       }
 
-      if (CheckKeyPressed(KeyCode.I) || _anyGamepadBtnDown8)
+      if (_input.PhotoMode.ToggleInstructions())
       {
          _photoModeInstructionsVisible = !_photoModeInstructionsVisible;
       }
 
-      if (CheckKeyPressed(KeyCode.K) || _anyGamepadDpadVertical > 0)
+      if (_input.PhotoMode.ResetCamera())
       {
          _mainCamera.fieldOfView = _photoModeBaseFoV;
          _rotationRoll = 0;
       }
 
-      if (CheckKeyPressed(KeyCode.Space) || _anyGamepadBtnDown2)
+      if (_input.PhotoMode.TakePhoto())
       {
          var e = TakeScreenshot();
          while (e.MoveNext()) { }
@@ -1692,10 +1434,10 @@ public class AlternativeCamera : MelonMod
 
       if (_hasDepthOfFieldSetting)
       {
-         if (CheckKeyPressed(KeyCode.V) || _anyGamepadDpadDown)
+         if (_input.PhotoMode.ToggleDoFFocusMode())
          {
             _photoModeFocus = !_photoModeFocus;
-            _logger.LogDebug("Focus Mode: " + _photoModeFocus + " dp:" + _anyGamepadDpadDownCnt + " i:" + _dpadPressDetectThreshold);
+            _logger.LogDebug("Focus Mode: " + _photoModeFocus);
          }
       }
    }
@@ -1939,10 +1681,9 @@ public class AlternativeCamera : MelonMod
 
    private void ProcessPhotoModeCamera()
    {
-      //inFocusMode = hasDOFSettings && (Input.GetKey(focusModeModifierKey) || anyGamepadDpadVertical < 0);
-      bool holdingSprint = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) || _anyGamepadBtn0;
+      bool holdingSprint = _input.PhotoMode.AccelerateMovement();
 
-      if (Input.GetAxis("Mouse ScrollWheel") > 0f || _anyGamepadBtnDown5)
+      if (_input.PhotoMode.ZoomIn())
       {
          // Scrolling forward / right bumper
          if (_photoModeFocus)
@@ -1956,7 +1697,7 @@ public class AlternativeCamera : MelonMod
             _mainCamera.fieldOfView -= 1;
          }
       }
-      else if (Input.GetAxis("Mouse ScrollWheel") < 0f || _anyGamepadBtnDown4)
+      else if (_input.PhotoMode.ZoomOut())
       {
          // Scrolling backwards / left bumper
          if (_photoModeFocus)
@@ -1983,48 +1724,19 @@ public class AlternativeCamera : MelonMod
       // Horizontal movement will make camera rotate around vertical y-axis
       // Vertical movement will make camera rotate along x-axis (your ear-to-ear axis)
 
-      // Mouse input
-      if (_cfg.Mouse.InvertHorizontalLook.Value)
-      {
-         _rotationHorizontal -= Input.GetAxisRaw("Mouse X") * _cfg.Mouse.SensitivityHorizontal.Value * _cfg.Mouse.SensitivityMultiplier.Value;
-      }
-      else
-      {
-         _rotationHorizontal += Input.GetAxisRaw("Mouse X") * _cfg.Mouse.SensitivityHorizontal.Value * _cfg.Mouse.SensitivityMultiplier.Value;
-      }
-      if (_cfg.Mouse.InvertVerticalLook.Value)
-      {
-         _rotationVertical -= Input.GetAxisRaw("Mouse Y") * _cfg.Mouse.SensitivityVertical.Value * _cfg.Mouse.SensitivityMultiplier.Value;
-      }
-      else
-      {
-         _rotationVertical += Input.GetAxisRaw("Mouse Y") * _cfg.Mouse.SensitivityVertical.Value * _cfg.Mouse.SensitivityMultiplier.Value;
-      }
-
-      // Controller input
-      if (_cfg.Controller.InvertHorizontalLook.Value)
-      {
-         _rotationHorizontal -= ApplyInnerDeadzone(_anyGamepadStickHorizontalR, _cfg.Controller.RightStickDeadzone.Value) * _cfg.Controller.SensitivityHorizontal.Value * _cfg.Controller.SensitivityMultiplier.Value;
-      }
-      else
-      {
-         _rotationHorizontal += ApplyInnerDeadzone(_anyGamepadStickHorizontalR, _cfg.Controller.RightStickDeadzone.Value) * _cfg.Controller.SensitivityHorizontal.Value * _cfg.Controller.SensitivityMultiplier.Value;
-      }
-      if (_cfg.Controller.InvertVerticalLook.Value)
-      {
-         _rotationVertical += ApplyInnerDeadzone(_anyGamepadStickVerticalR, _cfg.Controller.RightStickDeadzone.Value) * _cfg.Controller.SensitivityVertical.Value * _cfg.Controller.SensitivityMultiplier.Value;
-      }
-      else
-      {
-         _rotationVertical -= ApplyInnerDeadzone(_anyGamepadStickVerticalR, _cfg.Controller.RightStickDeadzone.Value) * _cfg.Controller.SensitivityVertical.Value * _cfg.Controller.SensitivityMultiplier.Value;
-      }
-
+      // Mouse
+      _rotationHorizontal += _input.MouseHorizontal() * (_cfg.Mouse.InvertHorizontalLook.Value ? -1 : 1);
+      _rotationVertical += _input.MouseVertical() * (_cfg.Mouse.InvertVerticalLook.Value ? -1 : 1);
+      // Controller
+      _rotationHorizontal += _input.RightStickHorizontal() * (_cfg.Controller.InvertHorizontalLook.Value ? -1 : 1);
+      _rotationVertical += _input.RightStickVertical() * (_cfg.Controller.InvertVerticalLook.Value ? -1 : 1);
+     
       // Clamp the up-down rotation
       _rotationVertical = ClampAngle(_rotationVertical,
          _verticalClampAnglesMap[_currentCamMode].Item1,
          _verticalClampAnglesMap[_currentCamMode].Item2);
 
-      if (Input.GetKey(KeyCode.Q))
+      if (_input.PhotoMode.RollLeft())
       {
          _rotationRoll += 0.1f;
          if (holdingSprint)
@@ -2032,7 +1744,7 @@ public class AlternativeCamera : MelonMod
             _rotationRoll += 0.7f;
          }
       }
-      if (Input.GetKey(KeyCode.E))
+      if (_input.PhotoMode.RollRight())
       {
          _rotationRoll -= 0.1f;
          if (holdingSprint)
@@ -2040,7 +1752,7 @@ public class AlternativeCamera : MelonMod
             _rotationRoll -= 0.7f;
          }
       }
-      _rotationRoll += -_anyGamepadDpadHorizontal * 4f * Time.fixedDeltaTime * (holdingSprint ? 7 : 1);
+      _rotationRoll += -_input.DpadHorizontal() * 4f * Time.fixedDeltaTime * (holdingSprint ? 7 : 1);
 
       _rotation = Quaternion.Euler(-_rotationVertical, _rotationHorizontal, _rotationRoll);
       Vector3 newPosition = _camTransform.position + moveVector;
@@ -2063,20 +1775,21 @@ public class AlternativeCamera : MelonMod
    {
       Vector3 direction = new Vector3();
 
-      if (Input.GetKey(KeyCode.R))
+      if (_input.PhotoMode.MoveUp())
       {
          direction += Vector3.up;
       }
-      if (Input.GetKey(KeyCode.F))
+
+      if (_input.PhotoMode.MoveDown())
       {
          direction += Vector3.down;
       }
 
-      direction += ApplyInnerDeadzone(_anyGamepadTriggerInputR, _cfg.Controller.RightTriggerDeadzone.Value) * Vector3.up;
-      direction += ApplyInnerDeadzone(_anyGamepadTriggerInputL, _cfg.Controller.LeftTriggerDeadzone.Value) * Vector3.down;
-
-      direction += ApplyInnerDeadzone(Input.GetAxisRaw("Vertical"), _cfg.Controller.LeftStickDeadzone.Value) * _camTransform.forward;
-      direction += ApplyInnerDeadzone(Input.GetAxisRaw("Horizontal"), _cfg.Controller.LeftStickDeadzone.Value) * _camTransform.right;
+      direction += Vector3.up * _input.RightTrigger();
+      direction += Vector3.down * _input.LeftTrigger();
+      
+      direction += _camTransform.forward * _input.VerticalMovement();
+      direction += _camTransform.right * _input.HorizontalMovement();
 
       return direction;
    }
