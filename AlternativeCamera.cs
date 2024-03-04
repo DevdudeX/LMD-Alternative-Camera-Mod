@@ -25,6 +25,8 @@ namespace AlternativeCameraMod;
 public class AlternativeCamera : MelonMod
 {
    public const string MOD_VERSION = "2.0.0-dev"; // also update in project build properties
+   
+   private const string GameColor = "#E9AC4F";
 
    private bool _modDisabled;
    private bool _modInitialized;
@@ -117,7 +119,7 @@ public class AlternativeCamera : MelonMod
    private int _screenshotCounter;
    private readonly CamPos _camPosPhoto = new();
    private readonly CamPos _camPosPhotoShoot = new();
-
+   
 
    class CamPos
    {
@@ -304,7 +306,7 @@ public class AlternativeCamera : MelonMod
             x = Screen.currentResolution.width / 2 - 200;
             y = Screen.currentResolution.height - 50;
             size = 20;
-            color = "#E9AC4F";
+            color = GameColor;
             break;
 
          case ScreenMode.SplashScreen:
@@ -321,7 +323,7 @@ public class AlternativeCamera : MelonMod
             size = 20;
             shadowOffsetX = 1;
             shadowOffsetY = 2;
-            color = "#E9AC4F"; // matches LMD text color
+            color = GameColor; // matches LMD text color
 
             if (!String.IsNullOrEmpty(_errorMessage))
             {
@@ -1620,7 +1622,7 @@ public class AlternativeCamera : MelonMod
       btns.AppendLine(sep + dpad + " ▼");
 
 
-      var foreColor = "#E9AC4F";
+      var foreColor = GameColor;
       var shadowColor = "black";
       var shadowOff = 2;
 
