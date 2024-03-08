@@ -1,13 +1,25 @@
 ﻿namespace AlternativeCameraMod;
 
-internal enum ModMode
+internal enum Screen
+{
+   None,
+   LoadingScreen,
+   SplashScreen,
+   MenuScreen,
+   PlayScreen,
+   PauseScreen,
+   PhotoScreen
+}
+
+
+internal enum CameraMode
 {
    BikeCam,
    PhotoCam
 }
 
 
-internal enum CameraMode
+internal enum CameraView
 {
    Original,
    ThirdPerson,

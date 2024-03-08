@@ -57,6 +57,7 @@ internal class InputHandler
    {
       _cfg = cfg;
       _logger = logger;
+      Cursor.lockState = CursorLockMode.None;
       PlayMode = new PlayModeInput(this, cfg);
       PhotoMode = new PhotoModeInput(this, cfg);
    }
@@ -73,6 +74,21 @@ internal class InputHandler
       _escapeKeyDown = KeyDown(KeyCode.Escape); // Escape key down can safely detected only in OnUpdate, never later
    }
 
+   
+   public void HideMouseCursor()
+   {
+      Cursor.lockState = CursorLockMode.Locked;
+      Cursor.visible = false;
+   }
+
+
+   public void ShowMouseCursor()
+   {
+      // Lock and hide the cursor
+      Cursor.lockState = CursorLockMode.None;
+      Cursor.visible = false;
+   }
+
 
    private void DetectMouseMovement()
    {
@@ -87,8 +103,7 @@ internal class InputHandler
       if (_mouseMoved)
       {
          _mouseVisibleThreshold = fps * 3;
-         Cursor.lockState = CursorLockMode.None;
-         Cursor.visible = true;
+         ShowMouseCursor();
       }
       else if (_mouseVisibleThreshold > 0)
       {
@@ -96,8 +111,7 @@ internal class InputHandler
       }
       else if (_mouseVisibleThreshold <= 0)
       {
-         Cursor.lockState = CursorLockMode.None;
-         Cursor.visible = false;
+         HideMouseCursor();
       }
    }
 

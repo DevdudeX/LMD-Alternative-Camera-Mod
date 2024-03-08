@@ -6,7 +6,7 @@ namespace AlternativeCameraMod.Config;
 
 internal class CameraSettings : ModSettingsCategory
 {
-   private MelonPreferences_Entry<CameraMode> _initialMode;
+   private MelonPreferences_Entry<CameraView> _initialMode;
    private MelonPreferences_Entry<float> _collisionPadding;
    private MelonPreferences_Entry<float> _zoomLerpOutSpeed;
    private MelonPreferences_Entry<float> _zoomLerpInSpeed;
@@ -26,7 +26,7 @@ internal class CameraSettings : ModSettingsCategory
    public CameraSettings(string filePath, LanguageConfig lng) 
       : base("Camera", filePath, lng)
    {
-      _initialMode = CreateEntry("InitialMode", CameraMode.ThirdPerson, 
+      _initialMode = CreateEntry("InitialMode", CameraView.ThirdPerson, 
          "Camera mode to begin with: Original, ThirdPerson, FirstPerson");
 
       _alignmentMode = CreateEntry("AlignMode", CameraAlignmentMode.Auto, 
@@ -73,7 +73,7 @@ internal class CameraSettings : ModSettingsCategory
    }
 
    
-   public MelonPreferences_Entry<CameraMode> InitialMode
+   public MelonPreferences_Entry<CameraView> InitialMode
    {
       get { return _initialMode; }
    }
