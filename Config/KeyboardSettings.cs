@@ -14,6 +14,7 @@ internal class KeyboardSettings : ModSettingsCategory
    private MelonPreferences_Entry<KeyCode> _invertHorizontalLookKey;
    private MelonPreferences_Entry<KeyCode> _toggleCamAlignModeKey;
    private MelonPreferences_Entry<KeyCode> _snapAlignCamKey;
+   private MelonPreferences_Entry<KeyCode> _invertCamAlignModeKey;
    private MelonPreferences_Entry<KeyCode> _hudInfoTextToggleKey;
    private MelonPreferences_Entry<KeyCode> _adjustFocalLengthKey;
    private MelonPreferences_Entry<KeyCode> _adjustFocusDistanceKey;
@@ -40,6 +41,10 @@ internal class KeyboardSettings : ModSettingsCategory
       _snapAlignCamKey = CreateEntry("SnapAlignCam", KeyCode.RightControl,
          "Key to align the camera behind the bike on demand\n" + 
          "None to disable, otherwise any valid keyboard key (see also Controller)");
+      _invertCamAlignModeKey = CreateEntry("InvertCamAlignMode", KeyCode.Mouse1,
+         "Key to invert the alignment mode of the camera, so if this key is pressed\n" + 
+         "a preset of auto alignment is toggled to manual alignment and a preset of\n" +
+         "manual alignment is toggled to auto alignment");
       _invertHorizontalLookKey = CreateEntry("InvertHorizontalLook", KeyCode.F6, 
          "Key to change mouse horizontal look, see Mouse/InvertHorizontalLook");
       _hudToggleKey = CreateEntry("HudToggle", KeyCode.H,
@@ -131,6 +136,12 @@ internal class KeyboardSettings : ModSettingsCategory
    public MelonPreferences_Entry<KeyCode> SnapAlignCamKey
    {
       get { return _snapAlignCamKey; }
+   }
+   
+   
+   public MelonPreferences_Entry<KeyCode> InvertCamAlignModeKey
+   {
+      get { return _invertCamAlignModeKey; }
    }
 
 

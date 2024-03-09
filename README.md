@@ -104,20 +104,20 @@ The keys are presets and can be customized. Controller inputs are fixed.
 
 | Action                                  | Keyboard/Mouse            | Controller                  |
 | ---                                     | ---                       | ---                         |
-| Camera Mode: Original Isometric         | F1                        | -                           |
-| Camera Mode: Third Person               | F2                        | -                           |
-| Camera Mode: First person               | F3                        | -                           |
-| Toggle camera original<->alternative    | Space                     | Left Bumper *)              |
+| Original camera (isometric)             | F1                        | -                           |
+| Alternative camera: Third Person        | F2                        | -                           |
+| Alternative camera: First Person        | F3                        | -                           |
+| Toggle camera: Original <-> Alternative | Space                     | Left Bumper *)              |
 | Toggle camera auto-align mode           | F5                        | -                           |
 | Toggle invert look horizontal           | F6                        | -                           |
 | Toggle Game HUD                         | H                         | -                           |
 | Toggle Mod HUD Displays                 | J                         | -                           |
 | Look around                             | Mouse *)                  | Right Stick *)              |
 | Snap camera to behind the bike          | Right Control             | Right Stick Click *)        |
-| Hold to invert camera auto-align mode   | Mouse Right Button *)     | Right Bumper *)             |
-| Move camera in and out                  | Mouse Scroll *)           | Dpad Up / Down *)           |
-| Change DoF focal length                 | Hold L + Mouse Scroll *)  | -                           |
-| Change DoF focus distance offset        | Hold K + Mouse Scroll *)  | -                           |
+| Invert camera auto-align mode (hold)    | Mouse Right Button *)     | Right Bumper *)             |
+| Zoom camera in and out                  | Mouse Scroll *)           | Dpad Up / Down *)           |
+| Adjust DoF focal length                 | Hold L + Mouse Scroll *)  | -                           |
+| Adjust DoF focus distance offset        | Hold K + Mouse Scroll *)  | -                           |
 | Increase FoV by 10 (hold Alt for 5)     | 8                         | Dpad Right *)               |
 | Decrease FoV by 10 (hold Alt for 5)     | 9                         | Dpad Left *)                |
 | Reset FoV to default/preset             | 0                         |                             |
@@ -138,8 +138,8 @@ These input assignment is as follows (not customizable):
 | Tilt Left / Right       | Q / E            | Dpad left / right    |
 | Speed up movement       | Shift            | A                    |
 | Reset rotation / FoV    | K                | Dpad up              |
-| Change FoV              | Mouse Scroll     | LB / RB              |
-| Toggle DoF mode         | V                | Dpad down            |
+| Toggle FoV / DoF mode   | V                | Dpad down            |
+| Change FoV / DoF        | Mouse Scroll     | LB / RB              |
 
 
 ## Info for keyboard/mouse

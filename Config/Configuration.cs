@@ -8,6 +8,7 @@ internal class Configuration
 {
    public const string ConfigFilePath = "UserData/AlternativeCameraWithPhotoMode.ini";
    public const string GameColor = "#E9AC4F";
+   public const string GameColor2 = "#8FBC0D";
 
    private readonly Dictionary<string, ModSettingsCategory> _categories = new();
    private readonly string _filePath;

@@ -1,4 +1,6 @@
-﻿using AlternativeCameraMod.Config;
+﻿using System.ComponentModel.DataAnnotations;
+using AlternativeCameraMod.Config;
+using AlternativeCameraMod.Language;
 using UnityEngine;
 
 
@@ -7,6 +9,7 @@ namespace AlternativeCameraMod;
 internal class InputHandler
 {
    private readonly Configuration _cfg;
+   private readonly LanguageConfig _lang;
    private readonly Logger _logger;
 
    // General
@@ -51,14 +54,15 @@ internal class InputHandler
 
    // Keyboard
    private bool _escapeKeyDown;
-   
 
-   public InputHandler(Configuration cfg, Logger logger)
+
+   public InputHandler(Configuration cfg, LanguageConfig lang, Logger logger)
    {
       _cfg = cfg;
+      _lang = lang;
       _logger = logger;
       Cursor.lockState = CursorLockMode.None;
-      PlayMode = new PlayModeInput(this, cfg);
+      PlayMode = new PlayModeInput(this, cfg, lang);
       PhotoMode = new PhotoModeInput(this, cfg);
    }
 
@@ -69,12 +73,12 @@ internal class InputHandler
       DetermineTriggerInput();
       DetermineButtonInput();
       DetermineDpadInput();
-      
+
       DetectMouseMovement();
       _escapeKeyDown = KeyDown(KeyCode.Escape); // Escape key down can safely detected only in OnUpdate, never later
    }
 
-   
+
    public void HideMouseCursor()
    {
       Cursor.lockState = CursorLockMode.Locked;
@@ -124,7 +128,7 @@ internal class InputHandler
                                  Input.GetAxisRaw("Joy3Axis10") + Input.GetAxisRaw("Joy4Axis10");
    }
 
-   
+
    private void DetermineStickInput()
    {
       _leftStickHorizontal = Input.GetAxisRaw("Joy1Axis1") + Input.GetAxisRaw("Joy2Axis1") +
@@ -245,7 +249,7 @@ internal class InputHandler
       if (_buttonDown9) _logger.LogDebug("Button 9 down (RS)"); // right stick click
    }
 
-   
+
    private bool KeyDown(KeyCode kc)
    {
       if (kc == KeyCode.None) return false;
@@ -310,14 +314,56 @@ internal class InputHandler
 
       return 0;
    }
+   
+      
+   private string ConvertToText(string value, string? fallbackText = null)
+   {
+      string keyTxtLang = _lang.GetText("Input", value, fallbackText ?? value);
+      return keyTxtLang;
+   }
 
-  
+
+   private string ConvertToText(KeyCode value)
+   {
+      switch (value)
+      {
+         case KeyCode.Alpha0:
+         case KeyCode.Alpha1:
+         case KeyCode.Alpha2:
+         case KeyCode.Alpha3:
+         case KeyCode.Alpha4:
+         case KeyCode.Alpha5:
+         case KeyCode.Alpha6:
+         case KeyCode.Alpha7:
+         case KeyCode.Alpha8:
+         case KeyCode.Alpha9:
+            return value.ToString().Substring(5, 1);
+      }
+
+      string keyTxt = value.ToString();
+      string keyTxtLang = _lang.GetText("Input", keyTxt, "---");
+      if (keyTxtLang != "---")
+      {
+         return keyTxtLang;
+      }
+
+      return keyTxt;
+   }
+
+
+   private string ConvertToText(ControllerButton btn)
+   {
+      string keyTxtLang = _lang.GetText("Input", btn.ToString(), btn.ToString());
+      return keyTxtLang;
+   }
+
+
    public bool OpenMenu()
    {
       return _escapeKeyDown || _buttonDown7 /*start*/;
    }
 
-   
+
    public PlayModeInput PlayMode { get; }
    public PhotoModeInput PhotoMode { get; }
 
@@ -326,12 +372,20 @@ internal class InputHandler
    {
       private readonly InputHandler _ih;
       private readonly Configuration _cfg;
+      private readonly LanguageConfig _lang;
 
 
-      public PlayModeInput(InputHandler ih, Configuration cfg)
+      public PlayModeInput(InputHandler ih, Configuration cfg, LanguageConfig lang)
       {
          _ih = ih;
          _cfg = cfg;
+         _lang = lang;
+      }
+
+
+      public bool ShowInstructions
+      {
+         get { return _ih.KeyDown(KeyCode.I) || _ih.ButtonDown(ControllerButton.RStick); }
       }
 
 
@@ -352,10 +406,10 @@ internal class InputHandler
          return _ih.KeyDown(_cfg.Keyboard.FirstPersonCamKey.Value);
       }
 
-      
+
       public bool InvertAlignmentMode()
       {
-         return _ih._buttonHold5 || _ih.KeyHold(KeyCode.Mouse1);
+         return _ih._buttonHold5 || _ih.KeyHold(_cfg.Keyboard.InvertCamAlignModeKey.Value);
       }
 
 
@@ -402,7 +456,7 @@ internal class InputHandler
          return _ih.KeyDown(_cfg.Keyboard.FovResetKey.Value);
       }
 
-      
+
       public bool EnterPhotoMode()
       {
          return _ih.KeyDown(KeyCode.P) || _ih._buttonDown3;
@@ -413,7 +467,7 @@ internal class InputHandler
       {
          return Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
       }
-      
+
 
       public bool ToggleHud()
       {
@@ -451,6 +505,92 @@ internal class InputHandler
       {
          return _ih.KeyHold(_cfg.Keyboard.AdjustFocusDistanceKey.Value);
       }
+
+
+      public string GetKeyText(PlayModeAction action)
+      {
+         switch (action)
+         {
+            default: return "";
+            case PlayModeAction.CameraModeOriginal: return _ih.ConvertToText(_cfg.Keyboard.OriginalCamKey.Value);
+            case PlayModeAction.CameraModeFirstPerson: return _ih.ConvertToText(_cfg.Keyboard.FirstPersonCamKey.Value);
+            case PlayModeAction.CameraModeThirdPerson: return _ih.ConvertToText(_cfg.Keyboard.ThirdPersonCamKey.Value);
+            case PlayModeAction.ToggleCameraAutoAlignMode: return _ih.ConvertToText(_cfg.Keyboard.ToggleCamAlignModeKey.Value);
+            case PlayModeAction.ToggleCameraState: return _ih.ConvertToText(_cfg.Keyboard.ToggleCamStateKey.Value);
+            case PlayModeAction.ToggleInvertLookHorizontal: return _ih.ConvertToText(_cfg.Keyboard.InvertHorizontalLookKey.Value);
+            case PlayModeAction.ToggleGameHud: return _ih.ConvertToText(_cfg.Keyboard.HudToggleKey.Value);
+            case PlayModeAction.ToggleModHudDisplays: return _ih.ConvertToText(_cfg.Keyboard.HudInfoTextToggleKey.Value);
+            case PlayModeAction.LookAround: return _ih.ConvertToText("Mouse", "Mouse");
+            case PlayModeAction.SnapCameraToBehindTheBike: return _ih.ConvertToText(_cfg.Keyboard.SnapAlignCamKey.Value);
+            case PlayModeAction.HoldToInvertCameraAutoAlignMode: return _ih.ConvertToText(_cfg.Keyboard.InvertCamAlignModeKey.Value);
+            case PlayModeAction.ZoomInOut: return _ih.ConvertToText("MouseWheel", "Mouse Scroll");
+            case PlayModeAction.ChangeDoFFocalLength: return _ih.ConvertToText(_cfg.Keyboard.AdjustFocalLengthKey.Value);
+            case PlayModeAction.ChangeDoFFocusDistanceOffset: return _ih.ConvertToText(_cfg.Keyboard.AdjustFocusDistanceKey.Value);
+            case PlayModeAction.IncreaseFoV: return _ih.ConvertToText(_cfg.Keyboard.FovIncreaseKey.Value);
+            case PlayModeAction.DecreaseFoV: return _ih.ConvertToText(_cfg.Keyboard.FovDecreaseKey.Value);
+            case PlayModeAction.ResetFoV: return _ih.ConvertToText(_cfg.Keyboard.FovResetKey.Value);
+         }
+      }
+
+
+      public string GetButtonText(PlayModeAction action)
+      {
+         switch (action)
+         {
+            default: return "";
+            case PlayModeAction.CameraModeOriginal: return "-";
+            case PlayModeAction.CameraModeFirstPerson: return "-";
+            case PlayModeAction.CameraModeThirdPerson: return "-";
+            case PlayModeAction.ToggleCameraAutoAlignMode: return "-";
+            case PlayModeAction.ToggleCameraState: return _ih.ConvertToText(_cfg.Controller.ToggleCamStateButton.Value); 
+            case PlayModeAction.ToggleInvertLookHorizontal: return "-";
+            case PlayModeAction.ToggleGameHud: return "-";
+            case PlayModeAction.ToggleModHudDisplays: return "-";
+            case PlayModeAction.LookAround: return _ih.ConvertToText("RStick");
+            case PlayModeAction.SnapCameraToBehindTheBike: return _ih.ConvertToText("LButton");
+            case PlayModeAction.HoldToInvertCameraAutoAlignMode: return _ih.ConvertToText("RButton");
+            case PlayModeAction.ZoomInOut: return String.Format("{0} {1} / {2}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadUp", "up"), _ih.ConvertToText("DpadDown", "down"));
+            case PlayModeAction.ChangeDoFFocalLength: return "-";
+            case PlayModeAction.ChangeDoFFocusDistanceOffset: return "-";
+            case PlayModeAction.IncreaseFoV: return String.Format("{0} {1}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadLeft", "left"));
+            case PlayModeAction.DecreaseFoV: return String.Format("{0} {1}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadRight", "right"));
+            case PlayModeAction.ResetFoV: return "-";
+         }
+      }
+
+
+      public string GetActionText(PlayModeAction action)
+      {
+         var pid = GetActionTextLangId(action);
+         var txt =_lang.GetText("PlayMode", pid, "");
+         return txt;
+      }
+
+
+      private string GetActionTextLangId(PlayModeAction action)
+      {
+         switch (action)
+         {
+            default: return "";
+            case PlayModeAction.CameraModeOriginal: return "ActionCameraOriginal";
+            case PlayModeAction.CameraModeFirstPerson: return "ActionCameraFirst";
+            case PlayModeAction.CameraModeThirdPerson: return "ActionCameraThird";
+            case PlayModeAction.ToggleCameraAutoAlignMode: return "ActionCameraAutoAlign";
+            case PlayModeAction.ToggleCameraState: return "ActionToggleCamState";
+            case PlayModeAction.ToggleInvertLookHorizontal: return "ActionInvertLookHoizontal";
+            case PlayModeAction.ToggleGameHud: return "ActionToggleGameHud";
+            case PlayModeAction.ToggleModHudDisplays: return "ActionToggleModHud";
+            case PlayModeAction.LookAround: return _ih.ConvertToText("ActionLookAround");
+            case PlayModeAction.SnapCameraToBehindTheBike: return _ih.ConvertToText("ActionSnapBehindBike");
+            case PlayModeAction.HoldToInvertCameraAutoAlignMode: return _ih.ConvertToText("ActionInvertCamAlignMode");
+            case PlayModeAction.ZoomInOut: return "ActionZoom";
+            case PlayModeAction.ChangeDoFFocalLength: return "ActionAdjustFocalLength";
+            case PlayModeAction.ChangeDoFFocusDistanceOffset: return "ActionAdjustFocusDistance";
+            case PlayModeAction.IncreaseFoV: return "ActionIncreaseFov";
+            case PlayModeAction.DecreaseFoV: return "ActionDecreaseFoV";
+            case PlayModeAction.ResetFoV: return "ActionResetFoV";
+         }
+      }
    }
 
 
@@ -471,7 +611,7 @@ internal class InputHandler
       {
          return _ih.KeyDown(KeyCode.P) || _ih.KeyDown(KeyCode.Backspace) || _ih._buttonDown3;
       }
-      
+
 
       public bool ToggleHud()
       {
@@ -545,7 +685,7 @@ internal class InputHandler
       }
    }
 
-   
+
    public float HorizontalMovement()
    {
       return ApplyInnerDeadzone(_moveHorizontal, _cfg.Controller.LeftStickDeadzone.Value);
@@ -556,7 +696,7 @@ internal class InputHandler
    {
       return ApplyInnerDeadzone(_moveVertical, _cfg.Controller.LeftStickDeadzone.Value);
    }
-   
+
 
    public float LeftStickHorizontal()
    {
@@ -576,8 +716,8 @@ internal class InputHandler
 
    public float RightStickHorizontal()
    {
-      return ApplyInnerDeadzone(_rightStickHorizontal, _cfg.Controller.RightStickDeadzone.Value) * 
-             _cfg.Controller.SensitivityHorizontal.Value * 
+      return ApplyInnerDeadzone(_rightStickHorizontal, _cfg.Controller.RightStickDeadzone.Value) *
+             _cfg.Controller.SensitivityHorizontal.Value *
              _cfg.Controller.SensitivityMultiplier.Value;
    }
 
@@ -585,7 +725,7 @@ internal class InputHandler
    public float RightStickVertical()
    {
       return ApplyInnerDeadzone(_rightStickVertical, _cfg.Controller.RightStickDeadzone.Value) *
-             _cfg.Controller.SensitivityVertical.Value * 
+             _cfg.Controller.SensitivityVertical.Value *
              _cfg.Controller.SensitivityMultiplier.Value;
    }
 
@@ -607,10 +747,10 @@ internal class InputHandler
       return ApplyInnerDeadzone(_triggerInputL, _cfg.Controller.LeftTriggerDeadzone.Value);
    }
 
-   
+
    public float MouseHorizontal()
    {
-      return Input.GetAxisRaw("Mouse X") * 
+      return Input.GetAxisRaw("Mouse X") *
              _cfg.Mouse.SensitivityHorizontal.Value *
              _cfg.Mouse.SensitivityMultiplier.Value;
    }
@@ -621,5 +761,11 @@ internal class InputHandler
       return Input.GetAxisRaw("Mouse Y") *
              _cfg.Mouse.SensitivityVertical.Value *
              _cfg.Mouse.SensitivityMultiplier.Value;
+   }
+
+
+   public bool Restart()
+   {
+      return _buttonDown1; // B
    }
 }

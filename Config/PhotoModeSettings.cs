@@ -28,7 +28,7 @@ internal class PhotoModeSettings : ModSettingsCategory
          "Output folder where screenshots are saved, folder is created if not exists");
       _screenshotFilenameFormat = CreateEntry("ScreenshotFilenameFormat",
          "LMD_screenshot_{cnt2}_{w}x{h}_{d}_{t}.png",
-         "Format used to creste filenames to save screenshots; use extensions .png or .jpg\n" +
+         "Format used to create filenames to save screenshots; use extensions .png or .jpg\n" +
          "Placeholders:\n" +
          "{w}=screen width\n" +
          "{h}=screen height\n" +

@@ -67,7 +67,7 @@ internal class CameraSettings : ModSettingsCategory
       _thirdPersionRotationVert = CreateEntry("ThirdPersonCamPosVertical", -20f, 
          "Default vertical position of the camera above behind the bike");
 
-      _thirdPersionInitialFollowDistance = CreateEntry("ThirdPersonInitialFollowDistance", 6f,
+      _thirdPersionInitialFollowDistance = CreateEntry("ThirdPersonInitialFollowDistance", 4.5f,
          "Initial distance of the camera to the bike when using third person cam\n" +
          "Can be adjusted while playing by zoom functionality");
    }

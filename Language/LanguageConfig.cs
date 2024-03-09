@@ -91,7 +91,7 @@ internal class LanguageConfig
       {
          var defVal = "\"" + defaultText + "\"";
          var sec = _ini.GetSection(sectionId);
-         var txt = sec.GetValue(phraseId, _fallbackLanguage?.GetText(sectionId, phraseId, defVal) ?? defVal);
+         var txt = sec.GetValue(phraseId, _fallbackLanguage?.GetFormat(sectionId, phraseId) ?? defVal);
          fmtTxt = txt.Replace("\\n", Environment.NewLine);
 
          int pos1 = fmtTxt.IndexOf('"', 0);
@@ -105,6 +105,11 @@ internal class LanguageConfig
             pos2 = fmtTxt.Length;
          
          fmtTxt = fmtTxt.Substring(pos1, pos2-pos1);
+         // escape brackets
+         fmtTxt = fmtTxt.Replace("{", "{{");
+         fmtTxt = fmtTxt.Replace("}", "}}");
+         fmtTxt = fmtTxt.Replace("{{0}}", "{0}"); // currently we only have text with single placeholder, so this is effective
+         
          _runtimeCache[sectionId + "_" + phraseId] = fmtTxt;
       }
       
@@ -119,5 +124,29 @@ internal class LanguageConfig
       }
 
       return fmtTxt;
+   }
+
+
+   private string? GetFormat(string sectionId, string phraseId)
+   {
+      var sec = _ini.GetSection(sectionId);
+      var txt = sec.GetValue(phraseId, "");
+      if (txt == "")
+      {
+         return null;
+      }
+      return txt;
+   }
+
+
+   public int GetIntNum(string sectionId, string valueId, int defaultValue)
+   {
+      var str = GetText(sectionId, valueId, defaultValue.ToString());
+      if (!Int32.TryParse(str, out var val))
+      {
+         return defaultValue;
+      }
+
+      return val;
    }
 }

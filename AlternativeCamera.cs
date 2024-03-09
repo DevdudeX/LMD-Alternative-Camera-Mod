@@ -1,8 +1,6 @@
 ﻿// Mod
 using MelonLoader;
 using AlternativeCameraMod;
-// Unity
-using UnityEngine;
 // Megagon
 using AlternativeCameraMod.Config;
 using AlternativeCameraMod.Language;
@@ -19,7 +17,7 @@ namespace AlternativeCameraMod;
 /// </summary>
 public class AlternativeCamera : MelonMod
 {
-   public const string MOD_VERSION = "2.0.0-dev"; // also update in project build properties
+   public const string MOD_VERSION = "2.1.0-dev"; // also update in project build properties
 
    private bool _modInitialized;
    private bool _modInitializing;
@@ -31,7 +29,7 @@ public class AlternativeCamera : MelonMod
    private CameraControl _camera = null!;
    private Hud _hud = null!;
    private State _state = null!;
-
+   
 
    public override void OnEarlyInitializeMelon()
    {
@@ -64,7 +62,7 @@ public class AlternativeCamera : MelonMod
       ValidateConfig();
 
       _state = new State(_logger);
-      _input = new InputHandler(_cfg, _logger);
+      _input = new InputHandler(_cfg, _lang, _logger);
       _camera = new CameraControl(_state, _input, _cfg, _logger);
       _hud = new Hud(_state, _camera, _input, _cfg, _lang, _logger);
    }
@@ -106,16 +104,31 @@ public class AlternativeCamera : MelonMod
          return;
       }
 
-      if (_state.IsMenuOpen)
+      if (_state.IsMenuOpenChanged())
       {
-         _input.EnableMouseCursorOnDemand(_state.Fps);
          _camera.OnMenuOpen();
          return;
       }
-      
-      if (_state.ResetCameraOnLevelStart)
+
+      if (_state.IsMenuOpen)
       {
+         _input.EnableMouseCursorOnDemand(_state.Fps);
+         if (_state.CurrentScreen == Screen.PauseScreen)
+         {
+            if (_input.PlayMode.ShowInstructions)
+            {
+               _cfg.UI.ShowCamInstructionsInPauseMenu.Value = !_cfg.UI.ShowCamInstructionsInPauseMenu.Value;
+            }
+         }
+
+         return;
+      }
+      
+      if (_state.NeedCameraReset)
+      {
+         _logger.LogDebug("Resetting camera ...");
          _camera.ApplyCameraModeOnEnterPlay();
+         _state.ClearNeedCameraReset();
       }
 
       if (_state.CameraMode == CameraMode.BikeCam)
@@ -212,6 +225,8 @@ public class AlternativeCamera : MelonMod
 
    private bool InitializeSubsystems()
    {
+      _hud.InitializeOnce();
+
       if (!_camera.Initialize())
       {
          return false;
@@ -221,7 +236,7 @@ public class AlternativeCamera : MelonMod
       {
          return false;
       }
-
+      
       return true;
    }
 
@@ -361,15 +376,16 @@ public class AlternativeCamera : MelonMod
       }
 
       return _state.CameraMode == CameraMode.BikeCam && _camera.CurrentCamView != CameraView.Original;
-      // if (_state.ShouldReturnToPhotoMode())
-      // {
-      //    _camera.TogglePhotoMode(_hud, true);
-      // }
    }
 
 
    private bool HandlePhotoModeUserInputs()
    {
+      if (_input.Restart())
+      {
+         _camera.TogglePhotoMode(_hud, false);
+      }
+
       if (_input.PhotoMode.Exit())
       {
          _camera.TogglePhotoMode(_hud, false);
@@ -399,13 +415,14 @@ public class AlternativeCamera : MelonMod
             else if (_camera.ScreenshotResult.ErrorMessage != null)
             {
                _state.LastScreenshotInfo = _lang.GetText("PhotoMode", "ScreenshotSaveErr_{msg}", "Photo save error: {0}", _camera.ScreenshotResult.ErrorMessage);
+
             }
          }
       }
 
       if (_input.PhotoMode.ToggleDoFFocusMode())
       {
-         _camera.ToggleDoFMode();
+         _camera.ToggleFocusAdjustMode();
       }
 
       return _state.CameraMode == CameraMode.PhotoCam; // unchanged in phote mode

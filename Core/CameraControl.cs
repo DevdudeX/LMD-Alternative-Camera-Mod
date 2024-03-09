@@ -32,11 +32,15 @@ internal class CameraControl
       LayerMask.GetMask("Ground", "Obstacle", "EnvironmentOther", "Terrain", "Lava");
 
    private bool _hasDepthOfFieldSetting;
-   private float _wantedZoom = 8f;
+   private float _appliedZoom = 8f;
    private float _targetZoomAmount;
    private Quaternion _rotation;
+   
+   private float _baseFoV;
+   private float _baseFocusDistance;
    private float _baseFocalLength;
-   private float _wantedFocalLength;
+   private float _appliedFocalLength;
+
    private Vector3 _targetOffset = new Vector3(0f, 2.4f, 0f);
 
    private readonly Dictionary<CameraView, Tuple<float, float>> _fovLimitMap = new()
@@ -73,10 +77,10 @@ internal class CameraControl
    private readonly CamPos _camPosBike = new();
    private readonly CamPos _camPosPhoto = new();
    private readonly CamPos _camPosPhotoShoot = new();
-   private float _photoModeBaseFoV;
-   private bool _photoFocusMode;
+   private float _baseFoVPhotoMode;
+   private CameraFocusAdjustMode _focusAdjustMode;
    private float _photoModeBaseTimeScale;
-   private float _photoModeBaseFocusDistanceDoF;
+   private float _baseFocusDistancePhotoMode;
    private bool _photoModeHudRestoreState;
    private int _screenshotCounter;
 
@@ -120,8 +124,8 @@ internal class CameraControl
       _camAutoAlign = _cfg.Camera.AlignmentMode.Value == CameraAlignmentMode.Auto;
 
       _isometricFoV = DefaultIsometricFoV;
-      _thirdPersonFoV = LimitFoV(_cfg.Camera.ThirdPersonFoV.Value, CameraView.ThirdPerson);
-      _firstPersonFoV = LimitFoV(_cfg.Camera.FirstPersonFoV.Value, CameraView.FirstPerson);
+      _thirdPersonFoV = LimitBikeCamFoV(_cfg.Camera.ThirdPersonFoV.Value, CameraView.ThirdPerson);
+      _firstPersonFoV = LimitBikeCamFoV(_cfg.Camera.FirstPersonFoV.Value, CameraView.FirstPerson);
    }
 
 
@@ -192,12 +196,15 @@ internal class CameraControl
 
       if (_hasDepthOfFieldSetting)
       {
+         _depthOfFieldSettings.focusDistance.Override((float)Math.Round(_depthOfFieldSettings.focusDistance.GetValue<float>())); // round it initially
+         _baseFocusDistance = _depthOfFieldSettings.focusDistance.GetValue<float>();
+         _depthOfFieldSettings.focalLength.Override((float)Math.Round(_depthOfFieldSettings.focalLength.GetValue<float>())); // round it initially
          _baseFocalLength = _depthOfFieldSettings.focalLength.GetValue<float>();
          _logger.LogInfo("DoF: " + _baseFocalLength);
-         _wantedFocalLength = _cfg.Camera.FocalLength.Value;
+         _appliedFocalLength = _cfg.Camera.FocalLength.Value;
       }
 
-      _photoModeBaseFoV = _mainCamera.fieldOfView;
+      _baseFoV = _mainCamera.fieldOfView;
 
       return true;
    }
@@ -235,9 +242,7 @@ internal class CameraControl
       _defaultPlayCamera = _camTransform.gameObject.GetComponent<PlayCamera>();
       _postProcessingObject = _camTransform.Find("DefaultPostProcessing").gameObject;
 
-      // Note: changed to GetSettings here as TryGetSettings is not working for me
-      _depthOfFieldSettings = _postProcessingObject.GetComponent<PostProcessVolume>().sharedProfile
-         .GetSetting<DepthOfField>();
+      _depthOfFieldSettings = _postProcessingObject?.GetComponent<PostProcessVolume>()?.sharedProfile?.GetSetting<DepthOfField>();
       _hasDepthOfFieldSetting = _depthOfFieldSettings != null;
 
       return true;
@@ -270,10 +275,10 @@ internal class CameraControl
       if (zoomIn)
       {
          // Scrolling forward; zoom in
-         if (_input.PlayMode.AdjustFocalLength() && _wantedFocalLength > 0)
+         if (_input.PlayMode.AdjustFocalLength() && _appliedFocalLength > 0)
          {
-            _wantedFocalLength--;
-            _logger.LogDebug("FocalLength " + _wantedFocalLength);
+            _appliedFocalLength--;
+            _logger.LogDebug("FocalLength " + _appliedFocalLength);
          }
          else if (_input.PlayMode.AdjustFocusDistance())
          {
@@ -282,7 +287,7 @@ internal class CameraControl
          }
          else
          {
-            _wantedZoom -= _cfg.Camera.ZoomStepIncrement.Value;
+            _appliedZoom -= _cfg.Camera.ZoomStepIncrement.Value;
          }
       }
       else if (zoomOut)
@@ -290,8 +295,8 @@ internal class CameraControl
          // Scrolling backwards; zoom out
          if (_input.PlayMode.AdjustFocalLength())
          {
-            _wantedFocalLength++;
-            _logger.LogDebug("FocalLength " + _wantedFocalLength);
+            _appliedFocalLength++;
+            _logger.LogDebug("FocalLength " + _appliedFocalLength);
          }
          else if (_input.PlayMode.AdjustFocusDistance() && _cfg.Camera.FocusDistanceOffset.Value > 0)
          {
@@ -300,13 +305,13 @@ internal class CameraControl
          }
          else
          {
-            _wantedZoom += _cfg.Camera.ZoomStepIncrement.Value;
+            _appliedZoom += _cfg.Camera.ZoomStepIncrement.Value;
          }
       }
 
-      if (_wantedZoom < 0.0f)
+      if (_appliedZoom < 0.0f)
       {
-         _wantedZoom = 0.0f;
+         _appliedZoom = 0.0f;
       }
 
       // Horizontal mouse movement will make camera rotate around vertical y-axis
@@ -365,7 +370,7 @@ internal class CameraControl
       if (Physics.Raycast(_playerBikeTransform.TransformPoint(_targetOffset),
              _dirToCam.normalized,
              out var hitInfo,
-             _wantedZoom + 0.2f,
+             _appliedZoom + 0.2f,
              __cameraCollisionLayers))
       {
          _projectedDistance = Vector3.Distance(hitInfo.point, _playerBikeTransform.TransformPoint(_targetOffset));
@@ -375,7 +380,7 @@ internal class CameraControl
          _projectedDistance = 900;
       }
 
-      if (_projectedDistance < _wantedZoom)
+      if (_projectedDistance < _appliedZoom)
       {
          // Desired camera distance is greater than the collision distance so zoom in to prevent clipping
          // b=bike, c=camera, *=collision
@@ -388,7 +393,7 @@ internal class CameraControl
       {
          // Zoom the camera back out to wanted distance over time
          _targetZoomAmount = Mathf.Lerp(_targetZoomAmount,
-            _wantedZoom,
+            _appliedZoom,
             Time.deltaTime * _cfg.Camera.ZoomLerpOutSpeed.Value);
       }
 
@@ -407,10 +412,10 @@ internal class CameraControl
       // Adjust DoF
       if (_hasDepthOfFieldSetting)
       {
-         _depthOfFieldSettings.focusDistance.value = _cfg.Camera.FocusDistanceOffset.Value +
+         _depthOfFieldSettings.focusDistance.Override(_cfg.Camera.FocusDistanceOffset.Value +
                                                      Vector3.Distance(_camTransform.position,
-                                                        _playerBikeTransform.position);
-         _depthOfFieldSettings.focalLength.value = _wantedFocalLength;
+                                                        _playerBikeTransform.position));
+         _depthOfFieldSettings.focalLength.Override(_appliedFocalLength);
       }
    }
 
@@ -421,30 +426,28 @@ internal class CameraControl
 
       if (_input.PhotoMode.ZoomIn())
       {
-         // Scrolling forward / right bumper
-         if (_photoFocusMode)
+         switch (_focusAdjustMode)
          {
-            // Move DoF focus further away
-            _depthOfFieldSettings.focusDistance.value += (holdingSprint ? 1f : 0.05f);
-         }
-         else
-         {
-            // FoV zoom in
-            _mainCamera.fieldOfView -= 1;
+            case CameraFocusAdjustMode.DepthOfField:
+               _depthOfFieldSettings.focusDistance.Override(
+                  Math.Min(18f, _depthOfFieldSettings.focusDistance.GetValue<float>() + (holdingSprint ? 1f : 0.5f)));
+               break;
+            case CameraFocusAdjustMode.FieldOfView:
+               _mainCamera.fieldOfView = LimitPhotoCamFoV(_mainCamera.fieldOfView - (holdingSprint ? 10 : 5));
+               break;
          }
       }
       else if (_input.PhotoMode.ZoomOut())
       {
-         // Scrolling backwards / left bumper
-         if (_photoFocusMode)
+         switch (_focusAdjustMode)
          {
-            // Move DoF focus further away
-            _depthOfFieldSettings.focusDistance.value -= (holdingSprint ? 1f : 0.05f);
-         }
-         else
-         {
-            // FoV zoom out
-            _mainCamera.fieldOfView += 1;
+            case CameraFocusAdjustMode.DepthOfField:
+               _depthOfFieldSettings.focusDistance.Override(
+                  Math.Max(0f, _depthOfFieldSettings.focusDistance.GetValue<float>() - (holdingSprint ? 1f : 0.5f)));
+               break;
+            case CameraFocusAdjustMode.FieldOfView:
+               _mainCamera.fieldOfView = LimitPhotoCamFoV(_mainCamera.fieldOfView + (holdingSprint ? 10 : 5));
+               break;
          }
       }
 
@@ -498,19 +501,31 @@ internal class CameraControl
       _camTransform.position = newPosition;
       _camTransform.rotation = _rotation;
 
+      ClearScreenshotInfoOnCamMove();
+   }
+
+
+   private void ClearScreenshotInfoOnCamMove()
+   {
       var comparePos = new CamPos();
       SaveCamPos(comparePos);
       if (!comparePos.Matches(_camPosPhotoShoot))
       {
-         // clear screenshot info when camera is moved
          _state.LastScreenshotInfo = null;
       }
    }
 
 
-   private float LimitFoV(float preset, CameraView cm)
+   private float LimitBikeCamFoV(float preset, CameraView cm)
    {
       return Math.Max(_fovLimitMap[cm].Item1, Math.Min(_fovLimitMap[cm].Item2, preset));
+   }
+
+
+   private float LimitPhotoCamFoV(float preset)
+   {
+      // 150 is a sensible limit
+      return Math.Max(10, Math.Min(150, preset));
    }
 
 
@@ -572,7 +587,7 @@ internal class CameraControl
       // Adjust DoF
       if (_hasDepthOfFieldSetting)
       {
-         _depthOfFieldSettings.focalLength.value = _baseFocalLength;
+         _depthOfFieldSettings.focalLength.Override(_baseFocalLength);
       }
 
       _mainCamera.fieldOfView = DefaultIsometricFoV;
@@ -638,7 +653,7 @@ internal class CameraControl
          case CameraView.Original:
             if (fovIncr != 0)
             {
-               _isometricFoV = LimitFoV(_isometricFoV + fovIncr, CameraView.Original);
+               _isometricFoV = LimitBikeCamFoV(_isometricFoV + fovIncr, CameraView.Original);
             }
             else
             {
@@ -650,11 +665,11 @@ internal class CameraControl
          case CameraView.ThirdPerson:
             if (fovIncr != 0)
             {
-               _thirdPersonFoV = LimitFoV(_thirdPersonFoV + fovIncr, CameraView.ThirdPerson);
+               _thirdPersonFoV = LimitBikeCamFoV(_thirdPersonFoV + fovIncr, CameraView.ThirdPerson);
             }
             else
             {
-               _thirdPersonFoV = LimitFoV(_cfg.Camera.ThirdPersonFoV.Value, CameraView.ThirdPerson);
+               _thirdPersonFoV = LimitBikeCamFoV(_cfg.Camera.ThirdPersonFoV.Value, CameraView.ThirdPerson);
             }
 
             ApplyThirdPersonCam();
@@ -662,11 +677,11 @@ internal class CameraControl
          case CameraView.FirstPerson:
             if (fovIncr != 0)
             {
-               _firstPersonFoV = LimitFoV(_firstPersonFoV + fovIncr, CameraView.FirstPerson);
+               _firstPersonFoV = LimitBikeCamFoV(_firstPersonFoV + fovIncr, CameraView.FirstPerson);
             }
             else
             {
-               _firstPersonFoV = LimitFoV(_cfg.Camera.FirstPersonFoV.Value, CameraView.FirstPerson);
+               _firstPersonFoV = LimitBikeCamFoV(_cfg.Camera.FirstPersonFoV.Value, CameraView.FirstPerson);
             }
 
             ApplyFirstPersonCam();
@@ -722,8 +737,8 @@ internal class CameraControl
          GatherCameraRelatedGameObjects();
 
          // Save the original FoV and DoF focus distance
-         _photoModeBaseFoV = _mainCamera.fieldOfView;
-         _photoModeBaseFocusDistanceDoF = _depthOfFieldSettings.focusDistance.GetValue<float>();
+         _baseFoVPhotoMode = _mainCamera.fieldOfView;
+         _baseFocusDistancePhotoMode = _depthOfFieldSettings.focusDistance.GetValue<float>();
 
          if (applyPreviousCamPos)
          {
@@ -746,10 +761,10 @@ internal class CameraControl
 
          Mode = CameraMode.BikeCam;
          _logger.LogInfo("Exit photo mode");
+
          Time.timeScale = _photoModeBaseTimeScale; // Reset the time scale to what it was before we froze the time
-         _mainCamera.fieldOfView = _photoModeBaseFoV; // Restore the original FoV
-         _depthOfFieldSettings.focusDistance.value =
-            _photoModeBaseFocusDistanceDoF; // Restore the original focus distance for DoF
+         _mainCamera.fieldOfView = _baseFoVPhotoMode; // Restore the original FoV
+         _depthOfFieldSettings.focusDistance.Override(_baseFocusDistancePhotoMode); // Restore the original focus distance for DoF
 
          ApplyCameraMode(_currentCamView);
          ApplyCamPos(_camPosBike);
@@ -770,7 +785,7 @@ internal class CameraControl
 
    private void EnableDefaultCamera()
    {
-      _defaultPlayCamera.enabled = false;
+      _defaultPlayCamera.enabled = true;
    }
 
 
@@ -785,20 +800,36 @@ internal class CameraControl
 
    public void ResetCamera()
    {
-      if (Mode == CameraMode.PhotoCam)
+      if (Mode == CameraMode.BikeCam)
       {
-         _mainCamera.fieldOfView = _photoModeBaseFoV;
+         _depthOfFieldSettings.focusDistance.Override(_baseFocusDistance);
+         _mainCamera.fieldOfView = _baseFoV;
+         _rotationRoll = 0;
+      }
+      else if (Mode == CameraMode.PhotoCam)
+      {
+         _depthOfFieldSettings.focusDistance.Override(_baseFocusDistancePhotoMode);
+         _mainCamera.fieldOfView = _baseFoVPhotoMode;
          _rotationRoll = 0;
       }
    }
 
 
-   public void ToggleDoFMode()
+   public void ToggleFocusAdjustMode()
    {
       if (_hasDepthOfFieldSetting)
       {
-         _photoFocusMode = !_photoFocusMode;
-         _logger.LogDebug("Focus Mode: " + _photoFocusMode);
+         switch (_focusAdjustMode)
+         {
+            case CameraFocusAdjustMode.DepthOfField:
+               _focusAdjustMode = CameraFocusAdjustMode.FieldOfView;
+               break;
+            case CameraFocusAdjustMode.FieldOfView:
+               _focusAdjustMode = CameraFocusAdjustMode.DepthOfField;
+               break;
+         }
+
+         _logger.LogDebug("Focus Adjust Mode: " + _focusAdjustMode);
       }
    }
 
@@ -901,25 +932,41 @@ internal class CameraControl
 
          File.WriteAllBytes(path, bytes);
          ScreenshotResult = new ScreenshotResult(path, null);
-         //_lastScreenshotInfo = _lang.GetText("PhotoMode", "ScreenshotSaved_{file}", "Photo saved to {0}", path);
-         _logger.LogInfo("Screenshot saved to {0}", path);
+
       }
       catch (Exception ex)
       {
          ScreenshotResult = new ScreenshotResult(null, ex.Message);
-         // _lastScreenshotInfo = _lang.GetText("PhotoMode", "ScreenshotSaveErr_{msg}", "Photo save error: {0}", ex.Message);
          _logger.LogError("Screenshot save error: {0}", ex.Message);
       }
    }
 
 
-   public bool PhotoFocusMode
+   public CameraFocusAdjustMode FocusAdjustMode
    {
-      get { return _photoFocusMode; }
+      get { return _focusAdjustMode; }
    }
 
 
    public ScreenshotResult ScreenshotResult { get; private set; }
+
+
+   public float DepthOfField
+   {
+      get { return (float)Math.Round(_depthOfFieldSettings.focusDistance.GetValue<float>(), 1); }
+   }
+   
+   
+   public int FieldOfView
+   {
+      get { return (int)_mainCamera.fieldOfView; }
+   }
+
+
+   public float DepthOfFieldFocal
+   {
+      get { return (float)Math.Round(_depthOfFieldSettings.focalLength.GetValue<float>(), 1); }
+   }
 
 
    private void ApplyCameraMode(CameraView camView)
@@ -954,7 +1001,6 @@ internal class CameraControl
       _currentCamView = CameraView.Original;
       EnableDefaultCamera();
       ApplyIsometricCameraSettings();
-      AlignViewWithBike();
    }
 
 
@@ -1005,7 +1051,7 @@ internal class CameraControl
       // Adjust DoF
       if (_hasDepthOfFieldSetting)
       {
-         _depthOfFieldSettings.focalLength.value = _cfg.Camera.FocalLength.Value;
+         _depthOfFieldSettings.focalLength.Override(_cfg.Camera.FocalLength.Value);
       }
 
       DisableDefaultCamera();
@@ -1021,7 +1067,7 @@ internal class CameraControl
       _mainCamera.nearClipPlane = 0.3f;
       if (_hasDepthOfFieldSetting)
       {
-         _depthOfFieldSettings.focalLength.value = _baseFocalLength;
+         _depthOfFieldSettings.focalLength.Override(_baseFocalLength);
       }
    }
 
@@ -1036,7 +1082,7 @@ internal class CameraControl
       // Update reference
       _playerBikeTransform = GameObject.Find(_targetName).GetComponent<Transform>();
 
-      _wantedZoom = followDistance;
+      _appliedZoom = followDistance;
       _targetOffset = followTargetOffset;
 
       _mainCamera.fieldOfView = cameraFov; // Default: 34

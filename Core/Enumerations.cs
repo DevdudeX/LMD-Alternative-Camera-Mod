@@ -34,6 +34,13 @@ internal enum CameraAlignmentMode
 }
 
 
+internal enum CameraFocusAdjustMode
+{
+   FieldOfView,
+   DepthOfField
+}
+
+
 internal enum CameraManualAlignmentInput
 {
    KeyOrButton,
@@ -71,3 +78,24 @@ internal enum LogLevel
    Verbose
 }
 
+
+internal enum PlayModeAction
+{
+   CameraModeOriginal,
+   CameraModeThirdPerson,
+   CameraModeFirstPerson,
+   ToggleCameraState,
+   ToggleCameraAutoAlignMode,
+   ToggleInvertLookHorizontal,
+   ToggleGameHud,
+   ToggleModHudDisplays,
+   LookAround,
+   SnapCameraToBehindTheBike,
+   HoldToInvertCameraAutoAlignMode,
+   ZoomInOut,
+   ChangeDoFFocalLength,
+   ChangeDoFFocusDistanceOffset,
+   IncreaseFoV,
+   DecreaseFoV,
+   ResetFoV
+}

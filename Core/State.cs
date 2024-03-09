@@ -14,7 +14,7 @@ internal class State
    private bool _isMenuLastOpen;
    private bool _menuWasOpenedWhileInPhotoMode;
    private int _fps;
-   private bool _resetCameraOnLevelStart;
+   private bool _needCameraReset;
 
 
    public State(Logger logger)
@@ -97,6 +97,12 @@ internal class State
       _menuWasOpenedWhileInPhotoMode = true;
       _logger.LogDebug("Open menu in photo mode");
    }
+   
+   
+   public bool IsPausedInPhotoMode
+   {
+      get { return _menuWasOpenedWhileInPhotoMode; }
+   }
 
 
    public void TogglePhotoModeInstructions()
@@ -131,6 +137,7 @@ internal class State
    {
       _logger.LogDebug("Exit photomode: {0} / {1} / {2}", _lastScreenState, _currentScreen, _menuWasOpenedWhileInPhotoMode);
       PhotoModeInstructionsVisible = true; // next time show instruction again
+      _needCameraReset = true;
    }
    
 
@@ -150,7 +157,10 @@ internal class State
    {
       _isMenuOpen = _menuObjects.Values.Any(g => g.active);
       _logger.LogDebug(_isMenuOpen && _isMenuOpen != _isMenuLastOpen, "Menu opened");
-      _resetCameraOnLevelStart = _isMenuLastOpen && !_isMenuOpen;
+      if (!_needCameraReset)
+      {
+         _needCameraReset = _isMenuLastOpen && !_isMenuOpen;
+      }
       _isMenuLastOpen = _isMenuOpen;
    }
 
@@ -182,25 +192,39 @@ internal class State
    }
 
 
+   public bool IsMenuOpenChanged()
+   {
+      return _isMenuOpen && !_isMenuLastOpen;
+   }
+
+
    public int Fps
    {
       get { return _fps; }
    }
 
 
-   public bool ResetCameraOnLevelStart
+   public bool NeedCameraReset
    {
-      get { return _resetCameraOnLevelStart; }
+      get { return _needCameraReset; }
+   }
+   
+
+   public void ClearNeedCameraReset()
+   {
+      _needCameraReset = false;
    }
 
 
    public string ErrorMessage { get; set; }
+
+
    public bool PhotoModeInstructionsVisible { get; private set; } = true;
 
 
    public string LastScreenshotInfo { get; set; }
 
-
+   
    private bool GatherMenuRelatedGameObjects()
    {
       var wrapper = GameObject.Find("Wrapper");

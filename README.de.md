@@ -98,42 +98,42 @@ Diese Tasten sind Voreinstellungen und können in der Konfigurationsdatei angepa
 
 | Aktion                                             | Tastatur/Maus             | Controller                  |
 | ---                                                | ---                       | ---                         |
-| Kameramodus: Original,"isometrisch"                | F1                        | -                           |
-| Kameramodus: Third Person                          | F2                        | -                           |
-| Kameramodus: First Person                          | F3                        | -                           |
-| Kamera umschalten Original -> Alternative          | Leertaste                 | Linke Schultertaste *)      |
+| Original Kamera (isometrisch)                      | F1                        | -                           |
+| Alternative Kamera: Third Person                   | F2                        | -                           |
+| Alternative Kamera: First Person                   | F3                        | -                           |
+| Kamera umschalten: Original <-> Alternative        | Leertaste                 | Linke Schultertaste *)      |
 | Auto/Manual-Positionierung umschalten              | F5                        | -                           |
-| Invertiert horizontale Blickausrichtung            | F6                        | -                           |
-| Game HUD an-/abschalten                            | H                         | -                           |
-| Mod HUD Anzeige an/-abschalten                     | J                         | -                           |
+| Invertiere horizontale Blickausrichtung            | F6                        | -                           |
+| Game HUD an-/aus                                   | H                         | -                           |
+| Mod HUD Anzeige an/-aus                            | J                         | -                           |
 | Kamera schwenken                                   | Mouse *)                  | Rechter Stick *)            |
 | Kamera hinter das Fahrrad bewegen                  | Right Control             | Rechter Stick Klick *)      |
-| Taste halten -> Pos.Modus temp. umschalten         | Mouse Right Button *)     | Rechte Schultertaste *)     |
+| Positionierungsmodus umkehren (halten)             | Mouse Right Button        | Rechte Schultertaste *)     |
 | Kamera Zoom                                        | Mouse Scroll *)           | Steuerkreuz hoch/runter *)  |
 | Tiefenschärfe anpassen                             | Hold L + Mouse Scroll *)  | -                           |
 | Tiefenschärfe Fokus anpassen                       | Hold K + Mouse Scroll *)  | -                           |
-| Sichtfeld (FoV) erhöhen um 10 (halte Alt für 5)    | 8                         | Steuerkreuz rechts *)       |
-| Sichtfeld (FoV) verringern um 10 (halte Alt für 5) | 9                         | Steuerkreuz links *)        |
-| Sichtefeld (FoV) zurücksetzen                      | 0                         |                             |
+| Sichtfeld erhöhen um 10 (halte Alt für 5)          | 8                         | Steuerkreuz rechts *)       |
+| Sichtfeld verringern um 10 (halte Alt für 5)       | 9                         | Steuerkreuz links *)        |
+| Sichtfeld zurücksetzen                             | 0                         |                             |
 
 *) nicht anpassbar
 
 ### Tastatur- und Controller-Belegung im Fotomodus
 Die Tastenbelegung ist wie folgt (nicht anpassbar):
 
-| Aktion                          | Tastatur/Maus        | Controller               |
-| ---                             | ---                  | ---                      |
-| Fotomodus an/aus                | P                    | Y                        |
-| Foto aufnehmen (in Datei)       | Leertaste            | X                        |
-| Anleitung an/aus                | I                    | L-Stick Klick            |
-| HUD an/aus                      | H                    | R-Stick Klick            |
-| Bewegen/Schwenken               | W A S D + Maus       | L-Stick / R-Stick        |
-| Hoch/Runter                     | R / F                | L-Trig / R-Trig          |
-| Drehen Links/Rechts             | Q / E                | Steuerkreuz links/rechts |
-| Bewegung beschleunigen          | Shift                | A                        |
-| Rotation/Sichtfeld zurücksetzen |                      | Steuerkreuz oben         |
-| Sichtfeld (FoV) anpassen        | Mausrad scrollen     | LB / RB                  |
-| Tiefenschärfe-Modus umschalten  | V                    | Steuerkreuz unten        |
+| Aktion                                              | Tastatur/Maus        | Controller               |
+| ---                                                 | ---                  | ---                      |
+| Fotomodus an/aus                                    | P                    | Y                        |
+| Foto aufnehmen (in Datei)                           | Leertaste            | X                        |
+| Anleitung an/aus                                    | I                    | L-Stick Klick            |
+| HUD an/aus                                          | H                    | R-Stick Klick            |
+| Bewegen/Schwenken                                   | W A S D + Maus       | L-Stick / R-Stick        |
+| Hoch/Runter                                         | R / F                | L-Trig / R-Trig          |
+| Drehen Links/Rechts                                 | Q / E                | Steuerkreuz links/rechts |
+| Aktionen beschleunigen                              | Shift                | A                        |
+| Rotation/Sichtfeld/Tiefenschärfe zurücksetzen       |                      | Steuerkreuz oben         |
+| Sichtfeld/Tiefenschärfe Modus umschalten            | V                    | Steuerkreuz unten        |
+| Sichtfeld/Tiefenschärfe anpassen                    | Mausrad scrollen     | LB / RB                  |
 
 ## Info zu Tastatur/Maus
 - Wenn du aktiv mit Maus spielen möchtest, muss die automatische Ausrichtung der Kamera durch die Mod ausgeschaltet sein, da sonst die Mauseingabe nichts bewirkt (`AlignMode=Manual`)
