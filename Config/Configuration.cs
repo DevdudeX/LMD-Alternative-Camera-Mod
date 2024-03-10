@@ -6,6 +6,7 @@ namespace AlternativeCameraMod.Config;
 
 internal class Configuration
 {
+   private const string LcConfigFilePath = "UserData/AlternativeCameraWithPhotoMode.{0}.ini";
    public const string ConfigFilePath = "UserData/AlternativeCameraWithPhotoMode.ini";
    public const string GameColor = "#E9AC4F";
    public const string GameColor2 = "#8FBC0D";
@@ -14,26 +15,45 @@ internal class Configuration
    private readonly string _filePath;
 
 
-   public Configuration(LanguageConfig lng)
+   public static Configuration Create(LanguageConfig lng)
+   {
+      var fp = new FileInfo(ConfigFilePath).FullName;
+      return new Configuration(lng, fp);
+   }
+   
+   
+   public static Configuration CreateForLanguage(LanguageConfig lng)
+   {
+      var lngFilePath = String.Format(LcConfigFilePath, lng.LanguageCode);
+      var fp = new FileInfo(lngFilePath).FullName;
+      return new Configuration(lng, fp);
+   }
+
+
+   private Configuration(LanguageConfig lng, string filePath)
    {
       if (lng == null)
       {
          throw new ArgumentNullException(nameof(lng));
       }
 
-      FileInfo filePath = new FileInfo(ConfigFilePath);
-      _filePath = filePath.FullName;
+      if (filePath == null)
+      {
+         throw new ArgumentNullException(nameof(filePath));
+      }
+
+      _filePath = filePath;
 #if DEBUG
       Delete();
 #endif
 
-      _categories.Add(nameof(CommonSettings), new CommonSettings(ConfigFilePath, lng));
-      _categories.Add(nameof(CameraSettings), new CameraSettings(ConfigFilePath, lng));
-      _categories.Add(nameof(PlayModeSettings), new PlayModeSettings(ConfigFilePath, lng));
-      _categories.Add(nameof(ControllerSettings), new ControllerSettings(ConfigFilePath, lng));
-      _categories.Add(nameof(MouseSettings), new MouseSettings(ConfigFilePath, lng));
-      _categories.Add(nameof(KeyboardSettings), new KeyboardSettings(ConfigFilePath, lng));
-      _categories.Add(nameof(PhotoModeSettings), new PhotoModeSettings(ConfigFilePath, lng));
+      _categories.Add(nameof(CommonSettings), new CommonSettings(_filePath, lng));
+      _categories.Add(nameof(CameraSettings), new CameraSettings(_filePath, lng));
+      _categories.Add(nameof(ControllerSettings), new ControllerSettings(_filePath, lng));
+      _categories.Add(nameof(MouseSettings), new MouseSettings(_filePath, lng));
+      _categories.Add(nameof(KeyboardSettings), new KeyboardSettings(_filePath, lng));
+      _categories.Add(nameof(PlayModeSettings), new PlayModeSettings(_filePath, lng));
+      _categories.Add(nameof(PhotoModeSettings), new PhotoModeSettings(_filePath, lng));
    }
 
 

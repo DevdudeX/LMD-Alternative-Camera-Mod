@@ -84,6 +84,7 @@ internal class CameraControl
    private float _baseFocusDistancePhotoMode;
    private bool _photoModeHudRestoreState;
    private int _screenshotCounter;
+   private bool _initialized;
 
 
    class CamPos
@@ -167,8 +168,13 @@ internal class CameraControl
    }
 
 
-   public bool Initialize()
+   public bool InitializeOnce()
    {
+      if (_initialized)
+      {
+         return true;
+      }
+
       if (!GatherCameraRelatedGameObjects())
       {
          return false;
@@ -207,6 +213,7 @@ internal class CameraControl
 
       _baseFoV = _mainCamera.fieldOfView;
 
+      _initialized = true;
       return true;
    }
 
@@ -249,6 +256,7 @@ internal class CameraControl
       _defaultPlayCamera = _camTransform.gameObject.GetComponent<PlayCamera>();
       
       var postProcessingObject = _camTransform.Find("DefaultPostProcessing").gameObject;
+
       _depthOfFieldSettings = postProcessingObject?.GetComponent<PostProcessVolume>()?.sharedProfile?.GetSetting<DepthOfField>();
       _hasDepthOfFieldSetting = _depthOfFieldSettings != null;
       

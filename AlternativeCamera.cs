@@ -19,9 +19,9 @@ public class AlternativeCamera : MelonMod
 {
    public const string MOD_VERSION = "2.1.0"; // also update in project build properties
 
-   private bool _modInitialized;
-   private bool _modInitializing;
-   private bool _firstFrame;
+   // private bool _modInitialized;
+   // private bool _modInitializing;
+   private bool _firstPlayFrame;
    private Configuration _cfg = null!;
    private LanguageConfig _lang = null!;
    private InputHandler _input = null!;
@@ -29,7 +29,10 @@ public class AlternativeCamera : MelonMod
    private CameraControl _camera = null!;
    private Hud _hud = null!;
    private State _state = null!;
-   
+#if DEBUG
+   private DevHelper _devHelper;
+#endif
+
 
    public override void OnEarlyInitializeMelon()
    {
@@ -38,11 +41,11 @@ public class AlternativeCamera : MelonMod
 
    public override void OnInitializeMelon()
    {
-      _firstFrame = true;
+      _firstPlayFrame = true;
 
       // cfg for first creation and init
       var initLang = LanguageConfig.Load();
-      _cfg = new Configuration(initLang); // OS lang
+      _cfg = Configuration.Create(initLang); // OS lang
       _cfg.Save();
 
       _logger = new Logger(LoggerInstance);
@@ -65,6 +68,24 @@ public class AlternativeCamera : MelonMod
       _input = new InputHandler(_cfg, _lang, _logger);
       _camera = new CameraControl(_state, _input, _cfg, _logger);
       _hud = new Hud(_state, _camera, _input, _cfg, _lang, _logger);
+
+#if DEBUG
+      _devHelper = new DevHelper(_state, _input, _camera, _hud, _lang, _cfg);
+#endif
+   }
+
+   
+   public override void OnLateInitializeMelon()
+   {
+      base.OnLateInitializeMelon();
+   }
+
+
+   public override void OnSceneWasInitialized(int buildIndex, string sceneName)
+   {
+      base.OnSceneWasInitialized(buildIndex, sceneName);
+      _state.Initialize();
+      _hud.Initialize();
    }
 
 
@@ -74,10 +95,13 @@ public class AlternativeCamera : MelonMod
       _hud.Close();
    }
 
-
+   
    public override void OnUpdate()
    {
-      if (_state.Suspended) return;
+      if (_state.Suspended)
+      {
+         return;
+      }
       _input.OnUpdate();
    }
 
@@ -85,15 +109,8 @@ public class AlternativeCamera : MelonMod
    public override void OnLateUpdate()
    {
       _state.TrackScreenState();
-      _hud.InitializeOnce();
 
       if (_state.Suspended)
-      {
-         return;
-      }
-
-      InitializeOnce();
-      if (!_modInitialized)
       {
          return;
       }
@@ -122,39 +139,50 @@ public class AlternativeCamera : MelonMod
             }
          }
 
-         return;
-      }
-      
-      if (_state.NeedCameraReset)
-      {
-         _logger.LogDebug("Resetting camera ...");
-         _camera.ApplyCameraModeOnEnterPlay();
-         _state.ClearNeedCameraReset();
-      }
-
-      if (_state.CameraMode == CameraMode.BikeCam)
-      {
-         if (HandleBikeModeUserInputs())
+#if DEBUG
+         if (_state.CurrentScreen == Screen.MainMenuScreen)
          {
-            _camera.ProcessBikeMode();
+            _devHelper.ProcessDevRequest();
          }
+#endif
       }
-      else if (_state.CameraMode == CameraMode.PhotoCam)
+      else // gameplay
       {
-         if (HandlePhotoModeUserInputs())
+         if (!_camera.InitializeOnce())
          {
-            _camera.ProcessPhotoMode();
+            return;
          }
+
+         if (_state.NeedCameraReset)
+         {
+            _logger.LogDebug("Resetting camera ...");
+            _camera.ApplyCameraModeOnEnterPlay();
+            _state.ClearNeedCameraReset();
+         }
+
+         if (_state.CameraMode == CameraMode.BikeCam)
+         {
+            if (HandleBikeModeUserInputs())
+            {
+               _camera.ProcessBikeMode();
+            }
+         }
+         else if (_state.CameraMode == CameraMode.PhotoCam)
+         {
+            if (HandlePhotoModeUserInputs())
+            {
+               _camera.ProcessPhotoMode();
+            }
+         }
+
+         if (_firstPlayFrame)
+         {
+            _hud.ToggleHudVisiblity(_cfg.PlayMode.GameHudVisible.Value);
+         }
+
+         HandleCommonUserInputs();
+         _firstPlayFrame = false;
       }
-
-      if (_firstFrame)
-      {
-         _hud.ToggleHudVisiblity(_cfg.PlayMode.GameHudVisible.Value);
-      }
-
-      HandleCommonUserInputs();
-
-      _firstFrame = false;
    }
 
 
@@ -202,44 +230,16 @@ public class AlternativeCamera : MelonMod
       if (!String.IsNullOrEmpty(cfgErr))
       {
          var str = cfgErr
-                   + Environment.NewLine + "! " + 
+                   + Environment.NewLine + "! " +
                    _lang.GetText("Mod", "ErrDisabledMod", "Mod disabled")
-                   + Environment.NewLine + "! " + 
+                   + Environment.NewLine + "! " +
                    _lang.GetText("Mod", "ErrCheckConfig_{CfgFile}", "check {0}", Configuration.ConfigFilePath);
 
          HandleErrorState(str);
       }
    }
 
-
-   private void InitializeOnce()
-   {
-      // Initialize once
-      if (!_modInitialized && !_modInitializing)
-      {
-         _modInitializing = true;
-         _modInitialized = InitializeSubsystems();
-         _modInitializing = false;
-      }
-   }
-
-
-   private bool InitializeSubsystems()
-   {
-      if (!_camera.Initialize())
-      {
-         return false;
-      }
-
-      if (!_state.Initialize())
-      {
-         return false;
-      }
-      
-      return true;
-   }
-
-
+   
    private void HandleErrorState(string errMsg)
    {
       _state.SuspendOperation();
@@ -280,7 +280,7 @@ public class AlternativeCamera : MelonMod
          _camera.TogglePhotoMode(_hud, true, true);
          return true; // do not apply further camera logic
       }
-      
+
       return false;
    }
 
@@ -324,13 +324,13 @@ public class AlternativeCamera : MelonMod
       }
 
       if (_input.PlayMode.SelectThirdPerson()
-          || (_firstFrame && _cfg.Camera.InitialMode.Value == CameraView.ThirdPerson))
+          || (_firstPlayFrame && _cfg.Camera.InitialMode.Value == CameraView.ThirdPerson))
       {
          _camera.SelectCameraMode(CameraView.ThirdPerson);
       }
 
       if (_input.PlayMode.SelectFirstPerson()
-          || (_firstFrame && _cfg.Camera.InitialMode.Value == CameraView.FirstPerson))
+          || (_firstPlayFrame && _cfg.Camera.InitialMode.Value == CameraView.FirstPerson))
       {
          _camera.SelectCameraMode(CameraView.FirstPerson);
       }

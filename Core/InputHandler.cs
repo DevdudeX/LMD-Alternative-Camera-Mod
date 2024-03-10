@@ -718,7 +718,7 @@ internal class InputHandler
             default: return "";
             case PhotoModeAction.Exit:
                return "P";
-            case PhotoModeAction.ShootPhoto:
+            case PhotoModeAction.TakePhoto:
                return _lang.GetText("Input", "Space", "Space");
             case PhotoModeAction.ToggleInstructions:
                return "I";
@@ -749,7 +749,7 @@ internal class InputHandler
             default: return "";
             case PhotoModeAction.Exit:
                return "Y";
-            case PhotoModeAction.ShootPhoto:
+            case PhotoModeAction.TakePhoto:
                return "X";
             case PhotoModeAction.ToggleInstructions:
                return "L-Stick Click";
@@ -781,8 +781,8 @@ internal class InputHandler
             default: return "";
             case PhotoModeAction.Exit:
                return _lang.GetText(secId, "ActionExit", "Exit Photo Mode");
-            case PhotoModeAction.ShootPhoto:
-               return _lang.GetText(secId, "ActionShoot", "Take Photo");
+            case PhotoModeAction.TakePhoto:
+               return _lang.GetText(secId, "ActionTakePhoto", "Take Photo");
             case PhotoModeAction.ToggleInstructions:
                return _lang.GetText(secId, "ActionToggleInstruct", "Toggle Instructions");
             case PhotoModeAction.ToggleHud:
@@ -887,5 +887,11 @@ internal class InputHandler
    public bool Restart()
    {
       return _buttonDown1; // B
+   }
+
+
+   public bool DevKey(int fkey)
+   {
+      return Input.GetKeyDown(KeyCode.F1 + (fkey-1));
    }
 }

@@ -7,25 +7,39 @@ namespace AlternativeCameraMod.Config;
 
 internal abstract class ModSettingsCategory
 {
+   // Melon config elements may be intantiated only once, so track them in static maps
+   private static readonly Dictionary<string, MelonPreferences_Category> __categories = new();
+   private static readonly Dictionary<string, MelonPreferences_Entry> __entries = new();
+   private static readonly string __line = new string('-', 80);
+
    private readonly LanguageConfig _languageCfg;
    private readonly MelonPreferences_Category _category;
-   private static string __line = new string('-', 80);
+   private readonly string _filePath;
+
 
    protected ModSettingsCategory(string catId, string filePath, LanguageConfig lng)
    {
       _languageCfg = lng;
-      _category = MelonPreferences.CreateCategory(catId);
-      Category.SetFilePath(filePath);
+
+      if (!__categories.TryGetValue(catId, out var cat))
+      {
+         cat = MelonPreferences.CreateCategory(catId);
+         __categories.Add(catId, cat);
+      }
+
+      _category = cat;
+      _category.SetFilePath(filePath);
+      _filePath = filePath;
    }
 
 
    public virtual void Save()
    {
+      Category.SetFilePath(_filePath, false);
       Category.SaveToFile();
    }
 
    
-
    protected MelonPreferences_Category Category
    {
       get { return _category; }
@@ -34,8 +48,15 @@ internal abstract class ModSettingsCategory
 
    protected MelonPreferences_Entry<T> CreateEntry<T>(string name, T value, string? defaultDescr = null)
    {
-      var descr = _languageCfg?.GetText("Config/" + Category.Identifier, name, defaultDescr ?? "") ?? defaultDescr;
-      return Category.CreateEntry(name, value, null, FormatDescription(descr));
+      if (!__entries.TryGetValue(_category.Identifier + "_" + name, out var entry))
+      {
+         entry = Category.CreateEntry(name, value);
+         __entries.Add(_category.Identifier + "_" + name, entry);
+      }
+      
+      entry.Description = _languageCfg?.GetText("Config/" + Category.Identifier, name, defaultDescr ?? "") ?? defaultDescr;
+      entry.Description = entry.Description?.Replace(Environment.NewLine, "\n"); // melon likes \n
+      return (MelonPreferences_Entry<T>)entry;
    }
 
    

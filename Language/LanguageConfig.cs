@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using AlternativeCameraMod.Language.Ini;
 
 
@@ -24,15 +25,27 @@ internal class LanguageConfig
    }
 
 
+   public static ReadOnlyCollection<string> GetAvailableLanguages()
+   {
+      var langDir = GetLanguageDir();
+      var langIniFiles = Directory.GetFiles(langDir, "lang.*.ini");
+      var langs = new List<string>();
+      foreach (var iniFile in langIniFiles)
+      {
+         var parts = iniFile.Split('.');
+         if (parts.Length == 3)
+         {
+            langs.Add(parts[1].Trim().ToLower());
+         }
+      }
+
+      return new ReadOnlyCollection<string>(langs);
+   }
+
+
    public static LanguageConfig Load(string? langCode = null)
    {
-      var dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-      var file = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetExecutingAssembly().Location);
-      var langDir = Path.Combine(dir, file + "-assets", "Languages");
-      if (!Directory.Exists(langDir))
-      {
-         Directory.CreateDirectory(langDir);
-      }
+      var langDir = GetLanguageDir();
 
       string lc;
       if (langCode == null || "default".Equals(langCode.Trim(), StringComparison.InvariantCultureIgnoreCase))
@@ -66,6 +79,20 @@ internal class LanguageConfig
       {
          return new LanguageConfig(lc, null);
       }
+   }
+
+
+   private static string GetLanguageDir()
+   {
+      var dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+      var file = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetExecutingAssembly().Location);
+      var langDir = Path.Combine(dir, file + "-assets", "Languages");
+      if (!Directory.Exists(langDir))
+      {
+         Directory.CreateDirectory(langDir);
+      }
+
+      return langDir;
    }
 
 

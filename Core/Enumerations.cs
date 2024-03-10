@@ -5,7 +5,8 @@ internal enum Screen
    None,
    LoadingScreen,
    SplashScreen,
-   MenuScreen,
+   MainMenuScreen,
+   GameMenuScreen,
    PlayScreen,
    PauseScreen,
    PhotoScreen
@@ -104,7 +105,7 @@ internal enum PlayModeAction
 internal enum PhotoModeAction
 {
    Exit,
-   ShootPhoto,
+   TakePhoto,
    ToggleInstructions,
    ToggleHud,
    MovePan,

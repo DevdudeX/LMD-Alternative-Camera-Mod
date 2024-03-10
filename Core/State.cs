@@ -15,6 +15,7 @@ internal class State
    private bool _menuWasOpenedWhileInPhotoMode;
    private int _fps;
    private bool _needCameraReset;
+   private bool _initialized;
 
 
    public State(Logger logger)
@@ -25,7 +26,9 @@ internal class State
 
    public bool Initialize()
    {
-      return GatherMenuRelatedGameObjects();
+      if (_initialized) return true;
+      _initialized = GatherMenuRelatedGameObjects();
+      return _initialized;
    }
 
 
@@ -43,7 +46,8 @@ internal class State
 
       bool blackActive = false;
       bool splashActive = false;
-      bool menuActive = false;
+      bool mainMenuActive = false;
+      bool gameMenuActive = false;
       bool playActive = false;
       bool pauseActive = false;
       var uiMainParent = wrapper.GetComponent<Transform>();
@@ -55,27 +59,32 @@ internal class State
          {
             blackActive = g.active;
          }
-         if (g.name.StartsWith("SplashScreen"))
+         else if (g.name.StartsWith("SplashScreen"))
          {
             splashActive = g.active;
          }
-         if (g.name.StartsWith("MainMenu"))
+         else if (g.name.StartsWith("MainMenu"))
          {
-            menuActive = g.active;
+            mainMenuActive = g.active;
          }
-         if (g.name.StartsWith("PlayScreen"))
+         else if (g.name.StartsWith("GameMenu"))
+         {
+            gameMenuActive = g.active;
+         }
+         else if (g.name.StartsWith("PlayScreen"))
          {
             playActive = g.active;
          }
-         if (g.name.StartsWith("PauseScreen"))
+         else if (g.name.StartsWith("PauseScreen"))
          {
             pauseActive = g.active;
          }
       }
 
-      if (blackActive && !splashActive && !menuActive) _currentScreen = Screen.LoadingScreen;
-      else if (splashActive && !menuActive) _currentScreen = Screen.SplashScreen;
-      else if (menuActive) _currentScreen = Screen.MenuScreen;
+      if (blackActive && !splashActive && !mainMenuActive) _currentScreen = Screen.LoadingScreen;
+      else if (splashActive && !mainMenuActive) _currentScreen = Screen.SplashScreen;
+      else if (mainMenuActive) _currentScreen = Screen.MainMenuScreen;
+      else if (gameMenuActive) _currentScreen = Screen.GameMenuScreen;
       else if (pauseActive) _currentScreen = Screen.PauseScreen;
       else if (playActive)
       {

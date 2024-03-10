@@ -9,7 +9,7 @@
     <Description>DevdudeX's alternative camera with photo mode</Description>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <AssemblyVersion>2.1.0</AssemblyVersion>
-    <FileVersion>2.0.0</FileVersion>
+    <FileVersion>2.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

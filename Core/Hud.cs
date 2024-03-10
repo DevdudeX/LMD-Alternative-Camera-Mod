@@ -40,7 +40,7 @@ internal class Hud
    }
 
 
-   public void InitializeOnce()
+   public void Initialize()
    {
       if (_intialized) return;
 
@@ -56,6 +56,7 @@ internal class Hud
    public void Close()
    {
       MelonEvents.OnGUI.Unsubscribe(DrawInfoOnHud);
+      _intialized = false;
    }
 
 
@@ -64,7 +65,7 @@ internal class Hud
       if (_state.Suspended)
       {
          // when disabled, only show text on menu screen, do not show others
-         if (_state.CurrentScreen != Screen.MenuScreen)
+         if (_state.CurrentScreen != Screen.MainMenuScreen)
          {
             return;
          }
@@ -103,7 +104,7 @@ internal class Hud
             // nothing
             return;
 
-         case Screen.MenuScreen:
+         case Screen.MainMenuScreen:
             text.AppendFormat(_lang.GetText("Mod",
                "Title_{Version}",
                "Alternative Camera with Photo Mode {0}",
@@ -277,7 +278,7 @@ internal class Hud
       var actionListInOrderToShow = new List<PhotoModeAction>
       {
          PhotoModeAction.Exit,
-         PhotoModeAction.ShootPhoto,
+         PhotoModeAction.TakePhoto,
          PhotoModeAction.ToggleInstructions,
          PhotoModeAction.ToggleHud,
          PhotoModeAction.MovePan,
