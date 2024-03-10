@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using AlternativeCameraMod.Config;
+using Il2CppMegagon.Downhill.Audio;
 using Il2CppMegagon.Downhill.Cameras;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
@@ -18,11 +19,11 @@ internal class CameraControl
    /// <summary>The name of the gameobject that will act as the cameras target.</summary>
    private string _targetName = "Bike(Clone)";
 
-   private Transform _playerBikeParentTransform = null!;
-   private Transform _playerBikeTransform = null!;
+   private Transform _bikeParentTransform = null!;
+   private Transform _bikeTransform = null!;
    private Transform _camTransform = null!;
-   private GameObject _postProcessingObject = null!;
    private DepthOfField _depthOfFieldSettings = null!;
+   private BikeSound _bikeSound;
 
    // The main camera itself. Used to set the field of view
    private Camera _mainCamera = null!;
@@ -221,7 +222,13 @@ internal class CameraControl
          return false;
       }
 
-      _playerBikeParentTransform = bikeClone.GetComponent<Transform>();
+      var audio = bikeClone.transform.Find("Audio");
+      if (audio != null)
+      {
+         _bikeSound = audio.GetComponent<BikeSound>();
+      }
+
+      _bikeParentTransform = bikeClone.GetComponent<Transform>();
 
       var target = GameObject.Find(_targetName);
       if (target == null)
@@ -229,7 +236,7 @@ internal class CameraControl
          return false;
       }
 
-      _playerBikeTransform = target.GetComponent<Transform>();
+      _bikeTransform = target.GetComponent<Transform>();
 
       var cam = GameObject.Find("PlayCamera(Clone)");
       if (cam == null)
@@ -240,11 +247,11 @@ internal class CameraControl
       _camTransform = cam.GetComponent<Transform>();
       _mainCamera = _camTransform.gameObject.GetComponent<Camera>();
       _defaultPlayCamera = _camTransform.gameObject.GetComponent<PlayCamera>();
-      _postProcessingObject = _camTransform.Find("DefaultPostProcessing").gameObject;
-
-      _depthOfFieldSettings = _postProcessingObject?.GetComponent<PostProcessVolume>()?.sharedProfile?.GetSetting<DepthOfField>();
+      
+      var postProcessingObject = _camTransform.Find("DefaultPostProcessing").gameObject;
+      _depthOfFieldSettings = postProcessingObject?.GetComponent<PostProcessVolume>()?.sharedProfile?.GetSetting<DepthOfField>();
       _hasDepthOfFieldSetting = _depthOfFieldSettings != null;
-
+      
       return true;
    }
 
@@ -259,12 +266,12 @@ internal class CameraControl
          return;
       }
 
-      if (_playerBikeTransform == null)
+      if (_bikeTransform == null)
       {
          return;
       }
 
-      _dirToCam = _camTransform.position - _playerBikeTransform.TransformPoint(_targetOffset);
+      _dirToCam = _camTransform.position - _bikeTransform.TransformPoint(_targetOffset);
 
       DisableDefaultCamera();
       _input.HideMouseCursor();
@@ -338,7 +345,7 @@ internal class CameraControl
          {
             // Lerp the horizontal rotation relative to the player
             _rotationHorizontal = Mathf.LerpAngle(_rotationHorizontal,
-               -_playerBikeParentTransform.localRotation.eulerAngles.y,
+               -_bikeParentTransform.localRotation.eulerAngles.y,
                _cfg.Camera.AutoAlignSpeed.Value * Time.deltaTime);
             _rotationHorizontal = ClampAngle(_rotationHorizontal, -360, 360);
             _rotation = Quaternion.Euler(-_rotationVertical, -_rotationHorizontal, 0f);
@@ -346,7 +353,7 @@ internal class CameraControl
          else
          {
             _rotationHorizontal = Mathf.LerpAngle(_rotationHorizontal,
-               _playerBikeParentTransform.localRotation.eulerAngles.y,
+               _bikeParentTransform.localRotation.eulerAngles.y,
                _cfg.Camera.AutoAlignSpeed.Value * Time.deltaTime);
             _rotationHorizontal = ClampAngle(_rotationHorizontal, -360, 360);
             _rotation = Quaternion.Euler(-_rotationVertical, _rotationHorizontal, 0f);
@@ -367,13 +374,13 @@ internal class CameraControl
       }
 
       // Raycast from the target towards the camera
-      if (Physics.Raycast(_playerBikeTransform.TransformPoint(_targetOffset),
+      if (Physics.Raycast(_bikeTransform.TransformPoint(_targetOffset),
              _dirToCam.normalized,
              out var hitInfo,
              _appliedZoom + 0.2f,
              __cameraCollisionLayers))
       {
-         _projectedDistance = Vector3.Distance(hitInfo.point, _playerBikeTransform.TransformPoint(_targetOffset));
+         _projectedDistance = Vector3.Distance(hitInfo.point, _bikeTransform.TransformPoint(_targetOffset));
       }
       else
       {
@@ -403,7 +410,7 @@ internal class CameraControl
       }
 
       Vector3 finalPosition = _rotation * new Vector3(0f, 0f, -_targetZoomAmount) +
-                              _playerBikeTransform.TransformPoint(_targetOffset);
+                              _bikeTransform.TransformPoint(_targetOffset);
 
       // Apply values
       _camTransform.position = finalPosition;
@@ -414,7 +421,7 @@ internal class CameraControl
       {
          _depthOfFieldSettings.focusDistance.Override(_cfg.Camera.FocusDistanceOffset.Value +
                                                      Vector3.Distance(_camTransform.position,
-                                                        _playerBikeTransform.position));
+                                                        _bikeTransform.position));
          _depthOfFieldSettings.focalLength.Override(_appliedFocalLength);
       }
    }
@@ -696,12 +703,12 @@ internal class CameraControl
    /// </summary>
    public void AlignViewWithBike()
    {
-      if (_playerBikeParentTransform.gameObject == null)
+      if (_bikeParentTransform.gameObject == null)
       {
          return;
       }
 
-      Vector3 bikeRotation = _playerBikeParentTransform.localRotation.eulerAngles;
+      Vector3 bikeRotation = _bikeParentTransform.localRotation.eulerAngles;
       if (_cfg.Mouse.InvertHorizontalLook.Value)
       {
          _rotationHorizontal = -bikeRotation.y;
@@ -721,6 +728,12 @@ internal class CameraControl
       if (activate)
       {
          _state.OnPhotoModeEnter();
+         if (_bikeSound != null)
+         {
+            // avoid annoying repetitive sound sample which plays while bike is frozen
+            _bikeSound.enabled = false;
+         }
+
          SaveCamPos(_camPosBike);
 
          Mode = CameraMode.PhotoCam;
@@ -771,6 +784,10 @@ internal class CameraControl
 
          hud.ToggleHudVisiblity(_photoModeHudRestoreState);
          _state.OnPhotoModeExit();
+         if (_bikeSound != null)
+         {
+            _bikeSound.enabled = true;
+         }
       }
 
       Thread.Sleep(200);
@@ -1010,7 +1027,7 @@ internal class CameraControl
       _currentCamView = CameraView.FirstPerson;
       ApplyCameraSettings(0f, new Vector3(0.0f, 0.3f, 0.0f), _firstPersonFoV, 0.6f, "neck_BindJNT");
       // Navigate to bike mesh renderer to prevent it from vanishing in first person
-      SkinnedMeshRenderer bikeMeshRenderer = _playerBikeParentTransform.GetChild(7).transform.GetChild(1)
+      SkinnedMeshRenderer bikeMeshRenderer = _bikeParentTransform.GetChild(7).transform.GetChild(1)
          .gameObject.GetComponent<SkinnedMeshRenderer>();
       bikeMeshRenderer.updateWhenOffscreen = true;
       ApplyCommonCameraSettings();
@@ -1074,7 +1091,7 @@ internal class CameraControl
    {
       _targetName = followTargetName;
       // Update reference
-      _playerBikeTransform = GameObject.Find(_targetName).GetComponent<Transform>();
+      _bikeTransform = GameObject.Find(_targetName).GetComponent<Transform>();
 
       _appliedZoom = followDistance;
       _targetOffset = followTargetOffset;
