@@ -24,12 +24,12 @@ internal class Configuration
       FileInfo filePath = new FileInfo(ConfigFilePath);
       _filePath = filePath.FullName;
 #if DEBUG
-      File.Delete(_filePath); // to refresh config
+      Delete();
 #endif
 
       _categories.Add(nameof(CommonSettings), new CommonSettings(ConfigFilePath, lng));
       _categories.Add(nameof(CameraSettings), new CameraSettings(ConfigFilePath, lng));
-      _categories.Add(nameof(UISettings), new UISettings(ConfigFilePath, lng));
+      _categories.Add(nameof(PlayModeSettings), new PlayModeSettings(ConfigFilePath, lng));
       _categories.Add(nameof(ControllerSettings), new ControllerSettings(ConfigFilePath, lng));
       _categories.Add(nameof(MouseSettings), new MouseSettings(ConfigFilePath, lng));
       _categories.Add(nameof(KeyboardSettings), new KeyboardSettings(ConfigFilePath, lng));
@@ -44,6 +44,12 @@ internal class Configuration
          category.Save();
       }
       Beautify();
+   }
+
+
+   public void Delete()
+   {
+      File.Delete(_filePath); // to refresh config
    }
 
 
@@ -118,7 +124,7 @@ internal class Configuration
          }
       }
 
-      return sb.ToString();
+      return sb.ToString().Trim();
    }
 
 
@@ -128,9 +134,9 @@ internal class Configuration
    }
 
 
-   public UISettings UI
+   public PlayModeSettings PlayMode
    {
-      get { return (UISettings)_categories[nameof(UISettings)]; }
+      get { return (PlayModeSettings)_categories[nameof(PlayModeSettings)]; }
    }
 
 

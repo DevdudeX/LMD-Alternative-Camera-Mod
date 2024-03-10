@@ -4,16 +4,17 @@ using MelonLoader;
 
 namespace AlternativeCameraMod.Config;
 
-internal class UISettings : ModSettingsCategory
+internal class PlayModeSettings : ModSettingsCategory
 {
    private readonly MelonPreferences_Entry<bool> _gameHudVisible;
    private readonly MelonPreferences_Entry<string> _modHudInfoDisplay;
    private readonly MelonPreferences_Entry<int> _modHudTextSize;
    private readonly MelonPreferences_Entry<bool> _showCamInstructionsInPauseMenu;
+   private readonly MelonPreferences_Entry<bool> _enableToggleCamStateByOriginalCamKey;
 
 
-   public UISettings(string filePath, LanguageConfig lng) 
-      : base("UI", filePath, lng)
+   public PlayModeSettings(string filePath, LanguageConfig lng) 
+      : base("PlayMode", filePath, lng)
    {
       _gameHudVisible = CreateEntry("GameHudVisible", true, "Initial visibility of the game hud with timer and track info");
       _modHudInfoDisplay = CreateEntry("ModHudInfoDisplay", 
@@ -22,6 +23,8 @@ internal class UISettings : ModSettingsCategory
          "CamMode, CamAlign, FoV, FPS; enter comma-separated in desired order or leave empty to show nothing");
       _modHudTextSize = CreateEntry("ModHudTextSize", 20, "Size of the mod hud text");
       _showCamInstructionsInPauseMenu = CreateEntry("ShowCamInstructionsInPauseMenu", true, "Visibility of the camera instructions in pause menu");
+      _enableToggleCamStateByOriginalCamKey = CreateEntry("EnableToggleCamStateByOriginalCamKey", true, 
+         "Camera can additionally be toggled between the alternative camera mode and the original camera mode by the 'Original Cam' key");
    }
 
    
@@ -46,5 +49,11 @@ internal class UISettings : ModSettingsCategory
    public MelonPreferences_Entry<bool> ShowCamInstructionsInPauseMenu
    {
       get { return _showCamInstructionsInPauseMenu; }
+   }
+
+
+   public MelonPreferences_Entry<bool> EnableToggleCamStateByOriginalCamKey
+   {
+      get { return _enableToggleCamStateByOriginalCamKey; }
    }
 }

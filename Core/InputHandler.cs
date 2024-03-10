@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using AlternativeCameraMod.Config;
+﻿using AlternativeCameraMod.Config;
 using AlternativeCameraMod.Language;
 using UnityEngine;
 
@@ -63,7 +62,7 @@ internal class InputHandler
       _logger = logger;
       Cursor.lockState = CursorLockMode.None;
       PlayMode = new PlayModeInput(this, cfg, lang);
-      PhotoMode = new PhotoModeInput(this, cfg);
+      PhotoMode = new PhotoModeInput(this, cfg, _lang);
    }
 
 
@@ -123,35 +122,38 @@ internal class InputHandler
    private void DetermineTriggerInput()
    {
       _triggerInputL = Input.GetAxisRaw("Joy1Axis9") + Input.GetAxisRaw("Joy2Axis9") +
-                                 Input.GetAxisRaw("Joy3Axis9") + Input.GetAxisRaw("Joy4Axis9");
+                       Input.GetAxisRaw("Joy3Axis9") + Input.GetAxisRaw("Joy4Axis9");
       _triggerInputR = Input.GetAxisRaw("Joy1Axis10") + Input.GetAxisRaw("Joy2Axis10") +
-                                 Input.GetAxisRaw("Joy3Axis10") + Input.GetAxisRaw("Joy4Axis10");
+                       Input.GetAxisRaw("Joy3Axis10") + Input.GetAxisRaw("Joy4Axis10");
    }
 
 
    private void DetermineStickInput()
    {
       _leftStickHorizontal = Input.GetAxisRaw("Joy1Axis1") + Input.GetAxisRaw("Joy2Axis1") +
-                                    Input.GetAxisRaw("Joy3Axis1") + Input.GetAxisRaw("Joy4Axis1");
+                             Input.GetAxisRaw("Joy3Axis1") + Input.GetAxisRaw("Joy4Axis1");
       _leftStickVertical = Input.GetAxisRaw("Joy1Axis2") + Input.GetAxisRaw("Joy2Axis2") +
-                                  Input.GetAxisRaw("Joy3Axis2") + Input.GetAxisRaw("Joy4Axis2");
+                           Input.GetAxisRaw("Joy3Axis2") + Input.GetAxisRaw("Joy4Axis2");
 
       _rightStickHorizontal = Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") +
-                                    Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
+                              Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
       _rightStickVertical = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") +
-                                  Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
+                            Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
 
-      _moveHorizontal = Input.GetAxisRaw("Horizontal"); // combines all input devices, arrows and stick, whatever does horizontal movement
-      _moveVertical = Input.GetAxisRaw("Vertical"); // combines all input devices, arrows and stick, whatever does vertical movement
+      _moveHorizontal =
+         Input.GetAxisRaw(
+            "Horizontal"); // combines all input devices, arrows and stick, whatever does horizontal movement
+      _moveVertical =
+         Input.GetAxisRaw("Vertical"); // combines all input devices, arrows and stick, whatever does vertical movement
    }
 
 
    private void DetermineDpadInput()
    {
       _dpadHorizontal = Input.GetAxisRaw("Joy1Axis6") + Input.GetAxisRaw("Joy2Axis6") +
-                                  Input.GetAxisRaw("Joy3Axis6") + Input.GetAxisRaw("Joy4Axis6");
+                        Input.GetAxisRaw("Joy3Axis6") + Input.GetAxisRaw("Joy4Axis6");
       _dpadVertical = Input.GetAxisRaw("Joy1Axis7") + Input.GetAxisRaw("Joy2Axis7") +
-                                Input.GetAxisRaw("Joy3Axis7") + Input.GetAxisRaw("Joy4Axis7");
+                      Input.GetAxisRaw("Joy3Axis7") + Input.GetAxisRaw("Joy4Axis7");
 
       if (!_dpadSingleClickDetect && _dpadPressDetectThreshold <= 0)
       {
@@ -187,54 +189,54 @@ internal class InputHandler
    private void DetermineButtonInput()
    {
       _buttonHold0 = Input.GetKey(KeyCode.Joystick1Button0) || Input.GetKey(KeyCode.Joystick2Button0) ||
-                        Input.GetKey(KeyCode.Joystick3Button0) || Input.GetKey(KeyCode.Joystick4Button0);
+                     Input.GetKey(KeyCode.Joystick3Button0) || Input.GetKey(KeyCode.Joystick4Button0);
       _buttonHold5 = Input.GetKey(KeyCode.Joystick1Button5) || Input.GetKey(KeyCode.Joystick2Button5) ||
-                        Input.GetKey(KeyCode.Joystick3Button5) || Input.GetKey(KeyCode.Joystick4Button5);
+                     Input.GetKey(KeyCode.Joystick3Button5) || Input.GetKey(KeyCode.Joystick4Button5);
 
       _buttonDown0 = Input.GetKeyDown(KeyCode.Joystick1Button0) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button0) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button0) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button0);
+                     Input.GetKeyDown(KeyCode.Joystick2Button0) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button0) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button0);
       _buttonDown1 = Input.GetKeyDown(KeyCode.Joystick1Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button1);
+                     Input.GetKeyDown(KeyCode.Joystick2Button1) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button1) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button1);
       _buttonDown1 = Input.GetKeyDown(KeyCode.Joystick1Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button1) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button1);
+                     Input.GetKeyDown(KeyCode.Joystick2Button1) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button1) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button1);
       _buttonDown2 = Input.GetKeyDown(KeyCode.Joystick1Button2) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button2) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button2) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button2);
+                     Input.GetKeyDown(KeyCode.Joystick2Button2) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button2) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button2);
       _buttonDown3 = Input.GetKeyDown(KeyCode.Joystick1Button3) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button3) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button3) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button3);
+                     Input.GetKeyDown(KeyCode.Joystick2Button3) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button3) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button3);
       _buttonDown4 = Input.GetKeyDown(KeyCode.Joystick1Button4) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button4) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button4) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button4);
+                     Input.GetKeyDown(KeyCode.Joystick2Button4) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button4) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button4);
       _buttonDown5 = Input.GetKeyDown(KeyCode.Joystick1Button5) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button5) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button5) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button5);
+                     Input.GetKeyDown(KeyCode.Joystick2Button5) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button5) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button5);
       _buttonDown6 = Input.GetKeyDown(KeyCode.Joystick1Button6) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button6) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button6) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button6);
+                     Input.GetKeyDown(KeyCode.Joystick2Button6) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button6) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button6);
       _buttonDown7 = Input.GetKeyDown(KeyCode.Joystick1Button7) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button7) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button7) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button7);
+                     Input.GetKeyDown(KeyCode.Joystick2Button7) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button7) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button7);
       _buttonDown8 = Input.GetKeyDown(KeyCode.Joystick1Button8) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button8) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button8) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button8);
+                     Input.GetKeyDown(KeyCode.Joystick2Button8) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button8) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button8);
       _buttonDown9 = Input.GetKeyDown(KeyCode.Joystick1Button9) ||
-                            Input.GetKeyDown(KeyCode.Joystick2Button9) ||
-                            Input.GetKeyDown(KeyCode.Joystick3Button9) ||
-                            Input.GetKeyDown(KeyCode.Joystick4Button9);
+                     Input.GetKeyDown(KeyCode.Joystick2Button9) ||
+                     Input.GetKeyDown(KeyCode.Joystick3Button9) ||
+                     Input.GetKeyDown(KeyCode.Joystick4Button9);
 
       // e.g. Xbox Controller
       if (_buttonDown0) _logger.LogDebug("Button 0 down (A)"); // A
@@ -314,8 +316,8 @@ internal class InputHandler
 
       return 0;
    }
-   
-      
+
+
    private string ConvertToText(string value, string? fallbackText = null)
    {
       string keyTxtLang = _lang.GetText("Input", value, fallbackText ?? value);
@@ -515,17 +517,23 @@ internal class InputHandler
             case PlayModeAction.CameraModeOriginal: return _ih.ConvertToText(_cfg.Keyboard.OriginalCamKey.Value);
             case PlayModeAction.CameraModeFirstPerson: return _ih.ConvertToText(_cfg.Keyboard.FirstPersonCamKey.Value);
             case PlayModeAction.CameraModeThirdPerson: return _ih.ConvertToText(_cfg.Keyboard.ThirdPersonCamKey.Value);
-            case PlayModeAction.ToggleCameraAutoAlignMode: return _ih.ConvertToText(_cfg.Keyboard.ToggleCamAlignModeKey.Value);
+            case PlayModeAction.ToggleCameraAutoAlignMode:
+               return _ih.ConvertToText(_cfg.Keyboard.ToggleCamAlignModeKey.Value);
             case PlayModeAction.ToggleCameraState: return _ih.ConvertToText(_cfg.Keyboard.ToggleCamStateKey.Value);
-            case PlayModeAction.ToggleInvertLookHorizontal: return _ih.ConvertToText(_cfg.Keyboard.InvertHorizontalLookKey.Value);
+            case PlayModeAction.ToggleInvertLookHorizontal:
+               return _ih.ConvertToText(_cfg.Keyboard.InvertHorizontalLookKey.Value);
             case PlayModeAction.ToggleGameHud: return _ih.ConvertToText(_cfg.Keyboard.HudToggleKey.Value);
-            case PlayModeAction.ToggleModHudDisplays: return _ih.ConvertToText(_cfg.Keyboard.HudInfoTextToggleKey.Value);
+            case PlayModeAction.ToggleModHudDisplays:
+               return _ih.ConvertToText(_cfg.Keyboard.HudInfoTextToggleKey.Value);
             case PlayModeAction.LookAround: return _ih.ConvertToText("Mouse", "Mouse");
-            case PlayModeAction.SnapCameraToBehindTheBike: return _ih.ConvertToText(_cfg.Keyboard.SnapAlignCamKey.Value);
-            case PlayModeAction.HoldToInvertCameraAutoAlignMode: return _ih.ConvertToText(_cfg.Keyboard.InvertCamAlignModeKey.Value);
+            case PlayModeAction.SnapCameraBehindBike: return _ih.ConvertToText(_cfg.Keyboard.SnapAlignCamKey.Value);
+            case PlayModeAction.InvertCameraAutoAlignMode:
+               return _ih.ConvertToText(_cfg.Keyboard.InvertCamAlignModeKey.Value);
             case PlayModeAction.ZoomInOut: return _ih.ConvertToText("MouseWheel", "Mouse Scroll");
-            case PlayModeAction.ChangeDoFFocalLength: return _ih.ConvertToText(_cfg.Keyboard.AdjustFocalLengthKey.Value);
-            case PlayModeAction.ChangeDoFFocusDistanceOffset: return _ih.ConvertToText(_cfg.Keyboard.AdjustFocusDistanceKey.Value);
+            case PlayModeAction.ChangeDoFFocalLength:
+               return _ih.ConvertToText(_cfg.Keyboard.AdjustFocalLengthKey.Value);
+            case PlayModeAction.ChangeDoFFocusDistanceOffset:
+               return _ih.ConvertToText(_cfg.Keyboard.AdjustFocusDistanceKey.Value);
             case PlayModeAction.IncreaseFoV: return _ih.ConvertToText(_cfg.Keyboard.FovIncreaseKey.Value);
             case PlayModeAction.DecreaseFoV: return _ih.ConvertToText(_cfg.Keyboard.FovDecreaseKey.Value);
             case PlayModeAction.ResetFoV: return _ih.ConvertToText(_cfg.Keyboard.FovResetKey.Value);
@@ -542,18 +550,24 @@ internal class InputHandler
             case PlayModeAction.CameraModeFirstPerson: return "-";
             case PlayModeAction.CameraModeThirdPerson: return "-";
             case PlayModeAction.ToggleCameraAutoAlignMode: return "-";
-            case PlayModeAction.ToggleCameraState: return _ih.ConvertToText(_cfg.Controller.ToggleCamStateButton.Value); 
+            case PlayModeAction.ToggleCameraState: return _ih.ConvertToText(_cfg.Controller.ToggleCamStateButton.Value);
             case PlayModeAction.ToggleInvertLookHorizontal: return "-";
             case PlayModeAction.ToggleGameHud: return "-";
             case PlayModeAction.ToggleModHudDisplays: return "-";
             case PlayModeAction.LookAround: return _ih.ConvertToText("RStick");
-            case PlayModeAction.SnapCameraToBehindTheBike: return _ih.ConvertToText("LButton");
-            case PlayModeAction.HoldToInvertCameraAutoAlignMode: return _ih.ConvertToText("RButton");
-            case PlayModeAction.ZoomInOut: return String.Format("{0} {1} / {2}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadUp", "up"), _ih.ConvertToText("DpadDown", "down"));
+            case PlayModeAction.SnapCameraBehindBike: return _ih.ConvertToText("LButton");
+            case PlayModeAction.InvertCameraAutoAlignMode: return _ih.ConvertToText("RButton");
+            case PlayModeAction.ZoomInOut:
+               return string.Format("{0} {1} / {2}",
+                  _ih.ConvertToText("Dpad"),
+                  _ih.ConvertToText("DpadUp", "up"),
+                  _ih.ConvertToText("DpadDown", "down"));
             case PlayModeAction.ChangeDoFFocalLength: return "-";
             case PlayModeAction.ChangeDoFFocusDistanceOffset: return "-";
-            case PlayModeAction.IncreaseFoV: return String.Format("{0} {1}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadLeft", "left"));
-            case PlayModeAction.DecreaseFoV: return String.Format("{0} {1}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadRight", "right"));
+            case PlayModeAction.IncreaseFoV:
+               return string.Format("{0} {1}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadLeft", "left"));
+            case PlayModeAction.DecreaseFoV:
+               return string.Format("{0} {1}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadRight", "right"));
             case PlayModeAction.ResetFoV: return "-";
          }
       }
@@ -561,34 +575,44 @@ internal class InputHandler
 
       public string GetActionText(PlayModeAction action)
       {
-         var pid = GetActionTextLangId(action);
-         var txt =_lang.GetText("PlayMode", pid, "");
-         return txt;
-      }
-
-
-      private string GetActionTextLangId(PlayModeAction action)
-      {
+         const string secId = "PlayMode";
          switch (action)
          {
             default: return "";
-            case PlayModeAction.CameraModeOriginal: return "ActionCameraOriginal";
-            case PlayModeAction.CameraModeFirstPerson: return "ActionCameraFirst";
-            case PlayModeAction.CameraModeThirdPerson: return "ActionCameraThird";
-            case PlayModeAction.ToggleCameraAutoAlignMode: return "ActionCameraAutoAlign";
-            case PlayModeAction.ToggleCameraState: return "ActionToggleCamState";
-            case PlayModeAction.ToggleInvertLookHorizontal: return "ActionInvertLookHoizontal";
-            case PlayModeAction.ToggleGameHud: return "ActionToggleGameHud";
-            case PlayModeAction.ToggleModHudDisplays: return "ActionToggleModHud";
-            case PlayModeAction.LookAround: return _ih.ConvertToText("ActionLookAround");
-            case PlayModeAction.SnapCameraToBehindTheBike: return _ih.ConvertToText("ActionSnapBehindBike");
-            case PlayModeAction.HoldToInvertCameraAutoAlignMode: return _ih.ConvertToText("ActionInvertCamAlignMode");
-            case PlayModeAction.ZoomInOut: return "ActionZoom";
-            case PlayModeAction.ChangeDoFFocalLength: return "ActionAdjustFocalLength";
-            case PlayModeAction.ChangeDoFFocusDistanceOffset: return "ActionAdjustFocusDistance";
-            case PlayModeAction.IncreaseFoV: return "ActionIncreaseFov";
-            case PlayModeAction.DecreaseFoV: return "ActionDecreaseFoV";
-            case PlayModeAction.ResetFoV: return "ActionResetFoV";
+            case PlayModeAction.CameraModeOriginal:
+               return _lang.GetText(secId, "ActionCameraOriginal", "Original Camera (isometric)");
+            case PlayModeAction.CameraModeFirstPerson: 
+               return _lang.GetText(secId, "ActionCameraFirst", "Alternative Camera: First Person");
+            case PlayModeAction.CameraModeThirdPerson: 
+               return _lang.GetText(secId, "ActionCameraThird", "Alternative Camera: Third person");
+            case PlayModeAction.ToggleCameraAutoAlignMode: 
+               return _lang.GetText(secId, "ActionCameraAutoAlign", "Toggle align mode Auto <-> Manual");
+            case PlayModeAction.ToggleCameraState: 
+               return _lang.GetText(secId, "ActionToggleCamState", "Toggle camera: Original <-> Alternative");
+            case PlayModeAction.ToggleInvertLookHorizontal:
+               return _lang.GetText(secId, "ActionInvertLookHorizontal", "Toggle invert look horizontal");
+            case PlayModeAction.ToggleGameHud: 
+               return _lang.GetText(secId, "ActionToggleGameHud", "Toggle Game HUD");
+            case PlayModeAction.ToggleModHudDisplays:
+               return _lang.GetText(secId, "ActionToggleModHud", "Toggle Mod HUD Displays");
+            case PlayModeAction.LookAround: 
+               return _lang.GetText(secId, "ActionLookAround", "Look around");
+            case PlayModeAction.SnapCameraBehindBike: 
+               return _lang.GetText(secId, "ActionSnapBehindBike", "Snap camera behind the bike");
+            case PlayModeAction.InvertCameraAutoAlignMode:
+               return _lang.GetText(secId, "ActionInvertCamAlignMode", "Invert camera align mode (hold)");
+            case PlayModeAction.ZoomInOut:
+               return _lang.GetText(secId, "ActionZoom", "Zoom camera in and out");
+            case PlayModeAction.ChangeDoFFocalLength: 
+               return _lang.GetText(secId, "ActionAdjustFocalLength", "Adjust DoF (hold+Zoom)");
+            case PlayModeAction.ChangeDoFFocusDistanceOffset:
+               return _lang.GetText(secId, "ActionAdjustFocusDistance", "Adjust DoF focus (hold+Zoom)");
+            case PlayModeAction.IncreaseFoV: 
+               return _lang.GetText(secId, "ActionIncreaseFov", "Increase FoV by 10 (hold Alt for 5)");
+            case PlayModeAction.DecreaseFoV: 
+               return _lang.GetText(secId, "ActionDecreaseFoV", "Decrease FoV by 10 (hold Alt for 5)");
+            case PlayModeAction.ResetFoV:
+               return _lang.GetText(secId, "ActionResetFoV", "Reset FoV to default/preset");
          }
       }
    }
@@ -598,12 +622,14 @@ internal class InputHandler
    {
       private readonly InputHandler _ih;
       private readonly Configuration _cfg;
+      private readonly LanguageConfig _lang;
 
 
-      public PhotoModeInput(InputHandler ih, Configuration cfg)
+      public PhotoModeInput(InputHandler ih, Configuration cfg, LanguageConfig lang)
       {
          _ih = ih;
          _cfg = cfg;
+         _lang = lang;
       }
 
 
@@ -682,6 +708,100 @@ internal class InputHandler
       public bool MoveDown()
       {
          return Input.GetKey(KeyCode.F);
+      }
+
+
+      public string GetKeyText(PhotoModeAction action)
+      {
+         switch (action)
+         {
+            default: return "";
+            case PhotoModeAction.Exit:
+               return "P";
+            case PhotoModeAction.ShootPhoto:
+               return _lang.GetText("Input", "Space", "Space");
+            case PhotoModeAction.ToggleInstructions:
+               return "I";
+            case PhotoModeAction.ToggleHud:
+               return "H";
+            case PhotoModeAction.MovePan:
+               return "W A S D + " + _lang.GetText("Input", "Mouse", "Mouse");
+            case PhotoModeAction.UpDown:
+               return "R / F";
+            case PhotoModeAction.Tilt:
+               return "Q / E";
+            case PhotoModeAction.SpeedUp:
+               return "Shift";
+            case PhotoModeAction.Reset:
+               return "K";
+            case PhotoModeAction.ToggleFoVDoF:
+               return "V";
+            case PhotoModeAction.ChangeFoVDoF:
+               return _lang.GetText("Input", "MouseWheel", "Mouse Scroll");
+         }
+      }
+
+
+      public string GetButtonText(PhotoModeAction action)
+      {
+         switch (action)
+         {
+            default: return "";
+            case PhotoModeAction.Exit:
+               return "Y";
+            case PhotoModeAction.ShootPhoto:
+               return "X";
+            case PhotoModeAction.ToggleInstructions:
+               return "L-Stick Click";
+            case PhotoModeAction.ToggleHud:
+               return "R-Stick Click";
+            case PhotoModeAction.MovePan:
+               return "L-Stick / R-Stick";
+            case PhotoModeAction.UpDown:
+               return "L-Trig / R-Trig";
+            case PhotoModeAction.Tilt:
+               return _lang.GetText("Input", "Dpad", "Dpad") + " ◄ / ►";
+            case PhotoModeAction.SpeedUp:
+               return "A";
+            case PhotoModeAction.Reset:
+               return _lang.GetText("Input", "Dpad", "Dpad") + " ▲";
+            case PhotoModeAction.ToggleFoVDoF:
+               return _lang.GetText("Input", "Dpad", "Dpad") + " ▼";
+            case PhotoModeAction.ChangeFoVDoF:
+               return "LB / RB";
+         }
+      }
+
+
+      public string GetActionText(PhotoModeAction action)
+      {
+         const string secId = "PhotoMode";
+         switch (action)
+         {
+            default: return "";
+            case PhotoModeAction.Exit:
+               return _lang.GetText(secId, "ActionExit", "Exit Photo Mode");
+            case PhotoModeAction.ShootPhoto:
+               return _lang.GetText(secId, "ActionShoot", "Take Photo");
+            case PhotoModeAction.ToggleInstructions:
+               return _lang.GetText(secId, "ActionToggleInstruct", "Toggle Instructions");
+            case PhotoModeAction.ToggleHud:
+               return _lang.GetText(secId, "ActionToggleHud", "Toggle HUD");
+            case PhotoModeAction.MovePan:
+               return _lang.GetText(secId, "ActionMovePan", "Move / Pan");
+            case PhotoModeAction.UpDown:
+               return _lang.GetText(secId, "ActionUpDown", "Up / Down");
+            case PhotoModeAction.Tilt:
+               return _lang.GetText(secId, "ActionTilt", "Tilt Left / Right");
+            case PhotoModeAction.SpeedUp:
+               return _lang.GetText(secId, "ActionSpeedUp", "Speed up movement");
+            case PhotoModeAction.Reset:
+               return _lang.GetText(secId, "ActionReset", "Reset rotation / FoV");
+            case PhotoModeAction.ToggleFoVDoF:
+               return _lang.GetText(secId, "ActionToggleFoVDoF", "Toggle FoV / DoF mode");
+            case PhotoModeAction.ChangeFoVDoF:
+               return _lang.GetText(secId, "ActionChangeFoVDoF", "Change FoV / DoF");
+         }
       }
    }
 

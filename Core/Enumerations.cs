@@ -90,12 +90,28 @@ internal enum PlayModeAction
    ToggleGameHud,
    ToggleModHudDisplays,
    LookAround,
-   SnapCameraToBehindTheBike,
-   HoldToInvertCameraAutoAlignMode,
+   SnapCameraBehindBike,
+   InvertCameraAutoAlignMode,
    ZoomInOut,
    ChangeDoFFocalLength,
    ChangeDoFFocusDistanceOffset,
    IncreaseFoV,
    DecreaseFoV,
    ResetFoV
+}
+
+
+internal enum PhotoModeAction
+{
+   Exit,
+   ShootPhoto,
+   ToggleInstructions,
+   ToggleHud,
+   MovePan,
+   UpDown,
+   Tilt,
+   SpeedUp,
+   Reset,
+   ToggleFoVDoF,
+   ChangeFoVDoF
 }

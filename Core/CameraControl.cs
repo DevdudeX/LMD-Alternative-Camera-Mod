@@ -962,13 +962,7 @@ internal class CameraControl
       get { return (int)_mainCamera.fieldOfView; }
    }
 
-
-   public float DepthOfFieldFocal
-   {
-      get { return (float)Math.Round(_depthOfFieldSettings.focalLength.GetValue<float>(), 1); }
-   }
-
-
+   
    private void ApplyCameraMode(CameraView camView)
    {
       if (GatherCameraRelatedGameObjects())

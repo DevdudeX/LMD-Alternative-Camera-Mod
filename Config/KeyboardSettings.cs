@@ -27,25 +27,25 @@ internal class KeyboardSettings : ModSettingsCategory
    public KeyboardSettings(string filePath, LanguageConfig lng) 
       : base("Keyboard", filePath, lng)
    {
-      _originalCamKey = CreateEntry("OriginalCam", KeyCode.F1,
+      _originalCamKey = CreateEntry("OriginalCam", KeyCode.Alpha1,
          "Key to set camera to original camera work");
-      _thirdPersonCamKey = CreateEntry("ThirdPersonCam", KeyCode.F2,
+      _thirdPersonCamKey = CreateEntry("ThirdPersonCam", KeyCode.Alpha2,
          "Key to set camera to third person view");
-      _firstPersonCamKey = CreateEntry("FirstPersonCam", KeyCode.F3,
+      _firstPersonCamKey = CreateEntry("FirstPersonCam", KeyCode.Alpha3,
          "Key to set camera to first person view");
-      _toggleCamStateKey = CreateEntry("ToggleCamState", KeyCode.Space, 
+      _toggleCamStateKey = CreateEntry("ToggleCamState", KeyCode.Tab, 
          "Key to toggle between the alternative camera mode and the original camera mode\n" + 
          "None to disable, otherwise any valid keybord key (see also Controller)");
-      _toggleCamAlignModeKey = CreateEntry("ToggleCamAlignMode", KeyCode.F5,
+      _toggleCamAlignModeKey = CreateEntry("ToggleCamAlignMode", KeyCode.Alpha5,
          "Key to switch between Auto and Manual alignment, see Camera/CamAlignMode)");
-      _snapAlignCamKey = CreateEntry("SnapAlignCam", KeyCode.RightControl,
+      _snapAlignCamKey = CreateEntry("SnapAlignCam", KeyCode.Space,
          "Key to align the camera behind the bike on demand\n" + 
          "None to disable, otherwise any valid keyboard key (see also Controller)");
-      _invertCamAlignModeKey = CreateEntry("InvertCamAlignMode", KeyCode.Mouse1,
+      _invertCamAlignModeKey = CreateEntry("InvertCamAlignMode", KeyCode.RightControl,
          "Key to invert the alignment mode of the camera, so if this key is pressed\n" + 
          "a preset of auto alignment is toggled to manual alignment and a preset of\n" +
          "manual alignment is toggled to auto alignment");
-      _invertHorizontalLookKey = CreateEntry("InvertHorizontalLook", KeyCode.F6, 
+      _invertHorizontalLookKey = CreateEntry("InvertHorizontalLook", KeyCode.Alpha6, 
          "Key to change mouse horizontal look, see Mouse/InvertHorizontalLook");
       _hudToggleKey = CreateEntry("HudToggle", KeyCode.H,
          "Key to toggle the game hud with timer and track infos");

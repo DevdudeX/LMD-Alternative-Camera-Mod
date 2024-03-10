@@ -38,7 +38,7 @@ internal class Hud
    {
       if (_intialized) return;
      
-      ParseHudInfoDisplayFlags(_cfg.UI.ModHudInfoDisplay.Value);
+      ParseHudInfoDisplayFlags(_cfg.PlayMode.ModHudInfoDisplay.Value);
 
       MelonEvents.OnGUI.Subscribe(DrawInfoOnHud, 100);
       _intialized = true;
@@ -68,7 +68,12 @@ internal class Hud
       string shadowColor = "#000000";
       int shadowOffsetX = 1;
       int shadowOffsetY = 1;
-      bool shadow = false;
+      bool addShadow = false;
+      bool addBox = false;
+      int boxPadding = 10;
+      int textWidth = 800;
+      int textHeight = 120;
+      
       _logger.LogVerbose("Screen: {0}", _state.CurrentScreen);
       switch (_state.CurrentScreen)
       {
@@ -99,7 +104,7 @@ internal class Hud
             text.Append(" (DBG)");
 #endif
             x = 130;
-            y = UnityEngine.Screen.currentResolution.height - 200;
+            y = UnityEngine.Screen.currentResolution.height - 250;
             size = 20;
             shadowOffsetX = 1;
             shadowOffsetY = 2;
@@ -107,11 +112,13 @@ internal class Hud
 
             if (!string.IsNullOrEmpty(_state.ErrorMessage))
             {
+               color = nameof(Color.red);
+               addBox = true;
                text.AppendLine();
                text.AppendFormat(_lang.GetText("Mod", "ErrorOutputLine_{Msg}", "[ERR] {0}", _state.ErrorMessage));
             }
 
-            shadow = true;
+            addShadow = true;
             break;
 
          case Screen.PlayScreen:
@@ -121,7 +128,7 @@ internal class Hud
             {
                x = 20;
                y = UnityEngine.Screen.currentResolution.height - 28;
-               size = Math.Max(5, _cfg.UI.ModHudTextSize.Value);
+               size = Math.Max(5, _cfg.PlayMode.ModHudTextSize.Value);
                color = "#FFFFFF";
                BuildHudInfoText(text);
             }
@@ -139,7 +146,7 @@ internal class Hud
          case Screen.PauseScreen:
             if (_state.IsPausedInPhotoMode) return;
 
-            if (_cfg.UI.ShowCamInstructionsInPauseMenu.Value)
+            if (_cfg.PlayMode.ShowCamInstructionsInPauseMenu.Value)
             {
                DrawPlayModeInstructionsOnHud();
             }
@@ -147,7 +154,7 @@ internal class Hud
             {  
                x = 1300;
                y = UnityEngine.Screen.currentResolution.height - 120;
-               size = Math.Max(5, _cfg.UI.ModHudTextSize.Value);
+               size = Math.Max(5, _cfg.PlayMode.ModHudTextSize.Value);
                color = "#FFFFFF";
                text.Append(_lang.GetText("PlayMode", "PressKeyForInstructions_{key}", "(press {0} for instructions)", "'I' / 'R-Stick'"));
             }
@@ -156,80 +163,72 @@ internal class Hud
 
       if (text.Length > 0)
       {
-         if (shadow)
+         if (addBox)
          {
-            GUI.Label(new Rect(x + shadowOffsetX, y + shadowOffsetY, 2000, 200), FormatLabel(text.ToString(), size, shadowColor, true));
+            GUI.Box(new Rect(x - boxPadding, y - boxPadding, textWidth + boxPadding * 2, textHeight + boxPadding*2), "");
+         }
+         if (addShadow)
+         {
+            GUI.Label(new Rect(x + shadowOffsetX, y + shadowOffsetY, textWidth, textHeight), 
+               FormatLabel(text.ToString(), size, shadowColor, true));
          }
 
-         GUI.Label(new Rect(x, y, 2000, 200), FormatLabel(text.ToString(), size, color, true));
+         GUI.Label(new Rect(x, y, textWidth, textHeight), 
+            FormatLabel(text.ToString(), size, color, true));
       }
    }
 
 
    private void DrawPlayModeInstructionsOnHud()
    {
+      var actionListInOrderToShow = new List<PlayModeAction>
+      {
+         PlayModeAction.CameraModeOriginal,
+         PlayModeAction.CameraModeThirdPerson,
+         PlayModeAction.CameraModeFirstPerson,
+         PlayModeAction.ToggleCameraState,
+         PlayModeAction.ToggleCameraAutoAlignMode,
+         PlayModeAction.InvertCameraAutoAlignMode,
+         PlayModeAction.ToggleInvertLookHorizontal,
+         PlayModeAction.ToggleGameHud,
+         PlayModeAction.ToggleModHudDisplays,
+         PlayModeAction.LookAround,
+         PlayModeAction.SnapCameraBehindBike,
+         PlayModeAction.ZoomInOut,
+         PlayModeAction.ChangeDoFFocalLength,
+         PlayModeAction.ChangeDoFFocusDistanceOffset,
+         PlayModeAction.IncreaseFoV,
+         PlayModeAction.DecreaseFoV,
+         PlayModeAction.ResetFoV
+      };
+
       var actions = new StringBuilder();
       string pre = " ► ";
       actions.AppendLine(_lang.GetText("Input", "ActionHeader", "ACTION"));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.CameraModeOriginal));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.CameraModeThirdPerson));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.CameraModeFirstPerson));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.ToggleCameraState));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.ToggleCameraAutoAlignMode));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.ToggleInvertLookHorizontal));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.ToggleGameHud));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.ToggleModHudDisplays));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.LookAround));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.SnapCameraToBehindTheBike));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.HoldToInvertCameraAutoAlignMode));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.ZoomInOut));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.ChangeDoFFocalLength));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.ChangeDoFFocusDistanceOffset));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.IncreaseFoV));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.DecreaseFoV));
-      actions.AppendLine(pre + _input.PlayMode.GetActionText(PlayModeAction.ResetFoV));
+      for (var index = 0; index < actionListInOrderToShow.Count; index++)
+      {
+         var action = actionListInOrderToShow[index];
+         actions.AppendLine(pre + _input.PlayMode.GetActionText(action));
+      }
 
-      string sep = " │ ";
+      const string sep = " ├  ";
+      const string lastSep = " └  ";
       var keys = new StringBuilder();
       keys.AppendLine(_lang.GetText("Input", "KeyMouseHeader", "KEYBOARD/MOUSE"));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.CameraModeOriginal));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.CameraModeThirdPerson));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.CameraModeFirstPerson));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.ToggleCameraState));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.ToggleCameraAutoAlignMode));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.ToggleInvertLookHorizontal));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.ToggleGameHud));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.ToggleModHudDisplays));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.LookAround));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.SnapCameraToBehindTheBike));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.HoldToInvertCameraAutoAlignMode));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.ZoomInOut));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.ChangeDoFFocalLength));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.ChangeDoFFocusDistanceOffset));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.IncreaseFoV));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.DecreaseFoV));
-      keys.AppendLine(sep + _input.PlayMode.GetKeyText(PlayModeAction.ResetFoV));
+      for (var index = 0; index < actionListInOrderToShow.Count; index++)
+      {
+         var action = actionListInOrderToShow[index];
+         keys.AppendLine((index < actionListInOrderToShow.Count - 1 ? sep : lastSep) + _input.PlayMode.GetKeyText(action));
+      }
       
       var btns = new StringBuilder();
       btns.AppendLine(_lang.GetText("Input", "ControllerHeader", "CONTROLLER"));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.CameraModeOriginal));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.CameraModeThirdPerson));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.CameraModeFirstPerson));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.ToggleCameraState));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.ToggleCameraAutoAlignMode));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.ToggleInvertLookHorizontal));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.ToggleGameHud));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.ToggleModHudDisplays));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.LookAround));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.SnapCameraToBehindTheBike));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.HoldToInvertCameraAutoAlignMode));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.ZoomInOut));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.ChangeDoFFocalLength));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.ChangeDoFFocusDistanceOffset));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.IncreaseFoV));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.DecreaseFoV));
-      btns.AppendLine(sep + _input.PlayMode.GetButtonText(PlayModeAction.ResetFoV));
-
+      for (var index = 0; index < actionListInOrderToShow.Count; index++)
+      {
+         var action = actionListInOrderToShow[index];
+         btns.AppendLine((index < actionListInOrderToShow.Count - 1 ? sep : lastSep) + _input.PlayMode.GetButtonText(action));
+      }
+      
       var titleForeColor = Configuration.GameColor2;
       var foreColor = Color.white;
       var shadowColor = "black";
@@ -280,52 +279,48 @@ internal class Hud
    
    private void DrawPhotoModeInstructionsOnHud()
    {
+       var actionListInOrderToShow = new List<PhotoModeAction>
+      {
+         PhotoModeAction.Exit,
+         PhotoModeAction.ShootPhoto,
+         PhotoModeAction.ToggleInstructions,
+         PhotoModeAction.ToggleHud,
+         PhotoModeAction.MovePan,
+         PhotoModeAction.UpDown,
+         PhotoModeAction.Tilt,
+         PhotoModeAction.SpeedUp,
+         PhotoModeAction.Reset,
+         PhotoModeAction.ToggleFoVDoF,
+         PhotoModeAction.ChangeFoVDoF
+      };
+
       var actions = new StringBuilder();
       string pre = " ► ";
       actions.AppendLine(_lang.GetText("Input", "ActionHeader", "ACTION"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionExit", "Exit Photo Mode"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionShoot", "Take Photo"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionToggleInstruct", "Toggle Instructions"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionToggleHud", "Toggle HUD"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionMovePan", "Move / Pan"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionUpDown", "Up / Down"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionTilt", "Tilt Left / Right"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionSpeedUp", "Speed up movement"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionReset", "Reset rotation / FoV"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionToggleFoVDoF", "Toggle FoV / DoF mode"));
-      actions.AppendLine(pre + _lang.GetText("PhotoMode", "ActionChangeFoVDoF", "Change FoV / DoF"));
+      for (var index = 0; index < actionListInOrderToShow.Count; index++)
+      {
+         var action = actionListInOrderToShow[index];
+         actions.AppendLine(pre + _input.PhotoMode.GetActionText(action));
+      }
 
-      string sep = " │ ";
+      const string sep = " ├  ";
+      const string lastSep = " └  ";
       var keys = new StringBuilder();
       keys.AppendLine(_lang.GetText("Input", "KeyMouseHeader", "KEYBOARD/MOUSE"));
-      keys.AppendLine(sep + "P");
-      keys.AppendLine(sep + _lang.GetText("Input", "Space", "Space"));
-      keys.AppendLine(sep + "I");
-      keys.AppendLine(sep + "H");
-      keys.AppendLine(sep + "W A S D + " + _lang.GetText("Input", "Mouse", "Mouse"));
-      keys.AppendLine(sep + "R / F");
-      keys.AppendLine(sep + "Q / E");
-      keys.AppendLine(sep + "Shift");
-      keys.AppendLine(sep + "K");
-      keys.AppendLine(sep + "V");
-      keys.AppendLine(sep + _lang.GetText("Input", "MouseWheel", "Mouse Scroll"));
-
+      for (var index = 0; index < actionListInOrderToShow.Count; index++)
+      {
+         var action = actionListInOrderToShow[index];
+         keys.AppendLine((index < actionListInOrderToShow.Count - 1 ? sep : lastSep) + _input.PhotoMode.GetKeyText(action));
+      }
+      
       var btns = new StringBuilder();
-      var dpad = _lang.GetText("Input", "Dpad", "Dpad");
       btns.AppendLine(_lang.GetText("Input", "ControllerHeader", "CONTROLLER"));
-      btns.AppendLine(sep + "Y");
-      btns.AppendLine(sep + "X");
-      btns.AppendLine(sep + "L-Stick Click");
-      btns.AppendLine(sep + "L-Stick Click");
-      btns.AppendLine(sep + "L-Stick / R-Stick");
-      btns.AppendLine(sep + "L-Trig / R-Trig");
-      btns.AppendLine(sep + dpad + " ◄ / ►");
-      btns.AppendLine(sep + "A");
-      btns.AppendLine(sep + dpad + " ▲");
-      btns.AppendLine(sep + dpad + " ▼");
-      btns.AppendLine(sep + "LB / RB");
-
-
+      for (var index = 0; index < actionListInOrderToShow.Count; index++)
+      {
+         var action = actionListInOrderToShow[index];
+         btns.AppendLine((index < actionListInOrderToShow.Count - 1 ? sep : lastSep) + _input.PhotoMode.GetButtonText(action));
+      }
+      
       var titleForeColor = Configuration.GameColor2;
       var foreColor = Color.white;
       var shadowColor = "black";

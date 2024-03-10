@@ -4,6 +4,7 @@ using AlternativeCameraMod;
 // Megagon
 using AlternativeCameraMod.Config;
 using AlternativeCameraMod.Language;
+using UnityEngine;
 
 
 [assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera with Photo Mode", AlternativeCamera.MOD_VERSION, "DevdudeX")]
@@ -59,9 +60,9 @@ public class AlternativeCamera : MelonMod
          return;
       }
 
+      _state = new State(_logger);
       ValidateConfig();
 
-      _state = new State(_logger);
       _input = new InputHandler(_cfg, _lang, _logger);
       _camera = new CameraControl(_state, _input, _cfg, _logger);
       _hud = new Hud(_state, _camera, _input, _cfg, _lang, _logger);
@@ -85,6 +86,7 @@ public class AlternativeCamera : MelonMod
    public override void OnLateUpdate()
    {
       _state.TrackScreenState();
+      _hud.InitializeOnce();
 
       if (_state.Suspended)
       {
@@ -117,7 +119,7 @@ public class AlternativeCamera : MelonMod
          {
             if (_input.PlayMode.ShowInstructions)
             {
-               _cfg.UI.ShowCamInstructionsInPauseMenu.Value = !_cfg.UI.ShowCamInstructionsInPauseMenu.Value;
+               _cfg.PlayMode.ShowCamInstructionsInPauseMenu.Value = !_cfg.PlayMode.ShowCamInstructionsInPauseMenu.Value;
             }
          }
 
@@ -148,7 +150,7 @@ public class AlternativeCamera : MelonMod
 
       if (_firstFrame)
       {
-         _hud.ToggleHudVisiblity(_cfg.UI.GameHudVisible.Value);
+         _hud.ToggleHudVisiblity(_cfg.PlayMode.GameHudVisible.Value);
       }
 
       HandleCommonUserInputs();
@@ -201,9 +203,9 @@ public class AlternativeCamera : MelonMod
       if (!String.IsNullOrEmpty(cfgErr))
       {
          var str = cfgErr
-                   + Environment.NewLine +
+                   + Environment.NewLine + "! " + 
                    _lang.GetText("Mod", "ErrDisabledMod", "Mod disabled")
-                   + Environment.NewLine +
+                   + Environment.NewLine + "! " + 
                    _lang.GetText("Mod", "ErrCheckConfig_{CfgFile}", "check {0}", Configuration.ConfigFilePath);
 
          HandleErrorState(str);
@@ -225,8 +227,6 @@ public class AlternativeCamera : MelonMod
 
    private bool InitializeSubsystems()
    {
-      _hud.InitializeOnce();
-
       if (!_camera.Initialize())
       {
          return false;
@@ -314,7 +314,14 @@ public class AlternativeCamera : MelonMod
    {
       if (_input.PlayMode.SelectOriginalCamera())
       {
-         _camera.SelectCameraMode(CameraView.Original);
+         if (_cfg.PlayMode.EnableToggleCamStateByOriginalCamKey.Value)
+         {
+            _camera.ToggleCamState();
+         }
+         else
+         {
+            _camera.SelectCameraMode(CameraView.Original);
+         }
       }
 
       if (_input.PlayMode.SelectThirdPerson()
