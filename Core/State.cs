@@ -46,7 +46,7 @@ internal class State
       bool menuActive = false;
       bool playActive = false;
       bool pauseActive = false;
-      var uiMainParent = GameObject.Find("Wrapper").GetComponent<Transform>();
+      var uiMainParent = wrapper.GetComponent<Transform>();
       for (int i = 0; i < uiMainParent.childCount; i++)
       {
          var ch = uiMainParent.GetChild(i);

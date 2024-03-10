@@ -4,7 +4,6 @@ using AlternativeCameraMod;
 // Megagon
 using AlternativeCameraMod.Config;
 using AlternativeCameraMod.Language;
-using UnityEngine;
 
 
 [assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera with Photo Mode", AlternativeCamera.MOD_VERSION, "DevdudeX")]

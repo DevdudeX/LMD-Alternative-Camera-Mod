@@ -1,12 +1,7 @@
-﻿using UnityEngine;
-
-
-namespace AlternativeCameraMod;
+﻿namespace AlternativeCameraMod;
 
 internal abstract class HudInstructions
 {
-   private Dictionary<string, string> _formats = new Dictionary<string, string>();
-
    private string _title;
    private string _titleShadow;
    private string _actions;
