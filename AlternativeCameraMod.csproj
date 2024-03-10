@@ -5,11 +5,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>AlternativeCameraWithPhotoMode</AssemblyName>
-    <Authors>DevdudeX,faehromon</Authors>
+    <Authors>DevdudeX, faehromon</Authors>
     <Description>DevdudeX's alternative camera with photo mode</Description>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <AssemblyVersion>2.1.0</AssemblyVersion>
     <FileVersion>2.1.0</FileVersion>
+    <Copyright>$(Authors)</Copyright>
+    <Version>2.1.0</Version>
+    <Title>Alternative Camera with Photo Mode</Title>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
