@@ -345,45 +345,45 @@ internal class Hud
 
    private void DrawPlayModeInstructionsOnHud()
    {
-      var w1 = _lang.GetIntNum("PlayMode", "ColWidthAction", 450);
-      var w2 = _lang.GetIntNum("PlayMode", "ColWidthController", 200);
-      var w3 = _lang.GetIntNum("PlayMode", "ColWidthKeyMouse", 200);
+      var wA = _lang.GetIntNum("PlayMode", "ColWidthAction", 450);
+      var wC = _lang.GetIntNum("PlayMode", "ColWidthController", 200);
+      var wK = _lang.GetIntNum("PlayMode", "ColWidthKeyMouse", 200);
 
-      var boxWidth = w1 + w2 + w3 + 40;
-      var boxHeight = 480;
       var boxPadding = 20;
+      var boxWidth = wA + wK + wC + boxPadding*2;
+      var boxHeight = 480;
 
-      float xPos = 850;
-      float xPos2 = xPos + w1;
-      float xPos3 = xPos2 + w2;
+      float xPosA = 850;
+      float xPosK = xPosA + wA;
+      float xPosB = xPosK + wK;
 
       float yPosOffset = 280;
       float yPosTitle = yPosOffset;
       float yPosInstr = yPosOffset + 50;
       
-      GUI.Box(new Rect(xPos - boxPadding, yPosOffset - boxPadding, boxWidth + boxPadding*2, boxHeight + boxPadding*2), "");
+      GUI.Box(new Rect(xPosA - boxPadding, yPosOffset - boxPadding, boxWidth + boxPadding*2, boxHeight + boxPadding*2), "");
 
-      WriteLabel(_playModeInstr.Title, _playModeInstr.TitleShadow, xPos, yPosTitle, 1000, 200);
-      WriteLabel(_playModeInstr.Actions, _playModeInstr.ActionsShadow, xPos, yPosInstr, 2000, 2000);
-      WriteLabel(_playModeInstr.Keys, _playModeInstr.KeysShadow, xPos2, yPosInstr, 2000, 2000);
-      WriteLabel(_playModeInstr.Buttons, _playModeInstr.ButtonsShadow, xPos3, yPosInstr, 2000, 2000);
+      WriteLabel(_playModeInstr.Title, _playModeInstr.TitleShadow, xPosA, yPosTitle, 1000, 200);
+      WriteLabel(_playModeInstr.Actions, _playModeInstr.ActionsShadow, xPosA, yPosInstr, 2000, 2000);
+      WriteLabel(_playModeInstr.Keys, _playModeInstr.KeysShadow, xPosK, yPosInstr, 2000, 2000);
+      WriteLabel(_playModeInstr.Buttons, _playModeInstr.ButtonsShadow, xPosB, yPosInstr, 2000, 2000);
    }
 
    
    private void DrawPhotoModeInstructionsOnHud()
    {
       var focusModeLabel = _lang.GetText("PhotoMode", "FocusAdjustModeLabel_{state}", "Focus mode: {0}", GetFocusModeText());
-      var w1 = _lang.GetIntNum("PhotoMode", "ColWidthAction", 350);
-      var w2 = _lang.GetIntNum("PhotoMode", "ColWidthController", 200);
-      var w3 = _lang.GetIntNum("PhotoMode", "ColWidthKeyMouse", 200);
+      var wA = _lang.GetIntNum("PhotoMode", "ColWidthAction", 350);
+      var wC = _lang.GetIntNum("PhotoMode", "ColWidthController", 200);
+      var wK = _lang.GetIntNum("PhotoMode", "ColWidthKeyMouse", 200);
 
-      var boxWidth = w1 + w2 + w3;
-      var boxHeight = 450;
       var boxPadding = 20;
+      var boxWidth = wA + wK + wC + boxPadding*2;
+      var boxHeight = 480;
 
-      float xPos = 50;
-      float xPos2 = xPos + w1;
-      float xPos3 = xPos2 + w2;
+      float xPosA = 50;
+      float xPosK = xPosA + wA;
+      float xPosC = xPosK + wK;
 
       float yPosTitle = 200;
       float yPosInstr = 250;
@@ -391,24 +391,24 @@ internal class Hud
       float yPosState = 600;
       float yPosSaveInfo = 680 + boxPadding;
 
-      GUI.Box(new Rect(xPos - boxPadding, yPosTitle - boxPadding, boxWidth + boxPadding*2, boxHeight + boxPadding*2), "");
+      GUI.Box(new Rect(xPosA - boxPadding, yPosTitle - boxPadding, boxWidth + boxPadding*2, boxHeight + boxPadding*2), "");
       
-      WriteLabel(_photoModeInstr.Title, _photoModeInstr.TitleShadow, xPos, yPosTitle, 1000, 200);
-      WriteLabel(_photoModeInstr.Actions, _photoModeInstr.ActionsShadow, xPos, yPosInstr, 2000, 2000);
-      WriteLabel(_photoModeInstr.Keys, _photoModeInstr.KeysShadow, xPos2, yPosInstr, 2000, 2000);
-      WriteLabel(_photoModeInstr.Buttons, _photoModeInstr.ButtonsShadow, xPos3, yPosInstr, 2000, 2000);
+      WriteLabel(_photoModeInstr.Title, _photoModeInstr.TitleShadow, xPosA, yPosTitle, 1000, 200);
+      WriteLabel(_photoModeInstr.Actions, _photoModeInstr.ActionsShadow, xPosA, yPosInstr, 2000, 2000);
+      WriteLabel(_photoModeInstr.Keys, _photoModeInstr.KeysShadow, xPosK, yPosInstr, 2000, 2000);
+      WriteLabel(_photoModeInstr.Buttons, _photoModeInstr.ButtonsShadow, xPosC, yPosInstr, 2000, 2000);
       
-      WriteLabel(_photoModeInstr.Note, _photoModeInstr.NoteShadow, xPos, yPosNote, 2000, 2000, 1);
-      WriteLabel(FormatLabel(focusModeLabel, 20, "lightblue"), FormatLabel(focusModeLabel, 20, "black"), xPos, yPosState, 2000, 2000, 2);
+      WriteLabel(_photoModeInstr.Note, _photoModeInstr.NoteShadow, xPosA, yPosNote, 2000, 2000, 1);
+      WriteLabel(FormatLabel(focusModeLabel, 20, "lightblue"), FormatLabel(focusModeLabel, 20, "black"), xPosA, yPosState, 2000, 2000, 2);
       
       if (!string.IsNullOrEmpty(_state.LastScreenshotInfo))
       {
-         GUI.Box(new Rect(xPos - boxPadding, yPosSaveInfo - boxPadding, boxWidth + boxPadding*2, 90), "");
+         GUI.Box(new Rect(xPosA - boxPadding, yPosSaveInfo - boxPadding, boxWidth + boxPadding*2, 90), "");
 
          WriteLabel(
             FormatLabel(_state.LastScreenshotInfo, 20, Configuration.GameColor2), 
             FormatLabel(_state.LastScreenshotInfo, 20, "black"),
-            xPos, yPosSaveInfo, boxWidth, 200);
+            xPosA, yPosSaveInfo, boxWidth, 200);
       }
    }
 
