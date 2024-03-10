@@ -560,14 +560,14 @@ internal class InputHandler
             case PlayModeAction.ZoomInOut:
                return string.Format("{0} {1} / {2}",
                   _ih.ConvertToText("Dpad"),
-                  _ih.ConvertToText("DpadUp", "up"),
-                  _ih.ConvertToText("DpadDown", "down"));
+                  _ih.ConvertToText("DpadUp", "▲"),
+                  _ih.ConvertToText("DpadDown", "▼"));
             case PlayModeAction.ChangeDoFFocalLength: return "-";
             case PlayModeAction.ChangeDoFFocusDistanceOffset: return "-";
             case PlayModeAction.IncreaseFoV:
-               return string.Format("{0} {1}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadLeft", "left"));
+               return string.Format("{0} {1}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadLeft", "◄"));
             case PlayModeAction.DecreaseFoV:
-               return string.Format("{0} {1}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadRight", "right"));
+               return string.Format("{0} {1}", _ih.ConvertToText("Dpad"), _ih.ConvertToText("DpadRight", "►"));
             case PlayModeAction.ResetFoV: return "-";
          }
       }
@@ -586,9 +586,9 @@ internal class InputHandler
             case PlayModeAction.CameraModeThirdPerson: 
                return _lang.GetText(secId, "ActionCameraThird", "Alternative Camera: Third person");
             case PlayModeAction.ToggleCameraAutoAlignMode: 
-               return _lang.GetText(secId, "ActionCameraAutoAlign", "Toggle align mode Auto <-> Manual");
+               return _lang.GetText(secId, "ActionCameraAutoAlign", "Toggle align mode Auto ↔ Manual");
             case PlayModeAction.ToggleCameraState: 
-               return _lang.GetText(secId, "ActionToggleCamState", "Toggle camera: Original <-> Alternative");
+               return _lang.GetText(secId, "ActionToggleCamState", "Toggle camera: Original ↔ Alternative");
             case PlayModeAction.ToggleInvertLookHorizontal:
                return _lang.GetText(secId, "ActionInvertLookHorizontal", "Toggle invert look horizontal");
             case PlayModeAction.ToggleGameHud: 
