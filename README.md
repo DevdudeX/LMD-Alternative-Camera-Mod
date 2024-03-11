@@ -14,20 +14,23 @@ You can do this by simply renaming the file in your mods folder before launching
 #### Preparing
 Your game folder can be found by right-clicking on the game in steam and going 'Manage -> Browse local files'  
 
-Install Melon Loader to your LMD game install folder.  
+**This mod is broken on ML v0.6.2+ at the time of writing!**  
+
+Install Melon Loader **v0.6.1** to your LMD game install folder.  
 Look under 'Automated Installation':  
 https://melonwiki.xyz/#/  
-(v0.6.1 is the current version at time of writing)  
 
-Run the game once then exit. (See **Known Issues & Fixes** if your game freezes on quit)  
-If successful the Melon Loader splash screen should appear on launch. 
+
+If successful the Melon Loader splash screen should appear on launch.  
+You may need to run the game once without the mod then exit.  
+(See *Known Issues & Fixes* if your game freezes on quit)  
 
 Download `AlternativeCameraMod.dll` from the releases and add it to the `Mods` folder in your LMD game folder.   
 
 #### Loading The Mod In-Game
 After loading into a level wait to be able to move the bike then hit `Keyboard [9]`.  
 A few camera presets exist and can be activated as seen in the keybind section.  
-#####Keyboard users:
+##### Keyboard users:
 - The game works best by setting mouse to `Steering Only` in options and using the keyboard for forward and brake.  
 - It is recommended you turn off camera `auto-align`.  
 
@@ -61,4 +64,4 @@ This file can be edited with any text editor and contains all the mods settings.
 - Movement isn't working: Go to the last checkpoint / restart run.  
 - Camera doesn't work: Try pressing `Keyboard [9]`, `[Keypad 9]`, and `Keyboard [0]` on your keyboard.  
 - Game freezes on quitting: Add the `--quitfix` [MelonLoader launch option](https://github.com/LavaGang/MelonLoader#launch-options).  
-On steam: right-click on LMD --> Properties --> Launch Options --> Paste the command (with `--` infront!).
+On Steam: right-click on LMD ► Properties ► Launch Options ► Paste the command (with `--` infront!).

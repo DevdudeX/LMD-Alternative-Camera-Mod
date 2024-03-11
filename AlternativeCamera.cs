@@ -1,6 +1,7 @@
 ﻿// Mod
 using MelonLoader;
 using AlternativeCameraMod;
+using LMD_ModMenu;
 // Unity
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
@@ -148,7 +149,6 @@ namespace AlternativeCameraMod
 		public override void OnEarlyInitializeMelon()
 		{
 			instance = this;
-			//MelonEvents.OnGUI.Subscribe(DrawDemoText, 100);	// FIXME:
 		}
 
 		public override void OnInitializeMelon()
@@ -551,6 +551,7 @@ namespace AlternativeCameraMod
 			mainCameraComponent = camTransform.gameObject.GetComponent<Camera>();
 			defaultCameraScript = camTransform.gameObject.GetComponent<PlayCamera>();
 			postProcessingObject = camTransform.Find("DefaultPostProcessing").gameObject;
+
 			hasDOFSettings = postProcessingObject.GetComponent<PostProcessVolume>().sharedProfile.TryGetSettings<DepthOfField>(out m_dofSettings);
 		}
 
