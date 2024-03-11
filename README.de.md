@@ -98,20 +98,20 @@ Diese Tasten sind Voreinstellungen und können in der Konfigurationsdatei angepa
 
 | Aktion                                             | Tastatur/Maus             | Controller                  |
 | ---                                                | ---                       | ---                         |
-| Original Kamera (isometrisch)                      | F1                        | -                           |
-| Alternative Kamera: Third Person                   | F2                        | -                           |
-| Alternative Kamera: First Person                   | F3                        | -                           |
-| Kamera umschalten: Original <-> Alternative        | Leertaste                 | Linke Schultertaste *)      |
-| Auto/Manual-Positionierung umschalten              | F5                        | -                           |
-| Invertiere horizontale Blickausrichtung            | F6                        | -                           |
+| Original Kamera (isometrisch)                      | 1                         | -                           |
+| Alternative Kamera: Third Person                   | 2                         | -                           |
+| Alternative Kamera: First Person                   | 3                         | -                           |
+| Kamera umschalten: Original <-> Alternative        | Tab                       | Linke Schultertaste *)      |
+| Auto/Manual-Positionierung umschalten              | 5                         | -                           |
+| Invertiere horizontale Blickausrichtung            | 6                         | -                           |
 | Game HUD an-/aus                                   | H                         | -                           |
 | Mod HUD Anzeige an/-aus                            | J                         | -                           |
 | Kamera schwenken                                   | Mouse *)                  | Rechter Stick *)            |
-| Kamera hinter das Fahrrad bewegen                  | Right Control             | Rechter Stick Klick *)      |
-| Positionierungsmodus umkehren (halten)             | Mouse Right Button        | Rechte Schultertaste *)     |
+| Kamera hinter das Fahrrad bewegen                  | Leertaste                 | Rechter Stick Klick *)      |
+| Positionierungsmodus umkehren (halten)             | Strg rechts               | Rechte Schultertaste *)     |
 | Kamera Zoom                                        | Mouse Scroll *)           | Steuerkreuz hoch/runter *)  |
-| Tiefenschärfe anpassen                             | Hold L + Mouse Scroll *)  | -                           |
-| Tiefenschärfe Fokus anpassen                       | Hold K + Mouse Scroll *)  | -                           |
+| Tiefenschärfe anpassen                             | halte L + Mouse Scroll *) | -                           |
+| Tiefenschärfe Fokus anpassen                       | halte K + Mouse Scroll *) | -                           |
 | Sichtfeld erhöhen um 10 (halte Alt für 5)          | 8                         | Steuerkreuz rechts *)       |
 | Sichtfeld verringern um 10 (halte Alt für 5)       | 9                         | Steuerkreuz links *)        |
 | Sichtfeld zurücksetzen                             | 0                         |                             |
