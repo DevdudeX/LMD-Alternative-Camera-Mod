@@ -104,17 +104,17 @@ The keys are presets and can be customized. Controller inputs are fixed.
 
 | Action                                  | Keyboard/Mouse            | Controller                  |
 | ---                                     | ---                       | ---                         |
-| Original camera (isometric)             | F1                        | -                           |
-| Alternative camera: Third Person        | F2                        | -                           |
-| Alternative camera: First Person        | F3                        | -                           |
-| Toggle camera: Original <-> Alternative | Space                     | Left Bumper *)              |
-| Toggle camera auto-align mode           | F5                        | -                           |
-| Toggle invert look horizontal           | F6                        | -                           |
+| Original camera (isometric)             | 1                         | -                           |
+| Alternative camera: Third Person        | 2                         | -                           |
+| Alternative camera: First Person        | 3                         | -                           |
+| Toggle camera: Original <-> Alternative | Tab                       | Left Bumper *)              |
+| Toggle camera auto-align mode           | 5                         | -                           |
+| Toggle invert look horizontal           | 6                         | -                           |
 | Toggle Game HUD                         | H                         | -                           |
 | Toggle Mod HUD Displays                 | J                         | -                           |
 | Look around                             | Mouse *)                  | Right Stick *)              |
-| Snap camera to behind the bike          | Right Control             | Right Stick Click *)        |
-| Invert camera auto-align mode (hold)    | Mouse Right Button *)     | Right Bumper *)             |
+| Snap camera behind the bike             | Space                     | Right Stick Click *)        |
+| Invert camera auto-align mode (hold)    | Right Control             | Right Bumper *)             |
 | Zoom camera in and out                  | Mouse Scroll *)           | Dpad Up / Down *)           |
 | Adjust DoF focal length                 | Hold L + Mouse Scroll *)  | -                           |
 | Adjust DoF focus distance offset        | Hold K + Mouse Scroll *)  | -                           |
