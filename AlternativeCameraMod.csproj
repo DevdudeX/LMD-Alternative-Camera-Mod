@@ -23,7 +23,7 @@
       <HintPath>..\..\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
     </Reference>
     <Reference Include="LMD-ModMenu">
-      <HintPath>..\..\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\Mods\LMD-ModMenu.dll</HintPath>
+      <HintPath>..\LMD-ModMenu\bin\Release\LMD-ModMenu.dll</HintPath>
     </Reference>
     <Reference Include="MelonLoader">
       <HintPath>..\..\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\MelonLoader\net6\MelonLoader.dll</HintPath>

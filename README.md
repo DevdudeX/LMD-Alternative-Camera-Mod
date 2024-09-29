@@ -40,22 +40,21 @@ This file can be edited with any text editor and contains all the mods settings.
 
 
 #### Keybinds
-| Keyboard & Mouse      | Gamepad                   | Action                                  |
-| ---                   | ---                       | ---                                     |
-| Mouse                 | Right Stick               | Look around                             |
-| Right Click           | Right Bumper              | Hold to invert camera auto-align mode   |
-| 9                     | -                         | Start the camera                        |
-| 0                     | -                         | Toggle the camera mod                   |
-| H                     | -                         | Toggle HUD & UI rendering               |
-| Enter / Space         | -                         | Snap camera to behind the player        |
-| Mouse Scroll          | -                         | Move camera in and out                  |
-| Hold L + Mouse Scroll | -                         | Change DoF focal length                 |
-| Hold K + Mouse Scroll | -                         | Change DoF focus distance offset        |
-| Keypad 1              | -                         | Recommended camera preset               |
-| Keypad 2              | -                         | First person ( *Experimental* )         |
-| Keypad 3              | -                         | Toggle invert look horizontal           |
-| Keypad 4              | -                         | Toggle camera auto-align mode           |
-| Keypad 9              | -                         | Find and update gameobjects references  |
+| Action                                  | Gamepad                   | Keyboard & Mouse      |
+| ---                                     | ---                       | ---                   |
+| Look around                             | Right Stick               | Mouse                 |
+| Hold to invert camera auto-align mode   | Right Bumper              | Right Click           |
+| Toggle the camera mod                   | -                         | 0                     |
+| Toggle HUD & UI rendering               | -                         | H                     |
+| Snap camera to behind the player        | -                         | Enter / Space         |
+| Move camera in and out                  | -                         | Mouse Scroll          |
+| Change DoF focal length                 | -                         | Hold L + Mouse Scroll |
+| Change DoF focus distance offset        | -                         | Hold K + Mouse Scroll |
+| Recommended camera preset               | -                         | Keypad 1              |
+| First person ( *Experimental* )         | -                         | Keypad 2              |
+| Toggle invert look horizontal           | -                         | Keypad 3              |
+| Toggle camera auto-align mode           | -                         | Keypad 4              |
+| Find and update gameobjects references  | -                         | Keypad 9              |
 
 
 
