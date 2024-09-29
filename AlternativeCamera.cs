@@ -1,14 +1,14 @@
 ﻿// Mod
 using MelonLoader;
 using AlternativeCameraMod;
-using LMD_ModMenu;
+//using LMD_ModMenu;
 // Unity
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 // Megagon
 using Il2CppMegagon.Downhill.Cameras;
 
-[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.7", "DevdudeX")]
+[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.8", "DevdudeX")]
 [assembly: MelonGame()]
 namespace AlternativeCameraMod
 {
@@ -18,8 +18,10 @@ namespace AlternativeCameraMod
 	public class AlternativeCamera : MelonMod
 	{
 		// Keep this updated!
-		private const string MOD_VERSION = "1.0.7";
+		private const string MOD_VERSION = "1.0.8";
 		public static AlternativeCamera instance;
+		/// <summary>In charge of Mod Menu integration.</summary>
+		private static ModMenuHandler modMenuHandler;
 		private static bool hasStartedOnce = false;
 		private static bool cameraModEnabled = false;
 		private static bool forceDisable = false;
@@ -55,19 +57,18 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Entry<float> cfgFocalLength;
 		private MelonPreferences_Entry<float> cfgFocusDistanceOffset;
 
-		private static KeyCode modToggleKey = KeyCode.Alpha0;
-		private static KeyCode modStartupKey = KeyCode.Alpha9;
-		private static KeyCode uiToggleKey = KeyCode.Keypad7;
-		private static KeyCode grabGOsKey = KeyCode.Keypad9;
-		private static KeyCode camPresetStandardKey = KeyCode.Keypad1;
-		private static KeyCode camPresetFirstPersonKey = KeyCode.Keypad2;
-		private static KeyCode camToggleInvertHorizontalKey = KeyCode.Keypad3;
-		private static KeyCode camToggleAutoAlignKey = KeyCode.Keypad4;
-		private static KeyCode focalLegthModeKey = KeyCode.L;
-		private static KeyCode focusDistanceModeKey = KeyCode.K;
+		private static readonly KeyCode modToggleKey = KeyCode.Alpha0;
+		private static readonly KeyCode uiToggleKey = KeyCode.Keypad7;
+		private static readonly KeyCode grabGOsKey = KeyCode.Keypad9;
+		private static readonly KeyCode camPresetStandardKey = KeyCode.Keypad1;
+		private static readonly KeyCode camPresetFirstPersonKey = KeyCode.Keypad2;
+		private static readonly KeyCode camToggleInvertHorizontalKey = KeyCode.Keypad3;
+		private static readonly KeyCode camToggleAutoAlignKey = KeyCode.Keypad4;
+		private static readonly KeyCode focalLegthModeKey = KeyCode.L;
+		private static readonly KeyCode focusDistanceModeKey = KeyCode.K;
 
 		// Gameplay Settings
-		private static Vector3 targetOffset = new Vector3(0f, 2.4f, 0f);
+		private static Vector3 targetOffset = new(0f, 2.4f, 0f);
 		private static LayerMask cameraCollisionLayers = LayerMask.GetMask("Ground","Obstacle","EnvironmentOther","Terrain","Lava");
 
 		// Camera angle limits
@@ -79,28 +80,28 @@ namespace AlternativeCameraMod
 		// Transforms and GameObjects
 		/// <summary>The name of the gameobject that will act as the cameras target.</summary>
 		private static string targetName = "Bike(Clone)";
-		private static Transform playerBikeParentTransform;
-		private static Transform playerBikeTransform;
-		private static Transform camTransform;
-		private GameObject postProcessingObject;
-		private DepthOfField m_dofSettings;
+		private static Transform? playerBikeParentTransform;
+		private static Transform? playerBikeTransform;
+		private static Transform? camTransform;
+		private GameObject? postProcessingObject;
+		private DepthOfField? m_dofSettings;
 
 		/// <summary>The main camera itself. Used to set the field of view.</summary>
 		private static Camera mainCameraComponent;
 		/// <summary>The ui camera. Used to toggle hud rendering.</summary>
-		private static Camera uiRendererCamera;
+		private static Camera? uiRendererCamera;
 		private static PlayCamera defaultCameraScript;
 
 		// UI GameObjects
-		private static Transform ui_mainUIParent;
-		private static GameObject ui_pauseMenuUI;
-		private static GameObject ui_settingsUI;
-		private static GameObject ui_controlsUI;
-		private static GameObject ui_resultScreenUI;
-		private static GameObject ui_highscoreStandaloneUI;
-		private static GameObject ui_dailyChallengeStandaloneUI;
-		private static GameObject ui_cutsceneUI;
-		private static GameObject ui_cutsceneLocationUI;
+		private static Transform? ui_mainUIParent;
+		private static GameObject? ui_pauseMenuUI;
+		private static GameObject? ui_settingsUI;
+		private static GameObject? ui_controlsUI;
+		private static GameObject? ui_resultScreenUI;
+		private static GameObject? ui_highscoreStandaloneUI;
+		private static GameObject? ui_dailyChallengeStandaloneUI;
+		private static GameObject? ui_cutsceneUI;
+		private static GameObject? ui_cutsceneLocationUI;
 
 
 		// Active variables
@@ -200,6 +201,16 @@ namespace AlternativeCameraMod
 			gamepadSettingsCat.SaveToFile();
 			cameraSettingsCat.SaveToFile();
 			otherSettingsCat.SaveToFile();
+
+			// Hacky check for if the Mod Menu plugin is also installed
+			foreach (MelonBase melon in MelonBase.RegisteredMelons)
+			{
+				if (melon.Info.Name == "Mod Menu")
+				{
+					modMenuHandler = new ModMenuHandler();
+					modMenuHandler.HandleOnInitializeMelon(this);
+				}
+			}
 		}
 
 		public override void OnUpdate()
@@ -217,36 +228,12 @@ namespace AlternativeCameraMod
 			// Here to allow disabling HUD while using the normal camera.
 			if (Input.GetKeyDown(uiToggleKey))
 			{
-				uiRendererCamera = GameObject.Find("UICam").GetComponent<Camera>();
 				ToggleGameHUD();
 			}
 
 			if (Input.GetKeyDown(modToggleKey))
 			{
-				if (!hasStartedOnce) {
-					StartUpMod();
-				}
-
-				cameraModEnabled = !cameraModEnabled;
-				if (cameraModEnabled == false && defaultCameraScript.enabled == false)
-				{
-					// Turn the mod OFF
-					defaultCameraScript.enabled = true;
-					ApplyDefaultCameraSettings();
-					Cursor.lockState = CursorLockMode.None;
-					Cursor.visible = true;
-				}
-				else
-				{
-					// Turn the mod ON
-					defaultCameraScript.enabled = false;
-					ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.3f, "Bike(Clone)");
-					AlignViewWithBike();
-					// Adjust DoF
-					if (hasDOFSettings) {
-						m_dofSettings.focalLength.value = cfgFocalLength.Value;
-					}
-				}
+				ToggleModState();
 			}
 
 			// FIRST CHECKPOINT: Mod not enabled or hasn't grabbed references yet
@@ -501,8 +488,7 @@ namespace AlternativeCameraMod
 			if (Input.GetKeyDown(grabGOsKey))
 			{
 				// Find gameobjects again/update references on level load
-				GetTargetGameObjects();
-				GetUiObjects();
+				GetAllRequiredReferences();
 				AlignViewWithBike();
 			}
 			if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
@@ -514,31 +500,113 @@ namespace AlternativeCameraMod
 			if (Input.GetKeyDown(camPresetStandardKey))
 			{
 				// Standard
-				ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
+				LoadPresetDefault();
 			}
 			if (Input.GetKeyDown(camPresetFirstPersonKey))
 			{
 				// First Person
-				ApplyCameraSettings(0f, new Vector3(0.0f, 0.3f, 0f), cfgFirstPersonFoV.Value, 0.6f, "neck_BindJNT");
-
-				// Navigate to bike mesh renderer to prevent it from vanishing in first person
-				SkinnedMeshRenderer bikeMeshRenderer = playerBikeParentTransform.GetChild(7).transform.GetChild(1).gameObject.GetComponent<SkinnedMeshRenderer>();
-				bikeMeshRenderer.updateWhenOffscreen = true;
+				LoadPresetFirstPerson();
 			}
 
 			// Mouse inverting
 			if (Input.GetKeyDown(camToggleInvertHorizontalKey))
 			{
-				cfg_mInvertHorizontal.Value = !cfg_mInvertHorizontal.Value;
-				AlignViewWithBike();
+				ToggleInvertedHorizontalMode();
 			}
 
 			// Camera auto align
 			if (Input.GetKeyDown(camToggleAutoAlignKey))
 			{
-				cfgCameraAlwaysAutoAlign.Value = !cfgCameraAlwaysAutoAlign.Value;
+				ToggleAutoAlignMode();
 			}
 		}
+
+		#region Mod Menu Access Methods
+
+		/// <summary>
+		/// Start the mod if it hasn't run yet otherwise toggles the default top-down camera.
+		/// </summary>
+		public void ToggleModState()
+		{
+			if (!hasStartedOnce)
+			{
+				StartUpMod();
+			}
+			else
+			{
+				LoggerInstance.Msg("Alternative Camera system already started!");
+			}
+
+			cameraModEnabled = !cameraModEnabled;
+			if (cameraModEnabled == false && defaultCameraScript.enabled == false)
+			{
+				// Turn the mod OFF
+				defaultCameraScript.enabled = true;
+				ApplyDefaultCameraSettings();
+				Cursor.lockState = CursorLockMode.None;
+				Cursor.visible = true;
+			}
+			else
+			{
+				// Turn the mod ON
+				defaultCameraScript.enabled = false;
+				ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.3f, "Bike(Clone)");
+				AlignViewWithBike();
+				// Adjust DoF
+				if (hasDOFSettings)
+				{
+					m_dofSettings.focalLength.value = cfgFocalLength.Value;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Switch the config value.
+		/// </summary>
+		public void ToggleAutoAlignMode()
+		{
+			cfgCameraAlwaysAutoAlign.Value = !cfgCameraAlwaysAutoAlign.Value;
+		}
+
+		/// <summary>
+		/// Switches the config value and aligns view with the bike.
+		/// </summary>
+		public void ToggleInvertedHorizontalMode()
+		{
+			cfg_mInvertHorizontal.Value = !cfg_mInvertHorizontal.Value;
+			AlignViewWithBike();
+		}
+
+		/// <summary>
+		/// Applies the camera settings for the first person default.
+		/// </summary>
+		public void LoadPresetFirstPerson()
+		{
+			ApplyCameraSettings(0f, new Vector3(0.0f, 0.3f, 0f), cfgFirstPersonFoV.Value, 0.6f, "neck_BindJNT");
+
+			// Navigate to bike mesh renderer to prevent it from vanishing in first person
+			SkinnedMeshRenderer bikeMeshRenderer = playerBikeParentTransform.GetChild(7).transform.GetChild(1).gameObject.GetComponent<SkinnedMeshRenderer>();
+			bikeMeshRenderer.updateWhenOffscreen = true;
+		}
+
+		/// <summary>
+		/// Applies the camera settings for the third person default.
+		/// </summary>
+		public void LoadPresetDefault()
+		{
+			ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.28f, "Bike(Clone)");
+		}
+
+		/// <summary>
+		/// Grabs all targets including UI.
+		/// </summary>
+		public void GetAllRequiredReferences()
+		{
+			GetTargetGameObjects();
+			GetUiObjects();
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Finds and assigns important GameObjects and Transforms.
@@ -668,8 +736,9 @@ namespace AlternativeCameraMod
 		/// <summary>
 		/// Toggles the rendering of the game HUD.
 		/// </summary>
-		private void ToggleGameHUD()
+		public void ToggleGameHUD()
 		{
+			uiRendererCamera = GameObject.Find("UICam").GetComponent<Camera>();
 			if (uiRendererCamera == null) {
 				return;
 			}
