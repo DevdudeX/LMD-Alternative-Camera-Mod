@@ -8,7 +8,7 @@ using UnityEngine.Rendering.PostProcessing;
 // Megagon
 using Il2CppMegagon.Downhill.Cameras;
 
-[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.8", "DevdudeX")]
+[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.9", "DevdudeX")]
 [assembly: MelonGame()]
 namespace AlternativeCameraMod
 {
@@ -18,10 +18,12 @@ namespace AlternativeCameraMod
 	public class AlternativeCamera : MelonMod
 	{
 		// Keep this updated!
-		private const string MOD_VERSION = "1.0.8";
+		private const string MOD_VERSION = "1.0.9";
 		public static AlternativeCamera instance;
 		/// <summary>In charge of Mod Menu integration.</summary>
 		private static ModMenuHandler modMenuHandler;
+		private static GamepadInputHandler gamepadInputHandler;
+
 		private static bool hasStartedOnce = false;
 		private static bool cameraModEnabled = false;
 		private static bool forceDisable = false;
@@ -34,6 +36,7 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Entry<bool> cfg_mInvertHorizontal;
 
 		private MelonPreferences_Category gamepadSettingsCat;
+		private MelonPreferences_Entry<bool> cfg_gamepadUseAltMapping;
 		private MelonPreferences_Entry<float> cfg_gamepadStickDeadzoneR;
 		private MelonPreferences_Entry<float> cfg_gamepadSensHorizontal;
 		private MelonPreferences_Entry<float> cfg_gamepadSensVertical;
@@ -122,31 +125,6 @@ namespace AlternativeCameraMod
 		private static float rotVertical;
 		private static Vector3 dirToCam;
 
-
-		// Gamepad Inputs
-		private float anyGamepadDpadHorizontal;
-		private float anyGamepadDpadVertical;
-		private float anyGamepadTriggerInputL;
-		private float anyGamepadTriggerInputR;
-		private float anyGamepadStickHorizontalR;
-		private float anyGamepadStickVerticalR;
-		/// <summary>Gamepad [A] held state</summary>
-		private bool anyGamepadBtn0;
-		/// <summary>Gamepad [Right Bumper] held state</summary>
-		private bool anyGamepadBtn5;
-		/// <summary>Gamepad [B] pressed state</summary>
-		private bool anyGamepadBtnDown1;
-		/// <summary>Gamepad [X] pressed state</summary>
-		private bool anyGamepadBtnDown2;
-		/// <summary>Gamepad [Y] pressed state</summary>
-		private bool anyGamepadBtnDown3;
-		/// <summary>Left Bumper pressed state</summary>
-		private bool anyGamepadBtnDown4;
-		/// <summary>Right Bumper pressed state</summary>
-		private bool anyGamepadBtnDown5;
-		/// <summary>Start Button pressed state</summary>
-		private bool anyGamepadBtnDown7;
-
 		public override void OnEarlyInitializeMelon()
 		{
 			instance = this;
@@ -174,12 +152,14 @@ namespace AlternativeCameraMod
 			cfgZoomStepIncrement = mouseSettingsCat.CreateEntry<float>("ZoomStepIncrement", 0.20f, description:"How much one scroll zooms the camera.");
 
 			// Gamepad Settings
+			cfg_gamepadUseAltMapping = gamepadSettingsCat.CreateEntry<bool>("GamepadUseAlternativeInputMapping", false);
 			cfg_gamepadStickDeadzoneR = gamepadSettingsCat.CreateEntry<float>("GamepadStickDeadzoneR", 0.1f);
 			cfg_gamepadSensHorizontal = gamepadSettingsCat.CreateEntry<float>("GamepadHorizontalSensitivity", 1);
 			cfg_gamepadSensVertical = gamepadSettingsCat.CreateEntry<float>("GamepadVerticalSensitivity", 1);
 			cfg_gamepadSensMultiplier = gamepadSettingsCat.CreateEntry<float>("GamepadSensitivityMultiplier", 1);
 			cfg_gamepadInvertHorizontal = gamepadSettingsCat.CreateEntry<bool>("GamepadInvertHorizontal", false);
 			cfg_gamepadInvertVertical = gamepadSettingsCat.CreateEntry<bool>("GamepadInvertVertical", false);
+			
 
 			// Camera Settings
 			cfgZoomLerpOutSpeed = cameraSettingsCat.CreateEntry<float>("ZoomOutLerpSpeed", 1);
@@ -211,11 +191,17 @@ namespace AlternativeCameraMod
 					modMenuHandler.HandleOnInitializeMelon(this);
 				}
 			}
+
+			// For handling gamepad inputs
+			gamepadInputHandler = new GamepadInputHandler();
 		}
 
 		public override void OnUpdate()
 		{
-			UpdateGamepadInputs();
+			if (gamepadInputHandler != null)
+			{
+				gamepadInputHandler.UpdateGamepadInputs(cfg_gamepadUseAltMapping.Value);
+			}
 		}
 
 		public override void OnLateUpdate()
@@ -257,42 +243,6 @@ namespace AlternativeCameraMod
 			// Calculating and setting the position/rotation of the camera
 			CameraLogic();
 		}
-
-		private void UpdateGamepadInputs()
-		{
-			/*
-				JoystickButton0 - X
-				JoystickButton1 - A
-				JoystickButton2 - B
-				JoystickButton3 - Y
-				JoystickButton4 - LB
-				JoystickButton5 - RB
-				JoystickButton6 - LT
-				JoystickButton7 - RT
-				JoystickButton8 - back
-				JoystickButton9 - start
-				JoystickButton10 - left stick[not direction, button]
-				JoystickButton11 - right stick[not direction, button]
-			*/
-			anyGamepadDpadHorizontal = Input.GetAxisRaw("Joy1Axis6") + Input.GetAxisRaw("Joy2Axis6") + Input.GetAxisRaw("Joy3Axis6") + Input.GetAxisRaw("Joy4Axis6");
-			anyGamepadDpadVertical = Input.GetAxisRaw("Joy1Axis7") + Input.GetAxisRaw("Joy2Axis7") + Input.GetAxisRaw("Joy3Axis7") + Input.GetAxisRaw("Joy4Axis7");
-
-			anyGamepadTriggerInputL = Input.GetAxisRaw("Joy1Axis9") + Input.GetAxisRaw("Joy2Axis9") + Input.GetAxisRaw("Joy3Axis9") + Input.GetAxisRaw("Joy4Axis9");
-			anyGamepadTriggerInputR = Input.GetAxisRaw("Joy1Axis10") + Input.GetAxisRaw("Joy2Axis10") + Input.GetAxisRaw("Joy3Axis10") + Input.GetAxisRaw("Joy4Axis10");
-			anyGamepadStickHorizontalR = Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") + Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
-			anyGamepadStickVerticalR = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
-
-			anyGamepadBtn0 = Input.GetKey(KeyCode.Joystick1Button0) || Input.GetKey(KeyCode.Joystick2Button0) || Input.GetKey(KeyCode.Joystick3Button0) || Input.GetKey(KeyCode.Joystick4Button0);
-			anyGamepadBtn5 = Input.GetKey(KeyCode.Joystick1Button5) || Input.GetKey(KeyCode.Joystick2Button5) || Input.GetKey(KeyCode.Joystick3Button5) || Input.GetKey(KeyCode.Joystick4Button5);
-
-			anyGamepadBtnDown1 = Input.GetKeyDown(KeyCode.Joystick1Button1) || Input.GetKeyDown(KeyCode.Joystick2Button1) || Input.GetKeyDown(KeyCode.Joystick3Button1) || Input.GetKeyDown(KeyCode.Joystick4Button1);
-			anyGamepadBtnDown2 = Input.GetKeyDown(KeyCode.Joystick1Button2) || Input.GetKeyDown(KeyCode.Joystick2Button2) || Input.GetKeyDown(KeyCode.Joystick3Button2) || Input.GetKeyDown(KeyCode.Joystick4Button2);
-			anyGamepadBtnDown3 = Input.GetKeyDown(KeyCode.Joystick1Button3) || Input.GetKeyDown(KeyCode.Joystick2Button3) || Input.GetKeyDown(KeyCode.Joystick3Button3) || Input.GetKeyDown(KeyCode.Joystick4Button3);
-			anyGamepadBtnDown4 = Input.GetKeyDown(KeyCode.Joystick1Button4) || Input.GetKeyDown(KeyCode.Joystick2Button4) || Input.GetKeyDown(KeyCode.Joystick3Button4) || Input.GetKeyDown(KeyCode.Joystick4Button4);
-			anyGamepadBtnDown5 = Input.GetKeyDown(KeyCode.Joystick1Button5) || Input.GetKeyDown(KeyCode.Joystick2Button5) || Input.GetKeyDown(KeyCode.Joystick3Button5) || Input.GetKeyDown(KeyCode.Joystick4Button5);
-			anyGamepadBtnDown7 = Input.GetKeyDown(KeyCode.Joystick1Button7) || Input.GetKeyDown(KeyCode.Joystick2Button7) || Input.GetKeyDown(KeyCode.Joystick3Button7) || Input.GetKeyDown(KeyCode.Joystick4Button7);
-		}
-
 
 		/// <summary>
 		/// Handles the processing of the position and rotation of the camera.
@@ -361,15 +311,14 @@ namespace AlternativeCameraMod
 				rotHorizontal += Input.GetAxisRaw("Mouse X") * cfg_mSensitivityHorizontal.Value * cfg_mSensitivityMultiplier.Value;
 				rotVertical += Input.GetAxisRaw("Mouse Y") * cfg_mSensitivityVertical.Value * cfg_mSensitivityMultiplier.Value;
 
-				// Also apply controller input
-				rotHorizontal += ApplyInnerDeadzone(anyGamepadStickHorizontalR, cfg_gamepadStickDeadzoneR.Value) * cfg_gamepadSensHorizontal.Value * cfg_gamepadSensMultiplier.Value;
-				rotVertical -= ApplyInnerDeadzone(anyGamepadStickVerticalR, cfg_gamepadStickDeadzoneR.Value) * cfg_gamepadSensVertical.Value * cfg_gamepadSensMultiplier.Value;
+				// Also apply controller input if there is any
+				Vector2 rightStickWithDeadzone = InputWithInnerRadialDeadZone(gamepadInputHandler.AnyGamepadStickHorizontalR, gamepadInputHandler.AnyGamepadStickVerticalR, cfg_gamepadStickDeadzoneR.Value);
+				rotHorizontal += rightStickWithDeadzone.x * cfg_gamepadSensHorizontal.Value * cfg_gamepadSensMultiplier.Value;
+				rotVertical -= rightStickWithDeadzone.y * cfg_gamepadSensVertical.Value * cfg_gamepadSensMultiplier.Value;
 				rotVertical = ClampAngle(rotVertical, xMinLimit, xMaxLimit);  // Clamp the up-down rotation
 
-
-
 				// Always auto-align is true or invert button is enabling it
-				bool holdingInvertAutoAlignMode = anyGamepadBtn5 || Input.GetKey(KeyCode.Mouse1);
+				bool holdingInvertAutoAlignMode = gamepadInputHandler.AnyGamepadRightBumper || Input.GetKey(KeyCode.Mouse1);
 				bool autoAligningIsActive = (cfgCameraAlwaysAutoAlign.Value && !holdingInvertAutoAlignMode) || (cfgCameraAlwaysAutoAlign.Value == false && holdingInvertAutoAlignMode);
 				if (autoAligningIsActive)
 				{
@@ -524,6 +473,46 @@ namespace AlternativeCameraMod
 		#region Mod Menu Access Methods
 
 		/// <summary>
+		/// Debug method for checking gamepad state.
+		/// </summary>
+		/// <returns>Array of gamepad data.</returns>
+		public string[] GetGamepadState()
+		{
+			//anyGamepadDpadHorizontal
+			//anyGamepadDpadVertical
+			//anyGamepadTriggerInputL
+			//anyGamepadTriggerInputR
+			//anyGamepadStickHorizontalR
+			//anyGamepadStickVerticalR
+			//anyGamepadBtn0
+			//anyGamepadBtn5
+			//anyGamepadBtnDown1
+			//anyGamepadBtnDown2
+			//anyGamepadBtnDown3
+			//anyGamepadBtnDown4
+			//anyGamepadBtnDown5
+			//anyGamepadBtnDown7
+
+			string[] joyData = new string[16];
+			joyData[0] = gamepadInputHandler.AnyGamepadDpadHorizontal.ToString();
+			joyData[1] = gamepadInputHandler.AnyGamepadDpadVertical.ToString();
+			joyData[3] = gamepadInputHandler.AnyGamepadTriggerInputL.ToString();
+			joyData[4] = gamepadInputHandler.AnyGamepadTriggerInputR.ToString();
+			joyData[5] = gamepadInputHandler.AnyGamepadStickHorizontalR.ToString();
+			joyData[6] = gamepadInputHandler.AnyGamepadStickVerticalR.ToString();
+			joyData[7] = gamepadInputHandler.AnyGamepadBtn0.ToString();
+			joyData[8] = gamepadInputHandler.AnyGamepadRightBumper.ToString();
+			joyData[9] =  gamepadInputHandler.AnyGamepadBtnDown1.ToString();
+			joyData[10] = gamepadInputHandler.AnyGamepadBtnDown2.ToString();
+			joyData[11] = gamepadInputHandler.AnyGamepadBtnDown3.ToString();
+			joyData[12] = gamepadInputHandler.AnyGamepadBtnDown4.ToString();
+			joyData[13] = gamepadInputHandler.AnyGamepadBtnDown5.ToString();
+			joyData[14] = gamepadInputHandler.AnyGamepadBtnDown7.ToString();
+
+			return joyData;
+		}
+
+		/// <summary>
 		/// Start the mod if it hasn't run yet otherwise toggles the default top-down camera.
 		/// </summary>
 		public void ToggleModState()
@@ -575,6 +564,14 @@ namespace AlternativeCameraMod
 		{
 			cfg_mInvertHorizontal.Value = !cfg_mInvertHorizontal.Value;
 			AlignViewWithBike();
+		}
+
+		/// <summary>
+		/// Switches input mapping type.
+		/// </summary>
+		public void ToggleGamepadAltMapping()
+		{
+			cfg_gamepadUseAltMapping.Value = !cfg_gamepadUseAltMapping.Value;
 		}
 
 		/// <summary>
@@ -776,12 +773,28 @@ namespace AlternativeCameraMod
 		/// Snaps the given value to 0 if it falls within the deadzone radius in either direction.
 		/// </summary>
 		/// <returns>The axis if outside the deadzone, otherwise returns 0.</returns>
-		private static float ApplyInnerDeadzone(float axis, float deadzone)
+		private static float QuickInnerDeadzone(float axis, float deadzone)
 		{
 			if (axis > deadzone || axis < -deadzone) {
 				return axis;
 			}
 			return 0;
+		}
+
+		/// <summary>
+		/// Returns joystick input with a circular inner deadzone.
+		/// </summary>
+		/// <returns>The raw input if outside the deadzone, otherwise returns Vector2.zero.</returns>
+		private static Vector2 InputWithInnerRadialDeadZone(float horizontalInput, float verticalInput, float deadzone = 0)
+		{
+			Vector2 joystickInput = new(horizontalInput, verticalInput);
+
+			if (joystickInput.magnitude < deadzone)
+			{
+				return Vector2.zero;
+			}
+
+			return joystickInput;
 		}
 
 		public static void DrawDemoText()
