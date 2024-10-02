@@ -36,7 +36,7 @@ namespace AlternativeCameraMod
 		private MelonPreferences_Entry<bool> cfg_mInvertHorizontal;
 
 		private MelonPreferences_Category gamepadSettingsCat;
-		private MelonPreferences_Entry<bool> cfg_gamepadUseAltMapping;
+		private MelonPreferences_Entry<GamepadInputMode> cfg_gamepadInputMode;
 		private MelonPreferences_Entry<float> cfg_gamepadStickDeadzoneR;
 		private MelonPreferences_Entry<float> cfg_gamepadSensHorizontal;
 		private MelonPreferences_Entry<float> cfg_gamepadSensVertical;
@@ -152,7 +152,7 @@ namespace AlternativeCameraMod
 			cfgZoomStepIncrement = mouseSettingsCat.CreateEntry<float>("ZoomStepIncrement", 0.20f, description:"How much one scroll zooms the camera.");
 
 			// Gamepad Settings
-			cfg_gamepadUseAltMapping = gamepadSettingsCat.CreateEntry<bool>("GamepadUseAlternativeInputMapping", false);
+			cfg_gamepadInputMode = gamepadSettingsCat.CreateEntry<GamepadInputMode>("GamepadInputMode", GamepadInputMode.Standard, description: "How inputs are mapped. Standard, DualShock");
 			cfg_gamepadStickDeadzoneR = gamepadSettingsCat.CreateEntry<float>("GamepadStickDeadzoneR", 0.1f);
 			cfg_gamepadSensHorizontal = gamepadSettingsCat.CreateEntry<float>("GamepadHorizontalSensitivity", 1);
 			cfg_gamepadSensVertical = gamepadSettingsCat.CreateEntry<float>("GamepadVerticalSensitivity", 1);
@@ -201,7 +201,7 @@ namespace AlternativeCameraMod
 		{
 			if (gamepadInputHandler != null)
 			{
-				gamepadInputHandler.UpdateGamepadInputs(cfg_gamepadUseAltMapping.Value);
+				gamepadInputHandler.UpdateGamepadInputs(cfg_gamepadInputMode.Value);
 			}
 		}
 
@@ -531,9 +531,24 @@ namespace AlternativeCameraMod
 		/// <summary>
 		/// Switches input mapping type.
 		/// </summary>
-		public void ToggleGamepadAltMapping()
+		public void CycleGamepadInputMode()
 		{
-			cfg_gamepadUseAltMapping.Value = !cfg_gamepadUseAltMapping.Value;
+			//cfg_gamepadInputType.Value = !cfg_gamepadInputType.Value;
+
+			cfg_gamepadInputMode.Value += 1;
+			if ((int)cfg_gamepadInputMode.Value == 2)
+			{
+				cfg_gamepadInputMode.Value = 0;
+			}
+		}
+
+		/// <summary>
+		/// Returns the current gamepad input type as a string.
+		/// </summary>
+		/// <returns>Name of current gamepad input type.</returns>
+		public string GetGamepadInputMode()
+		{
+			return cfg_gamepadInputMode.Value.ToString();
 		}
 
 		/// <summary>

@@ -18,7 +18,9 @@ namespace AlternativeCameraMod
 
 			// Mod Menu
 			// For debugging
-			MenuManager.Instance.RegisterInfoItem(InfoName, "State: ", 8, MenuGetGamepadState);
+			MenuManager.Instance.RegisterInfoItem(InfoName, "Gamepad Input Mode: ", 8, MenuGetGamepadInputMode);
+			MenuManager.Instance.RegisterInfoItem(InfoName, "State: ", 9, MenuGetGamepadState);
+			
 
 			// Action buttons
 			MenuManager.Instance.RegisterActionBtn(InfoName, "Toggle Mod Active", 0, MenuToggleCameraMod);
@@ -28,7 +30,7 @@ namespace AlternativeCameraMod
 			MenuManager.Instance.RegisterActionBtn(InfoName, "Toggle Invert Look Horizontal", 4, MenuToggleInvertLookHorizontal);
 			MenuManager.Instance.RegisterActionBtn(InfoName, "Toggle Auto Align", 5, MenuToggleAutoAlign);
 			MenuManager.Instance.RegisterActionBtn(InfoName, "DEBUG: Try Fix References", 6, MenuFindReferences);
-			MenuManager.Instance.RegisterActionBtn(InfoName, "DEBUG: Toggle Alt Input Mapping", 7, MenuToggleGamepadAltInputMapping);
+			MenuManager.Instance.RegisterActionBtn(InfoName, "DEBUG: Cycle Input Mode", 7, MenuCycleGamepadInputMode);
 		}
 
 		// MOD MENU CONTROLS ==============
@@ -61,9 +63,9 @@ namespace AlternativeCameraMod
 		{
 			altCamScript.ToggleAutoAlignMode();
 		}
-		void MenuToggleGamepadAltInputMapping(int callbackID)
+		void MenuCycleGamepadInputMode(int callbackID)
 		{
-			altCamScript.ToggleGamepadAltMapping();
+			altCamScript.CycleGamepadInputMode();
 		}
 
 
@@ -73,6 +75,10 @@ namespace AlternativeCameraMod
 		}
 
 
+		string MenuGetGamepadInputMode()
+		{
+			return altCamScript.GetGamepadInputMode();
+		}
 		string MenuGetGamepadState()
 		{
 			//anyGamepadDpadHorizontal                   anyGamepadDpadVertical
@@ -85,19 +91,7 @@ namespace AlternativeCameraMod
 			//anyGamepadBtnDown4
 			//anyGamepadBtnDown5
 			//anyGamepadBtnDown7
-			string[] gamepadDataArray = inputHandlerScript.GetGamepadState();
-			string allData = "";
-
-			foreach (string dataEntry in gamepadDataArray)
-			{
-				if (string.IsNullOrEmpty(dataEntry))
-				{
-					continue;
-				}
-				allData += $"{dataEntry} | ";
-			}
-
-			return allData;
+			return inputHandlerScript.GetGamepadState();
 		}
 	}
 }

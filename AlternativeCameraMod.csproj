@@ -22,6 +22,12 @@
     <Reference Include="Il2Cppmscorlib">
       <HintPath>..\..\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
     </Reference>
+    <Reference Include="Il2CppRewired_Core">
+      <HintPath>..\..\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\MelonLoader\Il2CppAssemblies\Il2CppRewired_Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppRewired_Windows">
+      <HintPath>..\..\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\MelonLoader\Il2CppAssemblies\Il2CppRewired_Windows.dll</HintPath>
+    </Reference>
     <Reference Include="LMD-ModMenu">
       <HintPath>..\LMD-ModMenu\bin\Release\LMD-ModMenu.dll</HintPath>
     </Reference>
