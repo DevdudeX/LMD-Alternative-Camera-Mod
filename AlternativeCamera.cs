@@ -182,18 +182,19 @@ namespace AlternativeCameraMod
 			cameraSettingsCat.SaveToFile();
 			otherSettingsCat.SaveToFile();
 
+
+			// For handling gamepad inputs
+			gamepadInputHandler = new GamepadInputHandler();
+
 			// Hacky check for if the Mod Menu plugin is also installed
 			foreach (MelonBase melon in MelonBase.RegisteredMelons)
 			{
 				if (melon.Info.Name == "Mod Menu")
 				{
 					modMenuHandler = new ModMenuHandler();
-					modMenuHandler.HandleOnInitializeMelon(this);
+					modMenuHandler.HandleOnInitializeMelon(this, gamepadInputHandler);
 				}
 			}
-
-			// For handling gamepad inputs
-			gamepadInputHandler = new GamepadInputHandler();
 		}
 
 		public override void OnUpdate()
@@ -472,45 +473,6 @@ namespace AlternativeCameraMod
 
 		#region Mod Menu Access Methods
 
-		/// <summary>
-		/// Debug method for checking gamepad state.
-		/// </summary>
-		/// <returns>Array of gamepad data.</returns>
-		public string[] GetGamepadState()
-		{
-			//anyGamepadDpadHorizontal
-			//anyGamepadDpadVertical
-			//anyGamepadTriggerInputL
-			//anyGamepadTriggerInputR
-			//anyGamepadStickHorizontalR
-			//anyGamepadStickVerticalR
-			//anyGamepadBtn0
-			//anyGamepadBtn5
-			//anyGamepadBtnDown1
-			//anyGamepadBtnDown2
-			//anyGamepadBtnDown3
-			//anyGamepadBtnDown4
-			//anyGamepadBtnDown5
-			//anyGamepadBtnDown7
-
-			string[] joyData = new string[16];
-			joyData[0] = gamepadInputHandler.AnyGamepadDpadHorizontal.ToString();
-			joyData[1] = gamepadInputHandler.AnyGamepadDpadVertical.ToString();
-			joyData[3] = gamepadInputHandler.AnyGamepadTriggerInputL.ToString();
-			joyData[4] = gamepadInputHandler.AnyGamepadTriggerInputR.ToString();
-			joyData[5] = gamepadInputHandler.AnyGamepadStickHorizontalR.ToString();
-			joyData[6] = gamepadInputHandler.AnyGamepadStickVerticalR.ToString();
-			joyData[7] = gamepadInputHandler.AnyGamepadBtn0.ToString();
-			joyData[8] = gamepadInputHandler.AnyGamepadRightBumper.ToString();
-			joyData[9] =  gamepadInputHandler.AnyGamepadBtnDown1.ToString();
-			joyData[10] = gamepadInputHandler.AnyGamepadBtnDown2.ToString();
-			joyData[11] = gamepadInputHandler.AnyGamepadBtnDown3.ToString();
-			joyData[12] = gamepadInputHandler.AnyGamepadBtnDown4.ToString();
-			joyData[13] = gamepadInputHandler.AnyGamepadBtnDown5.ToString();
-			joyData[14] = gamepadInputHandler.AnyGamepadBtnDown7.ToString();
-
-			return joyData;
-		}
 
 		/// <summary>
 		/// Start the mod if it hasn't run yet otherwise toggles the default top-down camera.

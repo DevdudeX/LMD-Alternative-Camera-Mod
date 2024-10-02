@@ -8,11 +8,13 @@ namespace AlternativeCameraMod
 	internal class ModMenuHandler
 	{
 		AlternativeCamera altCamScript;
+		GamepadInputHandler inputHandlerScript;
 		string InfoName = "Alternative Camera";
 
-		public void HandleOnInitializeMelon(AlternativeCamera alternativeCamera)
+		public void HandleOnInitializeMelon(AlternativeCamera alternativeCamera, GamepadInputHandler inputHandler)
 		{
 			altCamScript = alternativeCamera;
+			inputHandlerScript = inputHandler;
 
 			// Mod Menu
 			// For debugging
@@ -83,7 +85,7 @@ namespace AlternativeCameraMod
 			//anyGamepadBtnDown4
 			//anyGamepadBtnDown5
 			//anyGamepadBtnDown7
-			string[] gamepadDataArray = altCamScript.GetGamepadState();
+			string[] gamepadDataArray = inputHandlerScript.GetGamepadState();
 			string allData = "";
 
 			foreach (string dataEntry in gamepadDataArray)

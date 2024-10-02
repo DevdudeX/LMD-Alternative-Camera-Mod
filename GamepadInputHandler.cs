@@ -102,11 +102,12 @@ namespace AlternativeCameraMod
 			AnyGamepadDpadHorizontal = Input.GetAxisRaw("Joy1Axis7") + Input.GetAxisRaw("Joy2Axis7") + Input.GetAxisRaw("Joy3Axis7") + Input.GetAxisRaw("Joy4Axis7");
 			AnyGamepadDpadVertical = Input.GetAxisRaw("Joy1Axis8") + Input.GetAxisRaw("Joy2Axis8") + Input.GetAxisRaw("Joy3Axis8") + Input.GetAxisRaw("Joy4Axis8");
 
-			AnyGamepadTriggerInputL = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
+			// FIXME:
+			//AnyGamepadTriggerInputL = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
 			AnyGamepadTriggerInputR = Input.GetAxisRaw("Joy1Axis6") + Input.GetAxisRaw("Joy2Axis6") + Input.GetAxisRaw("Joy3Axis6") + Input.GetAxisRaw("Joy4Axis6");
 			
 			AnyGamepadStickHorizontalR = Input.GetAxisRaw("Joy1Axis3") + Input.GetAxisRaw("Joy2Axis3") + Input.GetAxisRaw("Joy3Axis3") + Input.GetAxisRaw("Joy4Axis3");
-			AnyGamepadStickVerticalR = Input.GetAxisRaw("Joy1Axis4") + Input.GetAxisRaw("Joy2Axis4") + Input.GetAxisRaw("Joy3Axis4") + Input.GetAxisRaw("Joy4Axis4");
+			AnyGamepadStickVerticalR = Input.GetAxisRaw("Joy1Axis5") + Input.GetAxisRaw("Joy2Axis5") + Input.GetAxisRaw("Joy3Axis5") + Input.GetAxisRaw("Joy4Axis5");
 
 			AnyGamepadBtn0 = Input.GetKey(KeyCode.Joystick1Button0) || Input.GetKey(KeyCode.Joystick2Button0) || Input.GetKey(KeyCode.Joystick3Button0) || Input.GetKey(KeyCode.Joystick4Button0);
 			//AnyGamepadLeftBumper = Input.GetKey(KeyCode.Joystick1Button4) || Input.GetKey(KeyCode.Joystick2Button4) || Input.GetKey(KeyCode.Joystick3Button4) || Input.GetKey(KeyCode.Joystick4Button4);
@@ -119,5 +120,50 @@ namespace AlternativeCameraMod
 			AnyGamepadBtnDown5 = Input.GetKeyDown(KeyCode.Joystick1Button5) || Input.GetKeyDown(KeyCode.Joystick2Button5) || Input.GetKeyDown(KeyCode.Joystick3Button5) || Input.GetKeyDown(KeyCode.Joystick4Button5);
 			AnyGamepadBtnDown7 = Input.GetKeyDown(KeyCode.Joystick1Button7) || Input.GetKeyDown(KeyCode.Joystick2Button7) || Input.GetKeyDown(KeyCode.Joystick3Button7) || Input.GetKeyDown(KeyCode.Joystick4Button7);
 		}
+
+
+		// MOD MENU
+		/// <summary>
+		/// Debug method for checking gamepad state.
+		/// </summary>
+		/// <returns>Array of gamepad data.</returns>
+		public string[] GetGamepadState()
+		{
+			//anyGamepadDpadHorizontal
+			//anyGamepadDpadVertical
+			//anyGamepadTriggerInputL
+			//anyGamepadTriggerInputR
+			//anyGamepadStickHorizontalR
+			//anyGamepadStickVerticalR
+			//anyGamepadBtn0
+			//anyGamepadBtn5
+			//anyGamepadBtnDown1
+			//anyGamepadBtnDown2
+			//anyGamepadBtnDown3
+			//anyGamepadBtnDown4
+			//anyGamepadBtnDown5
+			//anyGamepadBtnDown7
+
+			string[] joyData = new string[16];
+			joyData[0] = AnyGamepadDpadHorizontal.ToString();
+			joyData[1] = AnyGamepadDpadVertical.ToString();
+			joyData[3] = AnyGamepadTriggerInputL.ToString();
+			joyData[4] = AnyGamepadTriggerInputR.ToString();
+			joyData[5] = AnyGamepadStickHorizontalR.ToString();
+			joyData[6] = AnyGamepadStickVerticalR.ToString();
+
+			joyData[7] = AnyGamepadBtn0.ToString();
+			joyData[8] = AnyGamepadRightBumper.ToString();
+			joyData[9] = AnyGamepadBtnDown1.ToString();
+			joyData[10] = AnyGamepadBtnDown2.ToString();
+			joyData[11] = AnyGamepadBtnDown3.ToString();
+			joyData[12] = AnyGamepadBtnDown4.ToString();
+			joyData[13] = AnyGamepadBtnDown5.ToString();
+			joyData[14] = AnyGamepadBtnDown7.ToString();
+
+			return joyData;
+		}
+
+
 	}
 }
