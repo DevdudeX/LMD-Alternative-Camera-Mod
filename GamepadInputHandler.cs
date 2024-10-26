@@ -50,7 +50,7 @@ namespace AlternativeCameraMod
 		public void StartHandler()
 		{
 			// Get the Rewired Player object for this player and keep it for the duration of the character's lifetime
-			player = ReInput.players.GetPlayer(playerId);
+			//player = ReInput.players.GetPlayer(playerId);
 		}
 
 		public void UpdateGamepadInputs(GamepadInputMode inputMode)

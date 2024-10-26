@@ -1,15 +1,13 @@
 ﻿// Mod
 using MelonLoader;
-using AlternativeCameraMod;
-//using LMD_ModMenu;
 // Unity
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 // Megagon
 using Il2CppMegagon.Downhill.Cameras;
 
-[assembly: MelonInfo(typeof(AlternativeCamera), "Alternative Camera", "1.0.9", "DevdudeX")]
-[assembly: MelonGame()]
+[assembly: MelonInfo(typeof(AlternativeCameraMod.AlternativeCamera), "Alternative Camera", "1.0.9", "DevdudeX")]
+[assembly: MelonGame("Megagon Industries", "Lonely Mountains: Downhill")]
 namespace AlternativeCameraMod
 {
 	/// <summary>
@@ -481,11 +479,8 @@ namespace AlternativeCameraMod
 		{
 			if (!hasStartedOnce)
 			{
+				LoggerInstance.Msg("Starting camera system for first time!");
 				StartUpMod();
-			}
-			else
-			{
-				LoggerInstance.Msg("Alternative Camera system already started!");
 			}
 
 			cameraModEnabled = !cameraModEnabled;
@@ -499,6 +494,10 @@ namespace AlternativeCameraMod
 			}
 			else
 			{
+				// Refresh references
+				GetTargetGameObjects();
+				GetUiObjects();
+
 				// Turn the mod ON
 				defaultCameraScript.enabled = false;
 				ApplyCameraSettings(5.4f, new Vector3(0f, 2.4f, 0f), cfgStandardFoV.Value, 0.3f, "Bike(Clone)");
