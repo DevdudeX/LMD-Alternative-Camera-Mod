@@ -4,9 +4,10 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>AlternativeCamera</AssemblyName>
+    <AssemblyName>LMD_AlternativeCamera</AssemblyName>
     <Authors>DevdudeX</Authors>
-    <Description>DevdudeX's alternative camera mod.</Description>
+    <Description>DevdudeX's alternative camera mod for Lonely Mountains: Downhill.</Description>
+    <PackageProjectUrl>https://github.com/DevdudeX/LMD-Alternative-Camera-Mod</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -55,7 +56,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\Mods&quot;" />
+    <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\Mods&quot;&#xD;&#xA;echo Copied to 'D:\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\Mods'" />
   </Target>
 
 </Project>

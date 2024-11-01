@@ -43,7 +43,7 @@ This file can be edited with any text editor and contains all the mods settings.
 
 
 #### Keybinds
-Alternatively you can use the [Mod Menu](https://github.com/DevdudeX/LMD-ModMenu/releases/latest) for a visual interface.
+Alternatively you can use the [Mod Menu](https://github.com/DevdudeX/LM-ModMenu/releases/latest) for a visual interface.
 | Action                                  | Keyboard & Mouse      | Gamepad                   |
 | ---                                     | ---                   | ---                       |
 | Look around                             | Mouse                 | Right Stick               |
