@@ -32,6 +32,9 @@
     <Reference Include="LMD-ModMenu">
       <HintPath>..\LMD-ModMenu\bin\Release\LMD-ModMenu.dll</HintPath>
     </Reference>
+    <Reference Include="LM_ModMenu">
+      <HintPath>..\ModMenu\bin\Release\LM_ModMenu.dll</HintPath>
+    </Reference>
     <Reference Include="MelonLoader">
       <HintPath>..\..\SteamLibrary\steamapps\common\Lonely Mountains - Downhill\MelonLoader\net6\MelonLoader.dll</HintPath>
     </Reference>

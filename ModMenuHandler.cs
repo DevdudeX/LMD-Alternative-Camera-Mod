@@ -1,4 +1,4 @@
-﻿using LMD_ModMenu;
+﻿using LonelyMountains_ModMenu;
 
 namespace AlternativeCameraMod
 {

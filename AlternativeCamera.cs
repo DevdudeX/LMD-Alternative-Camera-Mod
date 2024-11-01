@@ -175,10 +175,10 @@ namespace AlternativeCameraMod
 			cfgFocalLength = otherSettingsCat.CreateEntry<float>("AltFocalLength", 66);
 			cfgFocusDistanceOffset = otherSettingsCat.CreateEntry<float>("FocusDistanceOffset", 7);
 
-			mouseSettingsCat.SaveToFile();
-			gamepadSettingsCat.SaveToFile();
-			cameraSettingsCat.SaveToFile();
-			otherSettingsCat.SaveToFile();
+			//mouseSettingsCat.SaveToFile();
+			//gamepadSettingsCat.SaveToFile();
+			//cameraSettingsCat.SaveToFile();
+			//otherSettingsCat.SaveToFile();
 
 
 			// For handling gamepad inputs
