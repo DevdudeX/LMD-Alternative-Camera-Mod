@@ -80,6 +80,7 @@ internal class InputHandler
 
    public void HideMouseCursor()
    {
+      // Lock and hide the cursor 
       Cursor.lockState = CursorLockMode.Locked;
       Cursor.visible = false;
    }
@@ -87,9 +88,8 @@ internal class InputHandler
 
    public void ShowMouseCursor()
    {
-      // Lock and hide the cursor
       Cursor.lockState = CursorLockMode.None;
-      Cursor.visible = false;
+      Cursor.visible = true;
    }
 
 
