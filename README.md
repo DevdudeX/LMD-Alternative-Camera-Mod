@@ -3,9 +3,9 @@
 [![de](https://img.shields.io/badge/lang-de-yellow.svg)](https://github.com/faehromon/LMD-Alternative-Camera-Mod/blob/AltCamWithPhotoMode/README.de.md)
 
 
-# DevdudeX's Alternative Camera with Photo Mode for Lonely Mountains: Downhill
+# DevdudeX's Alternative Camera with Photo Mode for Lonely Mountains: Snow Riders
 
-This is a mod for *Lonely Mountains: Downhill* that extends the default distant "isometric-like" camera with a third/first person system with automatic and manual camera work. It still supports the original camera and allows to switch between them while riding the bike. 
+This is a mod for *Lonely Mountains: Snow Riders* that extends the default distant "isometric-like" camera with a third/first person system with automatic and manual camera work. It still supports the original camera and allows to switch between them while riding the bike. 
 Additionally this mod contains a photo mode, that lets you pause time and position the camera freely. Perfect for taking screenshots!
 
 
