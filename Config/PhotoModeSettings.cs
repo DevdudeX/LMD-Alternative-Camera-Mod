@@ -1,8 +1,8 @@
-﻿using AlternativeCameraMod.Language;
+﻿using LMSR_AlternativeCameraMod.Language;
 using MelonLoader;
 
 
-namespace AlternativeCameraMod.Config;
+namespace LMSR_AlternativeCameraMod.Config;
 
 internal class PhotoModeSettings : ModSettingsCategory
 {

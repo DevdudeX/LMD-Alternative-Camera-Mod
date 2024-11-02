@@ -1,9 +1,9 @@
 ﻿// Mod
 using MelonLoader;
-using AlternativeCameraMod;
+using LMSR_AlternativeCameraMod;
 // Megagon
-using AlternativeCameraMod.Config;
-using AlternativeCameraMod.Language;
+using LMSR_AlternativeCameraMod.Config;
+using LMSR_AlternativeCameraMod.Language;
 
 
 [assembly: MelonInfo(
@@ -15,14 +15,14 @@ using AlternativeCameraMod.Language;
 [assembly: MelonGame("Megagon Industries", "Lonely Mountains - Snow Riders Demo")]
 
 
-namespace AlternativeCameraMod;
+namespace LMSR_AlternativeCameraMod;
 
 /// <summary>
 /// Manages the alternative camera system and the photo mode.
 /// </summary>
 public class AlternativeCamera : MelonMod
 {
-	public const string MOD_VERSION = "2.1.0"; // also update in project build properties
+	public const string MOD_VERSION = "3.1.0"; // also update in project build properties
 
 	// private bool _modInitialized;
 	// private bool _modInitializing;
@@ -89,8 +89,19 @@ public class AlternativeCamera : MelonMod
 	public override void OnSceneWasInitialized(int buildIndex, string sceneName)
 	{
 		base.OnSceneWasInitialized(buildIndex, sceneName);
+		_logger.LogInfo($"OnSceneWasInitialized: index: {buildIndex} | name: {sceneName}");
+
 		_state.Initialize();
 		_hud.Initialize();
+	}
+
+	// FIXME:
+	public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+	{
+		base.OnSceneWasLoaded(buildIndex, sceneName);
+		_logger.LogInfo($"OnSceneWasLoaded: index: {buildIndex} | name: {sceneName}");
+
+		_state.Initialize();
 	}
 
 
@@ -217,10 +228,11 @@ public class AlternativeCamera : MelonMod
 		if (incompatMods.Count > 0)
 		{
 			HandleWarningState(
-			   _lang.GetText("Mod", "ErrIncompatibleWithMods_{mods}", "Incompatible with these mods: {0}", String.Join(", ", incompatMods))
-			   + Environment.NewLine +
-			   _lang.GetText("Mod", "ErrDisabledMod", "Mod disabled"),
-			   mustDisable: true);
+				_lang.GetText("Mod", "ErrIncompatibleWithMods_{mods}", "Incompatible with these mods: {0}", String.Join(", ", incompatMods))
+				+ Environment.NewLine +
+				_lang.GetText("Mod", "ErrDisabledMod", "Mod disabled"),
+				mustDisable: true
+			);
 			return true;
 		}
 

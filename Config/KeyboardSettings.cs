@@ -1,9 +1,9 @@
-﻿using AlternativeCameraMod.Language;
+﻿using LMSR_AlternativeCameraMod.Language;
 using MelonLoader;
 using UnityEngine;
 
 
-namespace AlternativeCameraMod.Config;
+namespace LMSR_AlternativeCameraMod.Config;
 
 internal class KeyboardSettings : ModSettingsCategory
 {

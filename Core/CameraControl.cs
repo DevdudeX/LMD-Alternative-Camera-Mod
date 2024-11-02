@@ -1,12 +1,12 @@
 ﻿using System.Collections;
-using AlternativeCameraMod.Config;
-using Il2CppMegagon.Downhill.Audio;
-using Il2CppMegagon.Downhill.Cameras;
+using LMSR_AlternativeCameraMod.Config;
+using Il2CppMegagon.SnowRiders.Audio;
+using Il2CppMegagon.SnowRiders.Cameras;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
 
-namespace AlternativeCameraMod;
+namespace LMSR_AlternativeCameraMod;
 
 internal class CameraControl
 {
@@ -17,20 +17,21 @@ internal class CameraControl
 	
 	// Transforms and GameObjects
 	/// <summary>The name of the gameobject that will act as the cameras target.</summary>
-	private string _targetName = "Bike(Clone)";
+	private string _currentTargetNamePrefix = Constants.TRACKING_THIRDPERSON_PREFIX;
 
-	private Transform _bikeParentTransform = null!;
+	private Transform _playerParentTransform = null!;
 	private Transform _bikeTransform = null!;
 	private Transform _camTransform = null!;
 	private DepthOfField _depthOfFieldSettings = null!;
-	private BikeSound _bikeSound;
+	private VehicleAudio _vehicleSound;
 
 	// The main camera itself. Used to set the field of view
 	private Camera _mainCamera = null!;
 	private PlayCamera _defaultPlayCamera = null!;
 
 	private static readonly LayerMask __cameraCollisionLayers = LayerMask.GetMask(
-		"Ground","Obstacle", "EnvironmentOther", "Terrain", "Lava"
+		"Ground",
+		"PlayerObstacle"
 	);
 
 	private bool _hasDepthOfFieldSetting;
@@ -55,7 +56,7 @@ internal class CameraControl
 	private readonly Dictionary<CameraView, Tuple<float, float>> _verticalClampAnglesMap = new()
 	{
 		// max -82, 82
-		{ CameraView.ThirdPerson, new Tuple<float, float>(-70f, 30f) },
+		{ CameraView.ThirdPerson, new Tuple<float, float>(-70f, 60f) },
 		{ CameraView.FirstPerson, new Tuple<float, float>(-80f, 50f) }
 	};
 
@@ -219,44 +220,67 @@ internal class CameraControl
 	/// </summary>
 	private bool GatherCameraRelatedGameObjects()
 	{
-		var bikeClone = GameObject.Find("Bike(Clone)");
-		if (bikeClone == null)
+		var playerCharacterVisuals = FindGameObjectWithPrefix(Constants.PLAYER_VISUALS_HOLDER_PREFIX);
+		if (playerCharacterVisuals == null)
 		{
 			return false;
 		}
 
-		var audio = bikeClone.transform.Find("Audio");
+		var audio = playerCharacterVisuals.transform.Find(Constants.PLAYER_AUDIO_HOLDER_NAME);
 		if (audio != null)
 		{
-			_bikeSound = audio.GetComponent<BikeSound>();
+			_vehicleSound = audio.GetComponent<VehicleAudio>();
 		}
 
-		_bikeParentTransform = bikeClone.GetComponent<Transform>();
+		var playerCharacterMotion = FindGameObjectWithPrefix(Constants.TRACKING_THIRDPERSON_PREFIX);
+		if (playerCharacterMotion == null)
+		{
+			return false;
+		}
 
-		var target = GameObject.Find(_targetName);
+		_playerParentTransform = playerCharacterMotion.transform;
+
+		GameObject target = FindGameObjectWithPrefix(_currentTargetNamePrefix);
 		if (target == null)
 		{
 			return false;
 		}
 
-		_bikeTransform = target.GetComponent<Transform>();
+		_bikeTransform = target.transform;
 
-		var cam = GameObject.Find("PlayCamera(Clone)");
+		var cam = GameObject.Find(Constants.PLAY_CAMERA_NAME);
 		if (cam == null)
 		{
 			return false;
 		}
 
-		_camTransform = cam.GetComponent<Transform>();
+		_camTransform = cam.transform;
 		_mainCamera = _camTransform.gameObject.GetComponent<Camera>();
 		_defaultPlayCamera = _camTransform.gameObject.GetComponent<PlayCamera>();
 
-		var postProcessingObject = _camTransform.Find("DefaultPostProcessing").gameObject;
+		GameObject postProcessingObject = _camTransform.Find(Constants.POST_PROCESSING_HOLDER_NAME).gameObject;
 
 		_depthOfFieldSettings = postProcessingObject?.GetComponent<PostProcessVolume>()?.sharedProfile?.GetSetting<DepthOfField>();
 		_hasDepthOfFieldSetting = _depthOfFieldSettings != null;
 
 		return true;
+	}
+
+	/// <summary>
+	/// Due to how multiplayer object naming works this is required to find the player object.
+	/// Very slow as it searches for ALL active GameObjects before finding one with the prefix.
+	/// </summary>
+	/// <returns><c>GameObject</c> if one is found, otherwise returns <c>null</c>.</returns>
+	private static GameObject FindGameObjectWithPrefix(string prefix)
+	{
+		foreach (GameObject item in GameObject.FindObjectsOfType<GameObject>())
+		{
+			if (item.name.StartsWith(prefix))
+			{
+				return item;
+			}
+		}
+		return null;
 	}
 
 
@@ -354,7 +378,7 @@ internal class CameraControl
 				// Lerp the horizontal rotation relative to the player
 				_rotationHorizontal = Mathf.LerpAngle(
 					_rotationHorizontal,
-					-_bikeParentTransform.localRotation.eulerAngles.y,
+					-_playerParentTransform.localRotation.eulerAngles.y,
 					_cfg.Camera.AutoAlignSpeed.Value * Time.deltaTime
 				);
 
@@ -365,7 +389,7 @@ internal class CameraControl
 			{
 				_rotationHorizontal = Mathf.LerpAngle(
 					_rotationHorizontal,
-				_bikeParentTransform.localRotation.eulerAngles.y,
+				_playerParentTransform.localRotation.eulerAngles.y,
 				_cfg.Camera.AutoAlignSpeed.Value * Time.deltaTime
 				);
 				_rotationHorizontal = ClampAngle(_rotationHorizontal, -360, 360);
@@ -549,7 +573,7 @@ internal class CameraControl
 	}
 
 
-	private float LimitPhotoCamFoV(float preset)
+	private static float LimitPhotoCamFoV(float preset)
 	{
 		// 150 is a sensible limit
 		return Math.Max(10, Math.Min(150, preset));
@@ -559,7 +583,7 @@ internal class CameraControl
 	/// <summary>
 	/// Tries to clamp the angle to values between 360 and -360.
 	/// </summary>
-	private float ClampAngle(float angle, float min, float max)
+	private static float ClampAngle(float angle, float min, float max)
 	{
 		if (angle < -360f)
 		{
@@ -723,12 +747,12 @@ internal class CameraControl
 	/// </summary>
 	public void AlignViewWithBike()
 	{
-		if (_bikeParentTransform.gameObject == null)
+		if (_playerParentTransform.gameObject == null)
 		{
 			return;
 		}
 
-		Vector3 bikeRotation = _bikeParentTransform.localRotation.eulerAngles;
+		Vector3 bikeRotation = _playerParentTransform.localRotation.eulerAngles;
 		if (_cfg.Mouse.InvertHorizontalLook.Value)
 		{
 			_rotationHorizontal = -bikeRotation.y;
@@ -748,10 +772,10 @@ internal class CameraControl
 		if (activate)
 		{
 			_state.OnPhotoModeEnter();
-			if (_bikeSound != null)
+			if (_vehicleSound != null)
 			{
 				// avoid annoying repetitive sound sample which plays while bike is frozen
-				_bikeSound.enabled = false;
+				_vehicleSound.enabled = false;
 			}
 
 			SaveCamPos(_camPosBike);
@@ -804,9 +828,9 @@ internal class CameraControl
 
 			hud.ToggleHudVisiblity(_photoModeHudRestoreState);
 			_state.OnPhotoModeExit();
-			if (_bikeSound != null)
+			if (_vehicleSound != null)
 			{
-				_bikeSound.enabled = true;
+				_vehicleSound.enabled = true;
 			}
 		}
 
@@ -927,7 +951,7 @@ internal class CameraControl
 					jpgQuality = 75;
 				}
 
-				bytes = imageOverview.EncodeToJPG(jpgQuality);
+				bytes = ImageConversion.EncodeToJPG(imageOverview, jpgQuality);
 			}
 			else // .png
 			{
@@ -1049,11 +1073,10 @@ internal class CameraControl
 	private void ApplyFirstPersonCam()
 	{
 		_currentCamView = CameraView.FirstPerson;
-		ApplyCameraSettings(0f, new Vector3(0.0f, 0.3f, 0.0f), _firstPersonFoV, 0.6f, "neck_BindJNT");
+		ApplyCameraSettings(0f, new Vector3(0.0f, 0.3f, 0.0f), _firstPersonFoV, 0.6f, Constants.TRACKING_FIRSTPERSON_NAME);
 
 		// Navigate to bike mesh renderer to prevent it from vanishing in first person
-		SkinnedMeshRenderer bikeMeshRenderer = _bikeParentTransform.GetChild(7).transform.GetChild(1)
-		   .gameObject.GetComponent<SkinnedMeshRenderer>();
+		SkinnedMeshRenderer bikeMeshRenderer = _playerParentTransform.FindChild("playerMesh").gameObject.GetComponent<SkinnedMeshRenderer>();
 
 		bikeMeshRenderer.updateWhenOffscreen = true;
 		ApplyCommonCameraSettings();
@@ -1078,7 +1101,7 @@ internal class CameraControl
 			new Vector3(0f, 2.4f, 0f),
 			_thirdPersonFoV,
 			0.28f,
-			"Bike(Clone)"
+			Constants.TRACKING_THIRDPERSON_PREFIX
 		);
 		ApplyCommonCameraSettings();
 		AlignViewWithBike();
@@ -1114,12 +1137,11 @@ internal class CameraControl
 	/// <summary>
 	/// Allows applying multiple camera settings quickly.
 	/// </summary>
-	private void ApplyCameraSettings(float followDistance, Vector3 followTargetOffset, float cameraFov,
-	   float nearClipPlane, string followTargetName)
+	private void ApplyCameraSettings(float followDistance, Vector3 followTargetOffset, float cameraFov, float nearClipPlane, string followTargetName)
 	{
-		_targetName = followTargetName;
+		_currentTargetNamePrefix = followTargetName;
 		// Update reference
-		_bikeTransform = GameObject.Find(_targetName).GetComponent<Transform>();
+		_bikeTransform = FindGameObjectWithPrefix(_currentTargetNamePrefix).transform;
 
 		_appliedZoom = followDistance;
 		_targetOffset = followTargetOffset;
@@ -1151,7 +1173,7 @@ internal class CameraControl
 	}
 
 
-	private bool EqualsZero(float floatVal)
+	private static bool EqualsZero(float floatVal)
 	{
 		return Math.Abs(floatVal) < 1E-12;
 	}

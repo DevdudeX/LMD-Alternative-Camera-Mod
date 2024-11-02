@@ -1,11 +1,11 @@
 ﻿using System.Text;
-using AlternativeCameraMod.Config;
-using AlternativeCameraMod.Language;
+using LMSR_AlternativeCameraMod.Config;
+using LMSR_AlternativeCameraMod.Language;
 using MelonLoader;
 using UnityEngine;
 
 
-namespace AlternativeCameraMod;
+namespace LMSR_AlternativeCameraMod;
 
 internal class Hud
 {
@@ -70,7 +70,7 @@ internal class Hud
 			}
 		}
 
-		StringBuilder text = new StringBuilder();
+		StringBuilder text = new();
 		int x = 0, y = 0, size = 10;
 		string color = "#FFFFFF";
 		string shadowColor = "#000000";
@@ -89,10 +89,12 @@ internal class Hud
 				return;
 
 			case Screen.LoadingScreen:
-				text.AppendFormat(_lang.GetText("Mod",
-				   "Title_{Version}",
-				   "Alternative Camera with Photo Mode {0}",
-				   AlternativeCamera.MOD_VERSION));
+				text.AppendFormat(_lang.GetText(
+					"Mod",
+					"Title_{Version}",
+					"Alternative Camera with Photo Mode {0}",
+					AlternativeCamera.MOD_VERSION)
+				);
 				x = UnityEngine.Screen.currentResolution.width / 2 - 200;
 				y = UnityEngine.Screen.currentResolution.height - 50;
 				size = 20;
@@ -104,10 +106,12 @@ internal class Hud
 				return;
 
 			case Screen.MainMenuScreen:
-				text.AppendFormat(_lang.GetText("Mod",
-				   "Title_{Version}",
-				   "Alternative Camera with Photo Mode {0}",
-				   AlternativeCamera.MOD_VERSION).ToUpper());
+				text.AppendFormat(_lang.GetText(
+					"Mod",
+					"Title_{Version}",
+					"Alternative Camera with Photo Mode {0}",
+					AlternativeCamera.MOD_VERSION).ToUpper()
+				);
 #if DEBUG
 				text.Append(" (DBG)");
 #endif
@@ -177,12 +181,16 @@ internal class Hud
 			}
 			if (addShadow)
 			{
-				GUI.Label(new Rect(x + shadowOffsetX, y + shadowOffsetY, textWidth, textHeight),
-				   FormatLabel(text.ToString(), size, shadowColor, true));
+				GUI.Label(
+					new Rect(x + shadowOffsetX, y + shadowOffsetY, textWidth, textHeight),
+					FormatLabel(text.ToString(), size, shadowColor, true)
+				);
 			}
 
-			GUI.Label(new Rect(x, y, textWidth, textHeight),
-			   FormatLabel(text.ToString(), size, color, true));
+			GUI.Label(
+				new Rect(x, y, textWidth, textHeight),
+				FormatLabel(text.ToString(), size, color, true)
+			);
 		}
 	}
 
@@ -435,7 +443,7 @@ internal class Hud
 
 	public static Camera? GetHudCam()
 	{
-		GameObject hudCamObj = GameObject.Find("UICam");
+		GameObject hudCamObj = GameObject.Find("UI_Camera");
 		if (hudCamObj == null)
 		{
 			return null;

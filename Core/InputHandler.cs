@@ -1,9 +1,9 @@
-﻿using AlternativeCameraMod.Config;
-using AlternativeCameraMod.Language;
+﻿using LMSR_AlternativeCameraMod.Config;
+using LMSR_AlternativeCameraMod.Language;
 using UnityEngine;
 
 
-namespace AlternativeCameraMod;
+namespace LMSR_AlternativeCameraMod;
 
 internal class InputHandler
 {

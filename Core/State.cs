@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using static Il2CppMegagon.Utility.Extensions.RenderTextureExtension;
 
 
-namespace AlternativeCameraMod;
+namespace LMSR_AlternativeCameraMod;
 
 internal class State
 {
@@ -17,6 +18,14 @@ internal class State
 	private bool _needCameraReset;
 	private bool _initialized;
 
+	// TODO:
+	//private GameObject ui_Canvas;
+
+#if DEBUG
+	// FIXME: For Debug ONLY
+	bool _hasFoundUICanvasOnce;
+	bool _hasFoundScreenParentOnce;
+#endif
 
 	public State(Logger logger)
 	{
@@ -37,12 +46,21 @@ internal class State
 		_fps = (int)(1 / Math.Max(Time.deltaTime, 0.001));
 
 		_lastScreenState = _currentScreen;
-		var wrapper = GameObject.Find("Wrapper");
-		if (wrapper == null)
+		GameObject uiCanvas = GameObject.Find(Constants.UI_CANVAS_NAME);
+		if (uiCanvas == null)
 		{
 			_currentScreen = Screen.LoadingScreen;
 			return;
 		}
+#if DEBUG
+		else if (_hasFoundUICanvasOnce == false)
+		{
+			_hasFoundUICanvasOnce = true;
+			_logger.LogWarning("Found UI_Canvas.");
+		}
+#endif
+
+		GameObject uiLoadingScreen = GameObject.Find(Constants.UI_LOADING_SCREEN_NAMEPATH);
 
 		bool blackActive = false;
 		bool splashActive = false;
@@ -50,11 +68,25 @@ internal class State
 		bool gameMenuActive = false;
 		bool playActive = false;
 		bool pauseActive = false;
-		Transform uiMainParent = wrapper.GetComponent<Transform>();
-		for (int i = 0; i < uiMainParent.childCount; i++)
+
+		Transform screenParent = uiCanvas.transform.Find(Constants.UI_SCREEN_PARENT_NAMEPATH);
+		if (screenParent == null)
 		{
-			Transform child = uiMainParent.GetChild(i);
+			return;
+		}
+#if DEBUG
+		else if (_hasFoundScreenParentOnce == false)
+		{
+			_hasFoundScreenParentOnce = true;
+			_logger.LogWarning("Found Screen_Parent.");
+		}
+#endif
+
+		for (int i = 0; i < screenParent.childCount; i++)
+		{
+			Transform child = screenParent.GetChild(i);
 			GameObject go = child.gameObject;
+
 			if (go.name.StartsWith("BlackBorder"))
 			{
 				blackActive = go.active;
@@ -63,26 +95,28 @@ internal class State
 			{
 				splashActive = go.active;
 			}
-			else if (go.name.StartsWith("MainMenu"))
+			else if (go.name == Constants.UI_START_MENU_NAME)
 			{
 				mainMenuActive = go.active;
 			}
-			else if (go.name.StartsWith("GameMenu"))
+			else if (go.name.StartsWith(Constants.UI_MENU_PREFIX))
 			{
 				gameMenuActive = go.active;
 			}
-			else if (go.name.StartsWith("PlayScreen"))
+
+			else if (go.name == Constants.UI_HUD_NAME)
 			{
 				playActive = go.active;
 			}
-			else if (go.name.StartsWith("PauseScreen"))
+			else if (go.name == Constants.UI_PAUSE_SCREEN_NAME)
 			{
 				pauseActive = go.active;
 			}
 		}
 
-		if (blackActive && !splashActive && !mainMenuActive) _currentScreen = Screen.LoadingScreen;
-		else if (splashActive && !mainMenuActive) _currentScreen = Screen.SplashScreen;
+		//if (blackActive && !splashActive && !mainMenuActive) _currentScreen = Screen.LoadingScreen;
+		if (uiLoadingScreen.activeSelf) _currentScreen = Screen.LoadingScreen;
+		//else if (splashActive && !mainMenuActive) _currentScreen = Screen.SplashScreen;
 		else if (mainMenuActive) _currentScreen = Screen.MainMenuScreen;
 		else if (gameMenuActive) _currentScreen = Screen.GameMenuScreen;
 		else if (pauseActive) _currentScreen = Screen.PauseScreen;
@@ -225,17 +259,26 @@ internal class State
 
 	private bool GatherMenuRelatedGameObjects()
 	{
-		GameObject wrapper = GameObject.Find("Wrapper");
-		if (wrapper == null)
+		GameObject uiCanvas = GameObject.Find(Constants.UI_CANVAS_NAME);
+		if (uiCanvas == null)
 		{
+			_logger.LogWarning("GatherMenuRelatedGameObjects: couldn't find UI_Canvas");
 			return false;
 		}
 
-		Transform uiMainParent = GameObject.Find("Wrapper").GetComponent<Transform>();
-		for (int i = 0; i < uiMainParent.childCount; i++)
+		Transform uiMenusParent = GameObject.Find(Constants.UI_SCREEN_PARENT_NAMEPATH).transform;
+		
+		if (uiCanvas == null)
 		{
-			Transform child = uiMainParent.GetChild(i);
+			_logger.LogWarning("GatherMenuRelatedGameObjects: couldn't find Screen_Parent");
+			return false;
+		}
+
+		for (int i = 0; i < uiMenusParent.childCount; i++)
+		{
+			Transform child = uiMenusParent.GetChild(i);
 			GameObject go = child.gameObject;
+
 			if (IsMenuObject(go.name))
 			{
 				_menuObjects[go.name] = go;
@@ -249,10 +292,28 @@ internal class State
 
 	private bool IsMenuObject(string name)
 	{
-		if (name == null) return false;
-		if (name.StartsWith("BlackBorder")) return false;
-		if (name.StartsWith("SplashScreen")) return false;
-		if (name.StartsWith("PlayScreen")) return false;
-		return true;
+		bool flag;
+		if (name == null) flag = false;
+
+		if (name == Constants.UI_PAUSE_SCREEN_NAME) flag = true;
+
+		if (name.StartsWith(Constants.UI_MENU_PREFIX)) flag = true;
+		if (name.StartsWith(Constants.UI_HUD_PREFIX)) flag = false;
+
+		else flag = true;
+
+		_logger.LogWarning($"IsMenuObject: {name} | {flag}");
+
+		return flag;
 	}
+
+	//private static bool IsMenuObject(string name)
+	//{
+	//	if (name == null) return false;
+	//	if (name.StartsWith("BlackBorder")) return false;
+	//	if (name.StartsWith("SplashScreen")) return false;
+	//	if (name.StartsWith("PlayScreen")) return false;
+	//	//if (name == Constants.UI_PAUSE_SCREEN_NAME) return true;
+	//	return true;
+	//}
 }

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
-namespace AlternativeCameraMod.Language.Ini;
+namespace LMSR_AlternativeCameraMod.Language.Ini;
 
 internal class IniFile : Ini, IDisposable
 {

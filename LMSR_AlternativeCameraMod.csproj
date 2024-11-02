@@ -1,0 +1,96 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>LMSR_AltCameraWithPhotoMode</AssemblyName>
+    <Authors>DevdudeX, faehromon</Authors>
+    <Description>DevdudeX's alternative camera with photo mode</Description>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <AssemblyVersion>3.1.0</AssemblyVersion>
+    <FileVersion>3.1.0</FileVersion>
+    <Copyright>$(Authors)</Copyright>
+    <Version>2.1.0</Version>
+    <Title>Alternative Camera with Photo Mode</Title>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\Bebas-Regular.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Il2CppMegagon.SnowRiders">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\Il2CppMegagon.SnowRiders.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppMegagon.Utility">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\Il2CppMegagon.Utility.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MelonLoader">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\net6\MelonLoader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Postprocessing.Runtime">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\Unity.Postprocessing.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>..\..\SteamLibrary\steamapps\common\LMSR Demo\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Assets\Languages\lang.de.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\Languages\lang.en.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="COPY &quot;$(TargetPath)&quot; &quot;D:\SteamLibrary\steamapps\common\LMSR Demo\Mods&quot;&#xD;&#xA;echo Copied mod to 'D:\SteamLibrary\steamapps\common\LMSR Demo\Mods'&#xD;&#xA;&#xD;&#xA;mkdir &quot;D:\SteamLibrary\steamapps\common\LMSR Demo\Mods\LMSR_AltCameraWithPhotoMode-assets\Languages&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)Assets\Languages\*.ini&quot; &quot;D:\SteamLibrary\steamapps\common\LMSR Demo\Mods\LMSR_AltCameraWithPhotoMode-assets\Languages&quot;&#xD;&#xA;echo Copied assets to 'Mods\LMSR_AltCameraWithPhotoMode-assets'&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;" />
+  </Target>
+
+</Project>

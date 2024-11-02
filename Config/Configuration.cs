@@ -1,8 +1,8 @@
-﻿using AlternativeCameraMod.Language;
+﻿using LMSR_AlternativeCameraMod.Language;
 using Il2CppSystem.Text;
 
 
-namespace AlternativeCameraMod.Config;
+namespace LMSR_AlternativeCameraMod.Config;
 
 internal class Configuration
 {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
-using AlternativeCameraMod.Language.Ini;
+using LMSR_AlternativeCameraMod.Language.Ini;
 
 
-namespace AlternativeCameraMod.Language;
+namespace LMSR_AlternativeCameraMod.Language;
 
 internal class LanguageConfig
 {

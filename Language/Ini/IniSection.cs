@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 
 
-namespace AlternativeCameraMod.Language.Ini;
+namespace LMSR_AlternativeCameraMod.Language.Ini;
 
 [Serializable]
 internal sealed class IniSection

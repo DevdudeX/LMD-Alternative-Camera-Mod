@@ -1,4 +1,4 @@
-namespace AlternativeCameraMod.Language.Ini;
+namespace LMSR_AlternativeCameraMod.Language.Ini;
 
 internal class Ini
 {

@@ -1,7 +1,7 @@
 ﻿using MelonLoader;
 
 
-namespace AlternativeCameraMod;
+namespace LMSR_AlternativeCameraMod;
 
 internal class Logger
 {

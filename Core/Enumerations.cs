@@ -1,4 +1,4 @@
-﻿namespace AlternativeCameraMod;
+﻿namespace LMSR_AlternativeCameraMod;
 
 internal enum Screen
 {

@@ -1,8 +1,8 @@
-﻿using AlternativeCameraMod.Language;
+﻿using LMSR_AlternativeCameraMod.Language;
 using MelonLoader;
 
 
-namespace AlternativeCameraMod.Config;
+namespace LMSR_AlternativeCameraMod.Config;
 
 internal class CommonSettings : ModSettingsCategory
 {
@@ -13,7 +13,7 @@ internal class CommonSettings : ModSettingsCategory
 	public CommonSettings(string filePath, LanguageConfig lng) : base("Common", filePath, lng)
 	{
 		_logLevel = CreateEntry(
-			"LogLevel", AlternativeCameraMod.LogLevel.Error,
+			"LogLevel", LMSR_AlternativeCameraMod.LogLevel.Error,
 			"Logging level, output in MelonLoader console\n" +
 			"Error, Warning, Information, Debug, Verbose"
 		);

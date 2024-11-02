@@ -1,9 +1,9 @@
 ﻿using System.Text;
-using AlternativeCameraMod.Language;
+using LMSR_AlternativeCameraMod.Language;
 using MelonLoader;
 
 
-namespace AlternativeCameraMod.Config;
+namespace LMSR_AlternativeCameraMod.Config;
 
 internal abstract class ModSettingsCategory
 {
