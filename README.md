@@ -1,6 +1,12 @@
 # DevdudeX's Alternative Camera for Lonely Mountains: Downhill
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L4L5S9BK3)
 
+# **UPDATE NOTICE**: Please use the [updated fork by faehromon](https://github.com/faehromon/LMD-Alternative-Camera-Mod)  
+As I haven't had time to continue work on this mod, there are still a few bugs (mainly the camera failing when loading a new level).  
+This fork however fixes these issues and I consider it the superior version for the time being.  
+<sub>While unlikely to be the case, I can't guarantee that anything other than my own releases are safe. If you are worried, consider building from source.</sub>  
+
+----
 This is a mod made for Melon Loader that replaces LMD's default distant "isometric-like" camera with a third person system.  
 
 ![Camera preview](/images/banner.png?raw=true)
@@ -67,4 +73,4 @@ Alternatively you can use the [Mod Menu](https://github.com/DevdudeX/LM-ModMenu/
 - Movement isn't working: Go to the last checkpoint / restart run.  
 - Camera doesn't work: Try pressing `Keyboard [0]` or `[Keypad 9]` on your keyboard.  
 - Game freezes on quitting: Add the `--quitfix` [MelonLoader launch option](https://github.com/LavaGang/MelonLoader#launch-options).  
-On Steam: right-click on LMD ► Properties ► Launch Options ► Paste the command (with `--` infront!).
+On Steam: right-click on LMD ► Properties ► Launch Options ► Paste the command (with `--` infront!).  
