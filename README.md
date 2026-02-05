@@ -1,7 +1,7 @@
 # DevdudeX's Alternative Camera for Lonely Mountains: Downhill
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L4L5S9BK3)
 
-# **UPDATE NOTICE**: Please use the [updated fork by faehromon](https://github.com/faehromon/LMD-Alternative-Camera-Mod)  
+# **UPDATE NOTICE**: Please use the [updated fork by faehrmaniac](https://github.com/faehrmaniac/LMD-Alternative-Camera-Mod)  
 As I haven't had time to continue work on this mod, there are still a few bugs (mainly the camera failing when loading a new level).  
 This fork however fixes these issues and I consider it the superior version for the time being.  
 <sub>While unlikely to be the case, I can't guarantee that anything other than my own releases are safe. If you are worried, consider building from source.</sub>  
